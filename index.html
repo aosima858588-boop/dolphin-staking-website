@@ -1,512 +1,651 @@
-// 在现有海豚社区网站的script标签中添加以下代码
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>海豚社区 | 邀请好友统计</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0A192F 0%, #112240 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .dashboard {
+            background: rgba(26, 35, 66, 0.8);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(45, 140, 255, 0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #64FFDA;
+            font-size: 2.5rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: rgba(36, 46, 82, 0.6);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid rgba(45, 140, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-value {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #2D8CFF;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            color: #B0B9D6;
+            font-size: 1rem;
+        }
+        
+        .invite-section {
+            background: rgba(45, 140, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .invite-code {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .code-display {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 1.2rem;
+            flex-grow: 1;
+            letter-spacing: 2px;
+        }
+        
+        .copy-btn {
+            background: #2D8CFF;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .copy-btn:hover {
+            background: #1a7df0;
+            transform: scale(1.05);
+        }
+        
+        .invite-list {
+            margin-top: 30px;
+        }
+        
+        .invite-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #64FFDA;
+        }
+        
+        .invite-time {
+            color: #8892B0;
+            font-size: 0.9rem;
+        }
+        
+        .reward-badge {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .level-progress {
+            margin-top: 40px;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2D8CFF, #64FFDA);
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+        
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            color: #B0B9D6;
+        }
+        
+        .rewards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .reward-card {
+            background: rgba(26, 35, 66, 0.8);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .reward-card.active {
+            border-color: #FFD700;
+            background: rgba(255, 215, 0, 0.1);
+        }
+        
+        .reward-card.achieved {
+            border-color: #64FFDA;
+            background: rgba(100, 255, 218, 0.1);
+        }
+        
+        .reward-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #64FFDA;
+        }
+        
+        .reward-amount {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #FFD700;
+            margin: 10px 0;
+        }
+        
+        .reward-condition {
+            color: #B0B9D6;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 600px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .invite-code {
+                flex-direction: column;
+            }
+            
+            .code-display {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .copy-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 邀请好友统计</h1>
+        
+        <div class="dashboard">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalInvites">0</div>
+                    <div class="stat-label">累计邀请好友</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalRewards">$0</div>
+                    <div class="stat-label">累计获得奖励</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="currentLevel">1</div>
+                    <div class="stat-label">当前邀请等级</div>
+                </div>
+            </div>
+            
+            <div class="invite-section">
+                <h2>📱 您的专属邀请码</h2>
+                <div class="invite-code">
+                    <div class="code-display" id="inviteCode">DPH777</div>
+                    <button class="copy-btn" onclick="copyInviteCode()">复制邀请码</button>
+                </div>
+                <p style="color: #8892B0; margin-top: 10px;">分享此邀请码给好友，好友注册时填写即可获得奖励！</p>
+                
+                <div class="invite-list" id="inviteList">
+                    <h3 style="margin-bottom: 20px;">📋 邀请记录</h3>
+                    <!-- 邀请记录将通过JS动态生成 -->
+                </div>
+            </div>
+            
+            <div class="level-progress">
+                <h2>🎯 邀请进度</h2>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <div class="progress-labels">
+                    <span>当前: <span id="currentCount">0</span>人</span>
+                    <span>下一级: <span id="nextLevelCount">3</span>人</span>
+                </div>
+            </div>
+            
+            <div class="rewards-container" id="rewardsContainer">
+                <!-- 奖励等级将通过JS动态生成 -->
+            </div>
+        </div>
+    </div>
 
-// 邀请系统模块
-class InviteSystem {
-    constructor() {
-        this.STORAGE_KEYS = {
-            USER_CODE: 'dolphin_user_code',
+    <script>
+        // 邀请系统配置
+        const rewardLevels = [
+            { level: 1, required: 3, reward: "$188 + 500U瓜分额度", bonus: "奖励价值188U的H币", achieved: false },
+            { level: 2, required: 5, reward: "$388 + 1000U瓜分额度", bonus: "奖励价值388U的H币", achieved: false },
+            { level: 3, required: 10, reward: "$888 + 3000U瓜分额度", bonus: "奖励价值888U的H币", achieved: false }
+        ];
+
+        // 本地存储键名
+        const STORAGE_KEYS = {
             INVITES: 'dolphin_invites',
+            USER_CODE: 'dolphin_user_code',
             TOTAL_INVITES: 'dolphin_total_invites',
             INVITE_HISTORY: 'dolphin_invite_history'
         };
-        
-        this.rewardLevels = [
-            { level: 1, required: 3, reward: "$188 + 500U瓜分额度" },
-            { level: 2, required: 5, reward: "$388 + 1000U瓜分额度" },
-            { level: 3, required: 10, reward: "$888 + 3000U瓜分额度" }
-        ];
-        
-        this.init();
-    }
-    
-    init() {
-        // 确保用户有邀请码
-        this.ensureUserCode();
-        
-        // 检查URL中的邀请参数
-        this.checkUrlInvite();
-        
-        // 更新邀请统计显示
-        this.updateInviteStats();
-    }
-    
-    // 确保用户有邀请码
-    ensureUserCode() {
-        let userCode = localStorage.getItem(this.STORAGE_KEYS.USER_CODE);
-        if (!userCode) {
-            userCode = this.generateInviteCode();
-            localStorage.setItem(this.STORAGE_KEYS.USER_CODE, userCode);
-        }
-        return userCode;
-    }
-    
-    // 生成邀请码
-    generateInviteCode() {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let code = '';
-        for (let i = 0; i < 6; i++) {
-            code += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return code;
-    }
-    
-    // 检查URL中的邀请参数
-    checkUrlInvite() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const inviteCode = urlParams.get('invite');
-        
-        if (inviteCode) {
-            // 记录邀请关系
-            this.recordInvitation(inviteCode);
-            
-            // 从URL中移除邀请参数
-            this.removeInviteParam();
-        }
-    }
-    
-    // 记录邀请关系
-    recordInvitation(inviterCode) {
-        try {
+
+        // 初始化用户数据
+        function initUserData() {
+            // 生成或获取用户邀请码
+            let userCode = localStorage.getItem(STORAGE_KEYS.USER_CODE);
+            if (!userCode) {
+                userCode = generateInviteCode();
+                localStorage.setItem(STORAGE_KEYS.USER_CODE, userCode);
+            }
+            document.getElementById('inviteCode').textContent = userCode;
+
+            // 获取邀请数据
+            let invites = localStorage.getItem(STORAGE_KEYS.INVITES);
+            if (!invites) {
+                invites = 0;
+                localStorage.setItem(STORAGE_KEYS.INVITES, '0');
+            }
+
             // 获取邀请历史
-            let inviteHistory = localStorage.getItem(this.STORAGE_KEYS.INVITE_HISTORY);
-            inviteHistory = inviteHistory ? JSON.parse(inviteHistory) : [];
-            
-            // 检查是否已经被邀请过
-            const alreadyInvited = inviteHistory.some(record => 
-                record.inviterCode === inviterCode
-            );
-            
-            if (!alreadyInvited) {
-                // 添加新的邀请记录
-                const newRecord = {
-                    inviterCode: inviterCode,
-                    timestamp: new Date().toISOString(),
-                    userAgent: navigator.userAgent.substring(0, 100)
-                };
-                
-                inviteHistory.push(newRecord);
-                
-                // 保存到本地存储
-                localStorage.setItem(this.STORAGE_KEYS.INVITE_HISTORY, JSON.stringify(inviteHistory));
-                
-                // 显示欢迎消息
-                this.showInviteWelcome(inviterCode);
+            let inviteHistory = localStorage.getItem(STORAGE_KEYS.INVITE_HISTORY);
+            if (!inviteHistory) {
+                inviteHistory = JSON.stringify([]);
+                localStorage.setItem(STORAGE_KEYS.INVITE_HISTORY, inviteHistory);
             }
-        } catch (error) {
-            console.error('记录邀请关系失败:', error);
+
+            // 获取总邀请数
+            let totalInvites = localStorage.getItem(STORAGE_KEYS.TOTAL_INVITES);
+            if (!totalInvites) {
+                totalInvites = 0;
+                localStorage.setItem(STORAGE_KEYS.TOTAL_INVITES, '0');
+            }
+
+            return {
+                invites: parseInt(invites),
+                userCode: userCode,
+                totalInvites: parseInt(totalInvites),
+                history: JSON.parse(inviteHistory)
+            };
         }
-    }
-    
-    // 显示邀请欢迎消息
-    showInviteWelcome(inviterCode) {
-        const welcomeDiv = document.createElement('div');
-        welcomeDiv.style.cssText = `
-            position: fixed;
-            top: 100px;
-            right: 20px;
-            background: linear-gradient(135deg, #2D8CFF, #64FFDA);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            z-index: 9999;
-            max-width: 300px;
-            animation: slideInRight 0.5s ease;
-        `;
-        
-        welcomeDiv.innerHTML = `
-            <div style="font-weight: bold; margin-bottom: 10px;">🎉 欢迎加入海豚社区！</div>
-            <div style="font-size: 0.9rem; opacity: 0.9;">
-                您是通过邀请码 <strong>${inviterCode}</strong> 加入的
-            </div>
-            <div style="margin-top: 10px; font-size: 0.8rem;">
-                开始参与Boost活动，与邀请人一起获得奖励！
-            </div>
-            <button onclick="this.parentElement.remove()" style="
-                position: absolute;
-                top: 10px;
-                right: 10px;
-                background: none;
-                border: none;
-                color: white;
-                cursor: pointer;
-                font-size: 1.2rem;
-            ">×</button>
-        `;
-        
-        document.body.appendChild(welcomeDiv);
-        
-        // 10秒后自动消失
-        setTimeout(() => {
-            if (welcomeDiv.parentElement) {
-                welcomeDiv.style.animation = 'slideOutRight 0.5s ease';
-                setTimeout(() => welcomeDiv.remove(), 500);
+
+        // 生成邀请码
+        function generateInviteCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 6; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
             }
-        }, 10000);
-    }
-    
-    // 从URL中移除邀请参数
-    removeInviteParam() {
-        const url = new URL(window.location);
-        url.searchParams.delete('invite');
-        window.history.replaceState({}, document.title, url.toString());
-    }
-    
-    // 获取用户邀请码
-    getUserInviteCode() {
-        return localStorage.getItem(this.STORAGE_KEYS.USER_CODE) || this.generateInviteCode();
-    }
-    
-    // 获取邀请统计数据
-    getInviteStats() {
-        const invites = parseInt(localStorage.getItem(this.STORAGE_KEYS.INVITES) || '0');
-        const totalInvites = parseInt(localStorage.getItem(this.STORAGE_KEYS.TOTAL_INVITES) || '0');
-        const history = JSON.parse(localStorage.getItem(this.STORAGE_KEYS.INVITE_HISTORY) || '[]');
-        
-        // 计算奖励总额
-        let totalRewards = 0;
-        if (invites >= 3) totalRewards += 188;
-        if (invites >= 5) totalRewards += 388;
-        if (invites >= 10) totalRewards += 888;
-        
-        return {
-            invites: invites,
-            totalInvites: totalInvites,
-            totalRewards: totalRewards,
-            history: history,
-            userCode: this.getUserInviteCode()
-        };
-    }
-    
-    // 模拟添加邀请（开发测试用）
-    simulateInvite(friendName = `好友${Date.now().toString().slice(-4)}`) {
-        const userCode = this.getUserInviteCode();
-        const stats = this.getInviteStats();
-        
-        // 更新邀请数
-        const newInvites = stats.invites + 1;
-        const newTotalInvites = stats.totalInvites + 1;
-        
-        localStorage.setItem(this.STORAGE_KEYS.INVITES, newInvites.toString());
-        localStorage.setItem(this.STORAGE_KEYS.TOTAL_INVITES, newTotalInvites.toString());
-        
-        // 更新邀请历史
-        const newRecord = {
-            friendName: friendName,
-            timestamp: new Date().toISOString(),
-            code: userCode,
-            status: '已注册'
-        };
-        
-        const history = [...stats.history, newRecord];
-        localStorage.setItem(this.STORAGE_KEYS.INVITE_HISTORY, JSON.stringify(history));
-        
-        this.updateInviteStats();
-        
-        // 显示通知
-        this.showNotification(`成功邀请 ${friendName}！`);
-        
-        // 检查是否达到奖励等级
-        this.checkRewardLevel(newInvites);
-        
-        return newRecord;
-    }
-    
-    // 检查奖励等级
-    checkRewardLevel(currentInvites) {
-        this.rewardLevels.forEach(level => {
-            if (currentInvites === level.required) {
-                this.showLevelUpNotification(level);
-            }
-        });
-    }
-    
-    // 显示升级通知
-    showLevelUpNotification(level) {
-        const notification = document.createElement('div');
-        notification.style.cssText = `
-            position: fixed;
-            top: 20%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #000;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-            z-index: 9999;
-            text-align: center;
-            animation: popIn 0.5s ease;
-            max-width: 400px;
-        `;
-        
-        notification.innerHTML = `
-            <div style="font-size: 3rem; margin-bottom: 20px;">🎉</div>
-            <div style="font-size: 1.5rem; font-weight: bold; margin-bottom: 10px;">
-                恭喜！达到邀请等级 ${level.level}
-            </div>
-            <div style="font-size: 1.2rem; margin-bottom: 20px;">
-                获得奖励：${level.reward}
-            </div>
-            <button onclick="this.parentElement.remove()" style="
-                background: #000;
-                color: #FFD700;
-                border: none;
-                padding: 10px 30px;
-                border-radius: 10px;
-                cursor: pointer;
-                font-weight: bold;
-            ">太棒了！</button>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        // 8秒后自动消失
-        setTimeout(() => {
-            if (notification.parentElement) {
-                notification.style.animation = 'popOut 0.5s ease';
-                setTimeout(() => notification.remove(), 500);
-            }
-        }, 8000);
-    }
-    
-    // 更新邀请统计显示
-    updateInviteStats() {
-        const stats = this.getInviteStats();
-        
-        // 如果有显示邀请统计的元素，更新它们
-        const inviteCountElements = document.querySelectorAll('[data-invite-count]');
-        inviteCountElements.forEach(el => {
-            el.textContent = stats.invites;
-        });
-        
-        const totalRewardElements = document.querySelectorAll('[data-total-rewards]');
-        totalRewardElements.forEach(el => {
-            el.textContent = `$${stats.totalRewards}`;
-        });
-        
-        const inviteCodeElements = document.querySelectorAll('[data-invite-code]');
-        inviteCodeElements.forEach(el => {
-            el.textContent = stats.userCode;
-        });
-        
+            return code;
+        }
+
+        // 模拟添加邀请（在实际应用中，这应由后端处理）
+        function simulateInvite() {
+            const userData = initUserData();
+            
+            // 模拟新邀请
+            const newInvite = {
+                id: Date.now(),
+                code: userData.userCode,
+                timestamp: new Date().toISOString(),
+                friendName: `好友${userData.invites + 1}`,
+                status: '已注册'
+            };
+
+            // 更新本地存储
+            userData.invites += 1;
+            userData.totalInvites += 1;
+            userData.history.unshift(newInvite);
+
+            localStorage.setItem(STORAGE_KEYS.INVITES, userData.invites.toString());
+            localStorage.setItem(STORAGE_KEYS.TOTAL_INVITES, userData.totalInvites.toString());
+            localStorage.setItem(STORAGE_KEYS.INVITE_HISTORY, JSON.stringify(userData.history));
+
+            // 更新UI
+            updateDashboard(userData);
+            
+            // 显示成功消息
+            showNotification(`成功邀请 ${newInvite.friendName}！`);
+            
+            return newInvite;
+        }
+
+        // 更新仪表板
+        function updateDashboard(userData) {
+            // 更新统计数据
+            document.getElementById('totalInvites').textContent = userData.totalInvites;
+            
+            // 计算总奖励
+            let totalRewards = 0;
+            if (userData.invites >= 3) totalRewards += 188;
+            if (userData.invites >= 5) totalRewards += 388;
+            if (userData.invites >= 10) totalRewards += 888;
+            document.getElementById('totalRewards').textContent = `$${totalRewards}`;
+
+            // 更新当前等级
+            let currentLevel = 1;
+            if (userData.invites >= 10) currentLevel = 3;
+            else if (userData.invites >= 5) currentLevel = 2;
+            document.getElementById('currentLevel').textContent = currentLevel;
+
+            // 更新进度条
+            updateProgressBar(userData.invites);
+
+            // 更新奖励卡片
+            updateRewardCards(userData.invites);
+
+            // 更新邀请列表
+            updateInviteList(userData.history);
+        }
+
         // 更新进度条
-        this.updateProgressBar(stats.invites);
-    }
-    
-    // 更新进度条
-    updateProgressBar(currentInvites) {
-        const progressBars = document.querySelectorAll('[data-progress-bar]');
-        
-        progressBars.forEach(progressBar => {
+        function updateProgressBar(currentInvites) {
             let progress = 0;
+            let nextLevel = 3;
             
             if (currentInvites < 3) {
                 progress = (currentInvites / 3) * 100;
+                nextLevel = 3;
             } else if (currentInvites < 5) {
                 progress = ((currentInvites - 3) / 2) * 100;
+                nextLevel = 5;
             } else if (currentInvites < 10) {
                 progress = ((currentInvites - 5) / 5) * 100;
+                nextLevel = 10;
             } else {
                 progress = 100;
+                nextLevel = "MAX";
             }
+
+            document.getElementById('progressFill').style.width = `${progress}%`;
+            document.getElementById('currentCount').textContent = currentInvites;
+            document.getElementById('nextLevelCount').textContent = nextLevel;
+        }
+
+        // 更新奖励卡片
+        function updateRewardCards(currentInvites) {
+            const container = document.getElementById('rewardsContainer');
+            container.innerHTML = '';
             
-            const fill = progressBar.querySelector('[data-progress-fill]');
-            if (fill) {
-                fill.style.width = `${progress}%`;
-            }
-            
-            const currentCount = progressBar.querySelector('[data-current-count]');
-            if (currentCount) {
-                currentCount.textContent = currentInvites;
-            }
-        });
-    }
-    
-    // 显示通知
-    showNotification(message) {
-        const notification = document.createElement('div');
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #64FFDA;
-            color: #0A192F;
-            padding: 15px 25px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            z-index: 1000;
-            animation: slideIn 0.3s ease;
-        `;
-        
-        notification.textContent = message;
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.style.animation = 'slideOut 0.3s ease';
-            setTimeout(() => notification.remove(), 300);
-        }, 3000);
-    }
-    
-    // 创建邀请链接
-    createInviteLink() {
-        const userCode = this.getUserInviteCode();
-        return `${window.location.origin}${window.location.pathname}?invite=${userCode}`;
-    }
-    
-    // 分享邀请
-    shareInvite() {
-        const inviteLink = this.createInviteLink();
-        const userCode = this.getUserInviteCode();
-        
-        if (navigator.share) {
-            navigator.share({
-                title: '加入海豚社区，一起链上赚币！',
-                text: `使用我的邀请码 ${userCode} 加入海豚社区，参与OKX Boost活动，获得丰厚奖励！`,
-                url: inviteLink
-            });
-        } else {
-            // 复制到剪贴板
-            navigator.clipboard.writeText(`${inviteLink}\n邀请码：${userCode}`).then(() => {
-                this.showNotification('邀请链接已复制到剪贴板！');
+            rewardLevels.forEach(level => {
+                const isActive = currentInvites >= level.required;
+                const isCurrent = currentInvites < level.required && 
+                                 (level.level === 1 || currentInvites >= rewardLevels[level.level-2].required);
+                
+                const card = document.createElement('div');
+                card.className = `reward-card ${isActive ? 'achieved' : ''} ${isCurrent ? 'active' : ''}`;
+                
+                card.innerHTML = `
+                    <div class="reward-title">等级 ${level.level}</div>
+                    <div class="reward-amount">${level.reward}</div>
+                    <div class="reward-condition">邀请 ${level.required} 位好友</div>
+                    <div style="margin-top: 10px; color: ${isActive ? '#64FFDA' : '#8892B0'}">
+                        ${isActive ? '✅ 已达成' : isCurrent ? '🎯 进行中' : '⏳ 未开始'}
+                    </div>
+                `;
+                
+                container.appendChild(card);
             });
         }
-    }
-}
 
-// 初始化邀请系统
-let inviteSystem;
-
-document.addEventListener('DOMContentLoaded', () => {
-    inviteSystem = new InviteSystem();
-    
-    // 添加邀请系统UI元素
-    addInviteUI();
-});
-
-// 添加邀请系统UI
-function addInviteUI() {
-    // 在便捷访问入口部分添加邀请卡片
-    const resourcesSection = document.querySelector('#resources .card-content');
-    if (resourcesSection) {
-        const inviteCard = document.createElement('div');
-        inviteCard.className = 'content-card';
-        inviteCard.style.marginTop = '20px';
-        inviteCard.style.background = 'rgba(45, 140, 255, 0.1)';
-        inviteCard.style.border = '1px solid rgba(45, 140, 255, 0.3)';
-        
-        inviteCard.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
-                <div style="width: 50px; height: 50px; background: rgba(45, 140, 255, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #2D8CFF; font-size: 1.5rem;">
-                    <i class="fas fa-user-plus"></i>
-                </div>
-                <h3 style="margin: 0; color: var(--text-light);">邀请好友赚奖励</h3>
-            </div>
+        // 更新邀请列表
+        function updateInviteList(history) {
+            const container = document.getElementById('inviteList');
+            const listContainer = container.querySelector('.invite-list') || container;
             
-            <div style="margin-bottom: 20px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                    <div>
-                        <div style="font-size: 0.9rem; color: var(--text-secondary);">您的邀请码</div>
-                        <div style="font-size: 1.5rem; font-weight: bold; color: #64FFDA; letter-spacing: 2px;" data-invite-code>加载中...</div>
+            let listHTML = `
+                <h3 style="margin-bottom: 20px;">📋 邀请记录 (${history.length})</h3>
+            `;
+            
+            if (history.length === 0) {
+                listHTML += `
+                    <div style="text-align: center; padding: 40px; color: #8892B0;">
+                        <div style="font-size: 3rem; margin-bottom: 20px;">👥</div>
+                        <p>暂无邀请记录</p>
+                        <p style="margin-top: 10px; font-size: 0.9rem;">开始邀请好友获取丰厚奖励！</p>
+                        <button onclick="simulateInvite()" style="
+                            background: #2D8CFF;
+                            color: white;
+                            border: none;
+                            padding: 12px 24px;
+                            border-radius: 8px;
+                            margin-top: 20px;
+                            cursor: pointer;
+                            font-weight: bold;
+                        ">模拟邀请好友</button>
                     </div>
-                    <div style="text-align: right;">
-                        <div style="font-size: 0.9rem; color: var(--text-secondary);">已邀请</div>
-                        <div style="font-size: 1.5rem; font-weight: bold; color: #2D8CFF;" data-invite-count>0</div>
-                    </div>
-                </div>
+                `;
+            } else {
+                history.forEach(invite => {
+                    const date = new Date(invite.timestamp);
+                    const formattedDate = `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+                    
+                    listHTML += `
+                        <div class="invite-item">
+                            <div>
+                                <strong>${invite.friendName}</strong>
+                                <div style="color: #8892B0; font-size: 0.9rem; margin-top: 5px;">
+                                    使用邀请码: ${invite.code}
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div class="invite-time">${formattedDate}</div>
+                                <div style="color: #64FFDA; font-size: 0.9rem; margin-top: 5px;">${invite.status}</div>
+                            </div>
+                        </div>
+                    `;
+                });
                 
-                <div style="margin: 20px 0;">
-                    <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">邀请进度</div>
-                    <div style="height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden;">
-                        <div data-progress-fill style="height: 100%; background: linear-gradient(90deg, #2D8CFF, #64FFDA); border-radius: 5px; width: 0%; transition: width 0.5s ease;"></div>
+                listHTML += `
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button onclick="simulateInvite()" style="
+                            background: #64FFDA;
+                            color: #0A192F;
+                            border: none;
+                            padding: 12px 24px;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-weight: bold;
+                        ">+ 模拟新邀请</button>
                     </div>
-                    <div style="display: flex; justify-content: space-between; margin-top: 5px; font-size: 0.8rem; color: var(--text-tertiary);">
-                        <span>当前: <span data-current-count>0</span>人</span>
-                        <span>下一级: <span data-next-level>3</span>人</span>
-                    </div>
-                </div>
-            </div>
+                `;
+            }
             
-            <div style="display: flex; gap: 10px;">
-                <button onclick="inviteSystem.shareInvite()" style="
-                    flex: 1;
-                    background: linear-gradient(135deg, #2D8CFF, #64FFDA);
-                    color: white;
-                    border: none;
-                    padding: 15px;
-                    border-radius: 12px;
-                    font-weight: bold;
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 10px;
-                ">
-                    <i class="fas fa-share-alt"></i>
-                    <span>分享邀请</span>
-                </button>
-                <button onclick="inviteSystem.simulateInvite()" style="
-                    background: rgba(255,255,255,0.1);
-                    color: white;
-                    border: 1px solid rgba(255,255,255,0.2);
-                    padding: 15px;
-                    border-radius: 12px;
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                " title="测试功能">
-                    <i class="fas fa-plus"></i>
-                </button>
-            </div>
-            
-            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-                <div style="font-size: 0.9rem; color: var(--text-secondary);">
-                    <strong>🎯 邀请奖励：</strong>
-                    <div style="margin-top: 10px;">
-                        <div>• 邀请3人：$188 H币 + 500U瓜分额度</div>
-                        <div>• 邀请5人：$388 H币 + 1000U瓜分额度</div>
-                        <div>• 邀请10人：$888 H币 + 3000U瓜分额度</div>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        resourcesSection.appendChild(inviteCard);
-        
-        // 更新UI数据
-        setTimeout(() => {
-            inviteSystem.updateInviteStats();
-        }, 100);
-    }
-}
+            listContainer.innerHTML = listHTML;
+        }
 
-// 添加CSS动画
-const inviteStyles = document.createElement('style');
-inviteStyles.textContent = `
-    @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-    @keyframes slideOut {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-    }
-    @keyframes slideInRight {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-    @keyframes slideOutRight {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-    }
-    @keyframes popIn {
-        from { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
-        to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-    }
-    @keyframes popOut {
-        from { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-        to { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
-    }
-`;
-document.head.appendChild(inviteStyles);
+        // 复制邀请码
+        function copyInviteCode() {
+            const code = document.getElementById('inviteCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                showNotification('邀请码已复制到剪贴板！');
+            });
+        }
+
+        // 显示通知
+        function showNotification(message) {
+            // 创建通知元素
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #64FFDA;
+                color: #0A192F;
+                padding: 15px 25px;
+                border-radius: 10px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // 3秒后移除
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // 添加CSS动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            const userData = initUserData();
+            updateDashboard(userData);
+            
+            // 添加模拟邀请按钮事件
+            document.addEventListener('click', function(e) {
+                if (e.target && e.target.id === 'simulateInviteBtn') {
+                    simulateInvite();
+                }
+            });
+        });
+
+        // 导出数据功能（用于备份）
+        function exportInviteData() {
+            const userData = initUserData();
+            const dataStr = JSON.stringify(userData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `海豚社区邀请数据_${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        }
+
+        // 导入数据功能
+        function importInviteData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'application/json';
+            
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        // 验证数据格式
+                        if (data.userCode && typeof data.invites === 'number') {
+                            localStorage.setItem(STORAGE_KEYS.USER_CODE, data.userCode);
+                            localStorage.setItem(STORAGE_KEYS.INVITES, data.invites.toString());
+                            localStorage.setItem(STORAGE_KEYS.TOTAL_INVITES, data.totalInvites.toString());
+                            localStorage.setItem(STORAGE_KEYS.INVITE_HISTORY, JSON.stringify(data.history || []));
+                            
+                            const userData = initUserData();
+                            updateDashboard(userData);
+                            showNotification('数据导入成功！');
+                        } else {
+                            showNotification('数据格式错误！');
+                        }
+                    } catch (error) {
+                        showNotification('导入失败：' + error.message);
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+
+        // 重置数据（仅供测试）
+        function resetInviteData() {
+            if (confirm('确定要重置所有邀请数据吗？此操作不可撤销！')) {
+                localStorage.removeItem(STORAGE_KEYS.INVITES);
+                localStorage.removeItem(STORAGE_KEYS.INVITE_HISTORY);
+                localStorage.removeItem(STORAGE_KEYS.TOTAL_INVITES);
+                
+                const userData = initUserData();
+                updateDashboard(userData);
+                showNotification('数据已重置！');
+            }
+        }
+    </script>
+</body>
+</html>
