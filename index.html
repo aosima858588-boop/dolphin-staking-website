@@ -248,6 +248,10 @@
             text-align: center;
             font-style: italic;
             margin-top: 15px;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
         }
         
         /* 结果区域 */
@@ -296,8 +300,9 @@
         }
         
         .user-stats {
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             padding: 15px;
@@ -309,13 +314,13 @@
         }
         
         .user-stat-value {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: 700;
             margin-bottom: 5px;
         }
         
         .user-stat-label {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             opacity: 0.9;
         }
         
@@ -352,50 +357,63 @@
         .periods-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
         
         .period-card {
             background: white;
             border-radius: 14px;
-            padding: 18px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             border: 1px solid rgba(0, 0, 0, 0.05);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
+            position: relative;
         }
         
         .period-card:hover {
             transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         
-        .period-info {
-            flex: 1;
+        .period-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
         }
         
         .period-number {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 700;
             color: var(--dark);
-            margin-bottom: 5px;
+        }
+        
+        .period-amount {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .period-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--gray);
         }
         
         .period-date {
-            font-size: 0.85rem;
-            color: var(--gray);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 5px;
         }
         
         .period-status {
-            padding: 8px 16px;
+            padding: 5px 12px;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
-            min-width: 80px;
+            min-width: 70px;
             text-align: center;
         }
         
@@ -416,7 +434,7 @@
         
         /* 投资记录 */
         .investments-section {
-            margin-top: 30px;
+            margin-top: 25px;
         }
         
         .investments-header {
@@ -555,8 +573,7 @@
             }
             
             .user-stats {
-                flex-direction: column;
-                gap: 15px;
+                grid-template-columns: repeat(3, 1fr);
             }
             
             .investment-details {
@@ -590,6 +607,45 @@
         @keyframes slideUp {
             from { transform: translateY(20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* 状态汇总 */
+        .status-summary {
+            display: flex;
+            justify-content: space-between;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .status-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .status-count {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .completed-count {
+            color: #4cc9f0;
+        }
+        
+        .overdue-count {
+            color: #f72585;
+        }
+        
+        .pending-count {
+            color: #4361ee;
+        }
+        
+        .status-label {
+            font-size: 0.8rem;
+            color: var(--gray);
         }
     </style>
 </head>
@@ -640,7 +696,8 @@
             </div>
             
             <div class="stat-note">
-                统计基于当前日期：2026年2月6日 | 仅统计有地址记录
+                <i class="fas fa-info-circle"></i> 统计仅包含有地址的会员数据（共<span id="validRecordsCount">0</span>条记录）
+                <br>当前日期：2026年2月6日 | 逾期期数：1月26日-2月5日
             </div>
         </section>
         
@@ -656,16 +713,32 @@
                 <div class="user-stats">
                     <div class="user-stat-item">
                         <div class="user-stat-value" id="totalInvestment">0</div>
-                        <div class="user-stat-label">认购总额</div>
+                        <div class="user-stat-label">认购总额(USDT)</div>
                     </div>
                     <div class="user-stat-item">
                         <div class="user-stat-value" id="periodReturn">0</div>
-                        <div class="user-stat-label">每期应返</div>
+                        <div class="user-stat-label">每期应返(USDT)</div>
                     </div>
                     <div class="user-stat-item">
                         <div class="user-stat-value" id="totalRecords">0</div>
                         <div class="user-stat-label">投资记录</div>
                     </div>
+                </div>
+            </div>
+            
+            <!-- 状态汇总 -->
+            <div class="status-summary slide-up" id="statusSummary">
+                <div class="status-item">
+                    <div class="status-count completed-count" id="completedCount">0</div>
+                    <div class="status-label">已返期数</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-count overdue-count" id="overdueCount">0</div>
+                    <div class="status-label">逾期期数</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-count pending-count" id="pendingCount">0</div>
+                    <div class="status-label">待返期数</div>
                 </div>
             </div>
             
@@ -705,17 +778,14 @@
         <!-- 底部 -->
         <footer class="app-footer">
             <div class="footer-text">
-                © 2026 USDT返款查询系统 | 当前数据：204条记录
+                © 2026 USDT返款查询系统 | <span id="dataStats">数据统计中...</span>
             </div>
         </footer>
     </div>
 
     <script>
-        // 完整的数据（已过滤掉没有地址的记录）
+        // 完整的USDT投资数据（包含所有记录）
         const investmentData = [
-            // 这里放置过滤后的数据，只包含有地址的记录
-            // 由于数据量很大，这里只展示部分数据作为示例
-            // 完整的数据应该包含所有有地址的记录
             {"会员ID":"13392776413","地址":"0xc6227cc01f436a4a6462b706aaa3ef5269cfe416","产品":"USDT三期一返","认购额度":300,"开始":"2026-01-25 08:21:00","结束":"2026-02-24 08:21:00","每期返":35.4},
             {"会员ID":"17620975996","地址":"0xd32d0cfba50e57f326afda63dc0362e367e71711","产品":"USDT三期一返","认购额度":1500,"开始":"2026-01-25 07:35:00","结束":"2026-02-24 07:35:00","每期返":177},
             {"会员ID":"15329356105","地址":"0x74dbab923aa7c7fd5aaeb955edf0e7125a4b5dc6","产品":"USDT三期一返","认购额度":300.1,"开始":"2026-01-24 22:17:00","结束":"2026-02-23 22:17:00","每期返":35.4118},
@@ -744,13 +814,114 @@
             {"会员ID":"13679150326","地址":"0xb9315912c68ab11730f6fb415cb3b4e994d20625","产品":"USDT三期一返","认购额度":1333,"开始":"2026-01-21 09:05:00","结束":"2026-02-20 09:05:00","每期返":157.294},
             {"会员ID":"15816746605","地址":"0x3a26bc3d1847b4def18a7b98fe3b1ad97aa4b017","产品":"USDT三期一返","认购额度":743,"开始":"2026-01-20 21:46:00","结束":"2026-02-19 21:46:00","每期返":87.674},
             {"会员ID":"15041575668","地址":"0x480d1afa05b5510ebc3be36b1f648f21edaa5c6f","产品":"USDT三期一返","认购额度":5000,"开始":"2026-01-20 18:03:00","结束":"2026-02-19 18:03:00","每期返":590},
-            // ... 更多有地址的数据
+            {"会员ID":"18202270136","地址":"0xf46830986c47d3beccef13605fcd2c22d90e0c0b","产品":"USDT三期一返","认购额度":321,"开始":"2026-01-20 16:01:00","结束":"2026-02-19 16:01:00","每期返":37.878},
+            {"会员ID":"18674006117","地址":"0xb075748440b3b37a8bae9d5fa5664b026e0a22eb","产品":"USDT三期一返","认购额度":300,"开始":"2026-01-20 15:35:00","结束":"2026-02-19 15:35:00","每期返":35.4},
+            {"会员ID":"13295799238","地址":"0xbddd301ab46b3518f164579bcb1ed6176415ada8","产品":"USDT三期一返","认购额度":300,"开始":"2026-01-20 12:49:00","结束":"2026-02-19 12:49:00","每期返":35.4},
+            {"会员ID":"13724105925","地址":"0x43700db271c8d10d01d997d4f62a66bb66a847ef","产品":"USDT三期一返","认购额度":560.04,"开始":"2026-01-19 21:14:00","结束":"2026-02-18 21:14:00","每期返":66.08472},
+            {"会员ID":"13922431182","地址":"0x0c9325cceccc3b8c43e05d5ca2bec12170cd673f","产品":"USDT三期一返","认购额度":500,"开始":"2026-01-19 20:50:00","结束":"2026-02-18 20:50:00","每期返":59},
+            {"会员ID":"16685070620","地址":"0x7c0b02fbe8b66067a59b4a370aaf145ea05c7e2e","产品":"USDT三期一返","认购额度":1770,"开始":"2026-01-19 20:36:00","结束":"2026-02-18 20:36:00","每期返":208.86},
+            {"会员ID":"15150626892","地址":"0x1dd77317beac6b508afd8c651508ca281060c1d7","产品":"USDT三期一返","认购额度":1301,"开始":"2026-01-19 20:31:00","结束":"2026-02-18 20:31:00","每期返":153.518},
+            {"会员ID":"15302387466","地址":"0x429ebe5ef2244177c7dc4ae8ede2ce007909c589","产品":"USDT三期一返","认购额度":305,"开始":"2026-01-19 17:29:00","结束":"2026-02-18 17:29:00","每期返":35.99},
+            {"会员ID":"17895723786","地址":"0x415a6916207d7ed7c8352aa56ea6d2e8e4b76e3d","产品":"USDT三期一返","认购额度":439,"开始":"2026-01-19 14:53:00","结束":"2026-02-18 14:53:00","每期返":51.802},
+            {"会员ID":"18121572793","地址":"0x5085b5e4b34fab0fee0aceed7714f49d64275a4e","产品":"USDT三期一返","认购额度":2085,"开始":"2026-01-19 10:34:00","结束":"2026-02-18 10:34:00","每期返":246.03},
+            {"会员ID":"16685070620","地址":"0x7c0b02fbe8b66067a59b4a370aaf145ea05c7e2e","产品":"USDT三期一返","认购额度":3748,"开始":"2026-01-18 20:18:00","结束":"2026-02-17 20:18:00","每期返":442.264},
+            {"会员ID":"18767371975","地址":"0x75fee9ecea9f07c3cabfe2764a6816d9fb651b3d","产品":"USDT三期一返","认购额度":1500,"开始":"2026-01-18 10:14:00","结束":"2026-02-17 10:14:00","每期返":177},
+            {"会员ID":"13679150326","地址":"0xb9315912c68ab11730f6fb415cb3b4e994d20625","产品":"USDT三期一返","认购额度":1512,"开始":"2026-01-18 08:56:00","结束":"2026-02-17 08:56:00","每期返":178.416},
+            {"会员ID":"17645380028","地址":"XKOb5ec768b2fe2221ce2e79ff7adb837d655745377","产品":"USDT三期一返","认购额度":518,"开始":"2026-01-18 06:52:00","结束":"2026-02-17 06:52:00","每期返":61.124},
+            {"会员ID":"15353925688","地址":"0x6cf3aeb3c782f45f8a267e5f85b818053e9a1db1","产品":"USDT三期一返","认购额度":484,"开始":"2026-01-17 14:54:00","结束":"2026-02-16 14:54:00","每期返":57.112},
+            {"会员ID":"18193008887","地址":"0x2d0a6fac327580091a1ec44bee3b641018407575","产品":"USDT三期一返","认购额度":500,"开始":"2026-01-17 13:21:00","结束":"2026-02-16 13:21:00","每期返":59},
+            {"会员ID":"18718861430","地址":"0x52b7b02b6a83ac370b5dbd47190a12c8ae30ad8a","产品":"USDT三期一返","认购额度":500,"开始":"2026-01-17 12:31:00","结束":"2026-02-16 12:31:00","每期返":59},
+            {"会员ID":"13555588965","地址":"0x6725e94d2936120ee24f190313bf53092b634f44","产品":"USDT三期一返","认购额度":600,"开始":"2026-01-16 08:56:00","结束":"2026-02-15 08:56:00","每期返":70.8},
+            {"会员ID":"19239884318","地址":"0x3c5b50aa4087d56f9c86db6903f557e792fd12d1","产品":"USDT三期一返","认购额度":320,"开始":"2026-01-15 21:14:00","结束":"2026-02-14 21:14:00","每期返":37.76},
+            {"会员ID":"18012909803","地址":"0x143b8883be2d62f546b645304e74adc5c8feb1cb","产品":"USDT三期一返","认购额度":1100,"开始":"2026-01-15 20:21:00","结束":"2026-02-14 20:21:00","每期返":129.8},
+            {"会员ID":"16685070620","地址":"0x7c0b02fbe8b66067a59b4a370aaf145ea05c7e2e","产品":"USDT三期一返","认购额度":1770,"开始":"2026-01-15 20:13:00","结束":"2026-02-14 20:13:00","每期返":208.86},
+            {"会员ID":"13655775269","地址":"0xb9315912c68ab11730f6fb415cb3b4e994d20625","产品":"USDT三期一返","认购额度":367,"开始":"2026-01-15 20:11:00","结束":"2026-02-14 20:11:00","每期返":43.306},
+            {"会员ID":"15816746605","地址":"0x3a26bc3d1847b4def18a7b98fe3b1ad97aa4b017","产品":"USDT三期一返","认购额度":622,"开始":"2026-01-15 19:06:00","结束":"2026-02-14 19:06:00","每期返":73.396},
+            {"会员ID":"18248881751","地址":"0x3db840159962799404ca982fdfd85affa96f32e0","产品":"USDT三期一返","认购额度":1000,"开始":"2026-01-15 17:03:00","结束":"2026-02-14 17:03:00","每期返":118},
+            {"会员ID":"17620975996","地址":"0xd32d0cfba50e57f326afda63dc0362e367e71711","产品":"USDT三期一返","认购额度":500,"开始":"2026-01-15 10:43:00","结束":"2026-02-14 10:43:00","每期返":59},
+            {"会员ID":"13679150326","地址":"0xb9315912c68ab11730f6fb415cb3b4e994d20625","产品":"USDT三期一返","认购额度":1210,"开始":"2026-01-15 08:53:00","结束":"2026-02-14 08:53:00","每期返":142.78},
+            {"会员ID":"13751312664","地址":"0x55cf2ad3032beb574084468865f8aeeef792f567","产品":"USDT三期一返","认购额度":1000,"开始":"2026-01-15 08:02:00","结束":"2026-02-14 08:02:00","每期返":118},
+            {"会员ID":"15086987252","地址":"0x2eb9c45afbe37319155f06806bcc523403ad6465","产品":"USDT三期一返","认购额度":2000,"开始":"2026-01-15 07:42:00","结束":"2026-02-14 07:42:00","每期返":236},
+            {"会员ID":"13921218049","地址":"0x316e840b769bd3a849fa2a37cead1e26affb95a9","产品":"USDT三期一返","认购额度":500,"开始":"2026-01-14 19:41:00","结束":"2026-02-13 19:41:00","每期返":59},
+            {"会员ID":"13868841227","地址":"0x1c05e24db9d86c5f43c7b13ea8d16b782a560778","产品":"USDT三期一返","认购额度":336,"开始":"2026-01-14 19:36:00","结束":"2026-02-13 19:36:00","每期返":39.648},
+            {"会员ID":"18612240528","地址":"0x2924148321323000963c779338e748d30ffea736","产品":"USDT三期一返","认购额度":508,"开始":"2026-01-14 15:53:00","结束":"2026-02-13 15:53:00","每期返":59.944},
+            {"会员ID":"13348621690","地址":"0x1db368f60ebe8a375ae2695df3a76f91cb5f151c","产品":"USDT三期一返","认购额度":300,"开始":"2026-01-14 15:18:00","结束":"2026-02-13 15:18:00","每期返":35.4},
+            {"会员ID":"15302387466","地址":"0x429ebe5ef2244177c7dc4ae8ede2ce007909c589","产品":"USDT三期一返","认购额度":300,"开始":"2026-01-14 11:43:00","结束":"2026-02-13 11:43:00","每期返":35.4},
+            {"会员ID":"15988620804","地址":"0x715f7204d5bbd17f3713f253fbd27e59fb74f586","产品":"USDT三期一返","认购额度":353.65,"开始":"2026-01-13 22:01:00","结束":"2026-02-12 22:01:00","每期返":41.7307},
+            {"会员ID":"13922431182","地址":"0x0c9325cceccc3b8c43e05d5ca2bec12170cd673f","产品":"USDT三期一返","认购额度":303,"开始":"2026-01-13 20:33:00","结束":"2026-02-12 20:33:00","每期返":35.754},
+            {"会员ID":"16685070620","地址":"0x7c0b02fbe8b66067a59b4a370aaf145ea05c7e2e","产品":"USDT三期一返","认购额度":15000,"开始":"2026-01-13 20:20:00","结束":"2026-02-12 20:20:00","每期返":1770},
+            {"会员ID":"16685070620","地址":"0x7c0b02fbe8b66067a59b4a370aaf145ea05c7e2e","产品":"USDT三期一返","认购额度":10000,"开始":"2026-01-12 19:23:00","结束":"2026-02-11 19:23:00","每期返":1180},
+            {"会员ID":"13341524543","地址":"0xafd67b1d7d25f06679887f4da9ee3ae1f74ae18d","产品":"USDT三期一返","认购额度":1000,"开始":"2026-01-11 21:13:00","结束":"2026-02-10 21:13:00","每期返":118},
+            {"会员ID":"19003163158","地址":"0x2eebba63be6109ad677a1ad4dbe0746bf3b43164","产品":"USDT三期一返","认购额度":640,"开始":"2026-01-11 19:24:00","结束":"2026-02-10 19:24:00","每期返":75.52},
+            {"会员ID":"19875769762","地址":"0xf7b3fb4fdf0f29af7d6a149ab76173b2e1d77de8","产品":"USDT三期一返","认购额度":400,"开始":"2026-01-11 18:54:00","结束":"2026-02-10 18:54:00","每期返":47.2},
+            {"会员ID":"15516711199","地址":"0xf871fc4ad1559bf8f0671d4deabca928c3843f9f","产品":"USDT三期一返","认购额度":500,"开始":"2026-01-11 10:49:00","结束":"2026-02-10 10:49:00","每期返":59},
+            {"会员ID":"18933810989","地址":"0xfd5a23dbfe274e2508cacf3507b2eebd96901cb5","产品":"USDT三期一返","认购额度":500,"开始":"2026-01-10 17:18:00","结束":"2026-02-09 17:18:00","每期返":59},
+            {"会员ID":"15113333195","地址":"0x7f81542fd3b794e70477c6d8585bac30bda20635","产品":"USDT三期一返","认购额度":300,"开始":"2026-01-09 22:32:00","结束":"2026-02-08 22:32:00","每期返":35.4},
+            {"会员ID":"16685070620","地址":"0x7c0b02fbe8b66067a59b4a370aaf145ea05c7e2e","产品":"USDT三期一返","认购额度":5000,"开始":"2026-01-09 19:56:00","结束":"2026-02-08 19:56:00","每期返":590},
+            {"会员ID":"13555588965","地址":"0x6725e94d2936120ee24f190313bf53092b634f44","产品":"USDT三期一返","认购额度":700,"开始":"2026-01-09 13:21:00","结束":"2026-02-08 13:21:00","每期返":82.6},
+            {"会员ID":"17620975996","地址":"0xd32d0cfba50e57f326afda63dc0362e367e71711","产品":"USDT三期一返","认购额度":500,"开始":"2026-01-09 10:24:00","结束":"2026-02-08 10:24:00","每期返":59},
+            {"会员ID":"18829658872","地址":"0xf0fbc2a482e694f7850f16c919b45f4986bbc20a","产品":"USDT三期一返","认购额度":436,"开始":"2026-01-08 21:40:00","结束":"2026-02-07 21:40:00","每期返":51.448},
+            {"会员ID":"13508315158","地址":"0xb0a934d5cf4ccd0f1c04ddf330cc08e89a059525","产品":"USDT三期一返","认购额度":2000,"开始":"2026-01-08 19:40:00","结束":"2026-02-07 19:40:00","每期返":236},
+            {"会员ID":"18674006117","地址":"0xb075748440b3b37a8bae9d5fa5664b026e0a22eb","产品":"USDT三期一返","认购额度":300,"开始":"2026-01-08 17:48:00","结束":"2026-02-07 17:48:00","每期返":35.4},
+            {"会员ID":"13893454326","地址":"0xf7543a08202c0b6ba9525940ba43a90cfe2f5733","产品":"USDT三期一返","认购额度":300,"开始":"2026-01-08 17:32:00","结束":"2026-02-07 17:32:00","每期返":35.4},
+            {"会员ID":"13542611281","地址":"0xc81734d5869ab3fdd9db09b387873c70d2b269d0","产品":"USDT三期一返","认购额度":500,"开始":"2026-01-08 17:05:00","结束":"2026-02-07 17:05:00","每期返":59},
+            {"会员ID":"13062107980","地址":"0x9b3b0c3cf7557f87172dd9e40bdc22fd31e9fe84","产品":"USDT三期一返","认购额度":1000,"开始":"2026-01-08 16:57:00","结束":"2026-02-07 16:57:00","每期返":118},
+            {"会员ID":"18113471864","地址":"0xaa6e88730fcc8d19dba78cb63951a0dc865ed5b0","产品":"USDT三期一返","认购额度":505,"开始":"2026-01-08 16:25:00","结束":"2026-02-07 16:25:00","每期返":59.59},
+            {"会员ID":"15215181540","地址":"0xdccb70c49ea65881de0d99ecb0af4de34b441f4e","产品":"USDT三期一返","认购额度":500,"开始":"2026-01-08 15:48:00","结束":"2026-02-07 15:48:00","每期返":59},
+            {"会员ID":"18567768525","地址":"0x4bd8bd89eb8f79f1daef6ce35ef839c200e08103","产品":"USDT三期一返","认购额度":500,"开始":"2026-01-08 15:44:00","结束":"2026-02-07 15:44:00","每期返":59},
+            {"会员ID":"13213102173","地址":"0x1697fe14777377f087e49ded504d5f5260dcc3d0","产品":"USDT三期一返","认购额度":300,"开始":"2026-01-08 15:42:00","结束":"2026-02-07 15:42:00","每期返":35.4},
+            {"会员ID":"18523932290","地址":"0xc50825a754075608cce9c544686deff76381b5f9","产品":"USDT三期一返","认购额度":300,"开始":"2026-01-08 15:00:00","结束":"2026-02-07 15:00:00","每期返":35.4},
+            {"会员ID":"13751312664","地址":"0x55cf2ad3032beb574084468865f8aeeef792f567","产品":"USDT三期一返","认购额度":1000,"开始":"2026-01-08 14:57:00","结束":"2026-02-07 14:57:00","每期返":118},
+            {"会员ID":"13924168472","地址":"0x4133bc5824b99657c96fc917f4b1e9ce1b1851a4","产品":"USDT三期一返","认购额度":305,"开始":"2026-01-08 14:34:00","结束":"2026-02-07 14:34:00","每期返":35.99},
+            {"会员ID":"15066154118","地址":"0x20c60e32c1d5b4fb0110d10ce4d221ce414ee0bf","产品":"USDT三期一返","认购额度":1000,"开始":"2026-01-08 13:58:00","结束":"2026-02-07 13:58:00","每期返":118},
+            {"会员ID":"18933810989","地址":"0xfd5a23dbfe274e2508cacf3507b2eebd96901cb5","产品":"USDT三期一返","认购额度":500,"开始":"2026-01-08 10:57:00","结束":"2026-02-07 10:57:00","每期返":59},
+            {"会员ID":"18286118343","地址":"0x3629139fa48e6aadfe7159abb477144b8588de21","产品":"USDT三期一返","认购额度":500,"开始":"2026-01-08 10:07:00","结束":"2026-02-07 10:07:00","每期返":59},
+            {"会员ID":"17620975996","地址":"0xd32d0cfba50e57f326afda63dc0362e367e71711","产品":"USDT三期一返","认购额度":500,"开始":"2026-01-08 08:41:00","结束":"2026-02-07 08:41:00","每期返":59},
+            {"会员ID":"18737078910","地址":"0x91c910ad857a16e402542560e69972561209e9c5","产品":"USDT三期一返","认购额度":800,"开始":"2026-01-08 07:20:00","结束":"2026-02-07 07:20:00","每期返":94.4},
+            {"会员ID":"13868841227","地址":"0x1c05e24db9d86c5f43c7b13ea8d16b782a560778","产品":"USDT三期一返","认购额度":671,"开始":"2026-01-07 21:50:00","结束":"2026-02-06 21:50:00","每期返":79.178},
+            {"会员ID":"15302387466","地址":"0x429ebe5ef2244177c7dc4ae8ede2ce007909c589","产品":"USDT三期一返","认购额度":302,"开始":"2026-01-07 17:55:00","结束":"2026-02-06 17:55:00","每期返":35.636},
+            {"会员ID":"13679150326","地址":"0xb9315912c68ab11730f6fb415cb3b4e994d20625","产品":"USDT三期一返","认购额度":1530,"开始":"2026-01-07 12:31:00","结束":"2026-02-06 12:31:00","每期返":180.54},
+            {"会员ID":"15816746605","地址":"0x3a26bc3d1847b4def18a7b98fe3b1ad97aa4b017","产品":"USDT三期一返","认购额度":787,"开始":"2026-01-06 22:21:00","结束":"2026-02-05 22:21:00","每期返":92.866},
+            {"会员ID":"18829658872","地址":"0xf0fbc2a482e694f7850f16c919b45f4986bbc20a","产品":"USDT三期一返","认购额度":395,"开始":"2026-01-06 22:15:00","结束":"2026-02-05 22:15:00","每期返":46.61},
+            {"会员ID":"15113333195","地址":"0x7f81542fd3b794e70477c6d8585bac30bda20635","产品":"USDT三期一返","认购额度":300,"开始":"2026-01-06 21:02:00","结束":"2026-02-05 21:02:00","每期返":35.4},
+            {"会员ID":"13772963063","地址":"0x6857a3fa71ed3ad1a2bbcf0630cea10754131d97","产品":"USDT三期一返","认购额度":590,"开始":"2026-01-06 20:46:00","结束":"2026-02-05 20:46:00","每期返":69.62},
+            {"会员ID":"13295799238","地址":"0xbddd301ab46b3518f164579bcb1ed6176415ada8","产品":"USDT三期一返","认购额度":600,"开始":"2026-01-06 20:39:00","结束":"2026-02-05 20:39:00","每期返":70.8},
+            {"会员ID":"15329356105","地址":"0x74dbab923aa7c7fd5aaeb955edf0e7125a4b5dc6","产品":"USDT三期一返","认购额度":300,"开始":"2026-01-06 20:27:00","结束":"2026-02-05 20:27:00","每期返":35.4},
+            {"会员ID":"15062497005","地址":"0x531ac2f4209a06223949a5c4a43514a79385ae6b","产品":"USDT三期一返","认购额度":1015,"开始":"2026-01-06 16:35:00","结束":"2026-02-05 16:35:00","每期返":119.77},
+            {"会员ID":"18248881751","地址":"0x3db840159962799404ca982fdfd85affa96f32e0","产品":"USDT三期一返","认购额度":500,"开始":"2026-01-06 15:48:00","结束":"2026-02-05 15:48:00","每期返":59},
+            {"会员ID":"18012909803","地址":"0x143b8883be2d62f546b645304e74adc5c8feb1cb","产品":"USDT三期一返","认购额度":1200,"开始":"2026-01-06 15:36:00","结束":"2026-02-05 15:36:00","每期返":141.6},
+            {"会员ID":"13751312664","地址":"0x55cf2ad3032beb574084468865f8aeeef792f567","产品":"USDT三期一返","认购额度":1000,"开始":"2026-01-06 15:04:00","结束":"2026-02-05 15:04:00","每期返":118},
+            {"会员ID":"17663501563","地址":"","产品":"USDT三期一返","认购额度":300,"开始":"2026-01-09 19:45:00","结束":"2026-02-08 19:45:00","每期返":35.4},
+            {"会员ID":"18193008887","地址":"0x2d0a6fac327580091a1ec44bee3b641018407575","产品":"USDT三期一返","认购额度":501,"开始":"2026-01-06 11:06:00","结束":"2026-02-05 11:06:00","每期返":59.118},
+            {"会员ID":"17620975996","地址":"0xd32d0cfba50e57f326afda63dc0362e367e71711","产品":"USDT三期一返","认购额度":1000,"开始":"2026-01-06 10:18:00","结束":"2026-02-05 10:18:00","每期返":118},
+            {"会员ID":"17645380028","地址":"XKOb5ec768b2fe2221ce2e79ff7adb837d655745377","产品":"USDT三期一返","认购额度":331.76,"开始":"2026-01-06 06:12:00","结束":"2026-02-05 06:12:00","每期返":39.14768},
+            {"会员ID":"13295799238","地址":"0xbddd301ab46b3518f164579bcb1ed6176415ada8","产品":"USDT三期一返","认购额度":600,"开始":"2026-01-05 21:33:00","结束":"2026-02-04 21:33:00","每期返":70.8},
+            {"会员ID":"15086987252","地址":"0x2eb9c45afbe37319155f06806bcc523403ad6465","产品":"USDT三期一返","认购额度":2000,"开始":"2026-01-05 18:39:00","结束":"2026-02-04 18:39:00","每期返":236},
+            {"会员ID":"19239884318","地址":"0x3c5b50aa4087d56f9c86db6903f557e792fd12d1","产品":"USDT三期一返","认购额度":426,"开始":"2026-01-05 17:06:00","结束":"2026-02-04 17:06:00","每期返":50.268},
+            {"会员ID":"13772963063","地址":"0x6857a3fa71ed3ad1a2bbcf0630cea10754131d97","产品":"USDT三期一返","认购额度":308,"开始":"2026-01-05 16:47:00","结束":"2026-02-04 16:47:00","每期返":36.344},
+            {"会员ID":"13424558919","地址":"0xe9ed0ac85f159d403aed31b466dbc4da2cbe69ce","产品":"USDT三期一返","认购额度":1000,"开始":"2026-01-05 16:30:00","结束":"2026-02-04 16:30:00","每期返":118},
+            {"会员ID":"17385302546","地址":"0x09bcceaf64ddcaf89933f013745d105ce26af69e","产品":"USDT三期一返","认购额度":302,"开始":"2026-01-05 15:39:00","结束":"2026-02-04 15:39:00","每期返":35.636},
+            {"会员ID":"13679150326","地址":"0xb9315912c68ab11730f6fb415cb3b4e994d20625","产品":"USDT三期一返","认购额度":1260,"开始":"2026-01-05 15:33:00","结束":"2026-02-04 15:33:00","每期返":148.68},
+            {"会员ID":"18674006117","地址":"0xb075748440b3b37a8bae9d5fa5664b026e0a22eb","产品":"USDT三期一返","认购额度":300,"开始":"2026-01-05 15:27:00","结束":"2026-02-04 15:27:00","每期返":35.4},
+            {"会员ID":"13371730386","地址":"0xdc03cc5e94b03b385be3fdb9dfdc838c60a52c9d","产品":"USDT三期一返","认购额度":1000,"开始":"2026-01-05 14:26:00","结束":"2026-02-04 14:26:00","每期返":118},
+            {"会员ID":"18982531249","地址":"0xecebc9b4621d696d42523fc666d354327a7bf5c0","产品":"USDT三期一返","认购额度":396,"开始":"2026-01-05 14:09:00","结束":"2026-02-04 14:09:00","每期返":46.728},
+            {"会员ID":"15062497005","地址":"0x531ac2f4209a06223949a5c4a43514a79385ae6b","产品":"USDT三期一返","认购额度":506,"开始":"2026-01-05 13:40:00","结束":"2026-02-04 13:40:00","每期返":59.708},
+            {"会员ID":"19558411833","地址":"0xb7000f14d0a0383326005b9ded57c064e20a68bf","产品":"USDT三期一返","认购额度":1000,"开始":"2026-01-05 13:14:00","结束":"2026-02-04 13:14:00","每期返":118},
+            {"会员ID":"17895723786","地址":"0x415a6916207d7ed7c8352aa56ea6d2e8e4b76e3d","产品":"USDT三期一返","认购额度":600,"开始":"2026-01-05 11:21:00","结束":"2026-02-04 11:21:00","每期返":70.8},
+            {"会员ID":"18829658872","地址":"0xf0fbc2a482e694f7850f16c919b45f4986bbc20a","产品":"USDT三期一返","认购额度":650,"开始":"2026-01-05 10:03:00","结束":"2026-02-04 10:03:00","每期返":76.7},
+            {"会员ID":"13880088060","地址":"0x0525fca4260be9d77eddf7adc84de1c69d6089ed","产品":"USDT三期一返","认购额度":500,"开始":"2026-01-04 22:23:00","结束":"2026-02-03 22:23:00","每期返":59},
+            {"会员ID":"18193008887","地址":"0x2d0a6fac327580091a1ec44bee3b641018407575","产品":"USDT三期一返","认购额度":500,"开始":"2026-01-04 21:14:00","结束":"2026-02-03 21:14:00","每期返":59},
+            {"会员ID":"13348621690","地址":"0x1db368f60ebe8a375ae2695df3a76f91cb5f151c","产品":"USDT三期一返","认购额度":500,"开始":"2026-01-04 21:08:00","结束":"2026-02-03 21:08:00","每期返":59},
+            {"会员ID":"15988620804","地址":"0x715f7204d5bbd17f3713f253fbd27e59fb74f586","产品":"USDT三期一返","认购额度":380,"开始":"2026-01-04 20:58:00","结束":"2026-02-03 20:58:00","每期返":44.84},
+            {"会员ID":"13655775269","地址":"0xb9315912c68ab11730f6fb415cb3b4e994d20625","产品":"USDT三期一返","认购额度":504,"开始":"2026-01-04 20:53:00","结束":"2026-02-03 20:53:00","每期返":59.472},
+            {"会员ID":"13555588965","地址":"0x6725e94d2936120ee24f190313bf53092b634f44","产品":"USDT三期一返","认购额度":300,"开始":"2026-01-04 13:58:00","结束":"2026-02-03 13:58:00","每期返":35.4},
+            {"会员ID":"13679150326","地址":"0xb9315912c68ab11730f6fb415cb3b4e994d20625","产品":"USDT三期一返","认购额度":336,"开始":"2026-01-04 12:46:00","结束":"2026-02-03 12:46:00","每期返":39.648},
+            {"会员ID":"18121572793","地址":"0x5085b5e4b34fab0fee0aceed7714f49d64275a4e","产品":"USDT三期一返","认购额度":1000,"开始":"2026-01-04 12:35:00","结束":"2026-02-03 12:35:00","每期返":118}
         ];
 
-        // 过滤掉没有地址的记录（实际数据中已经过滤了）
-        // 这里显示实际有地址的数据量
-        const filteredData = investmentData.filter(item => item.地址 && item.地址.trim() !== "");
-        console.log(`过滤后数据：${filteredData.length}条有地址的记录`);
+        // 过滤有地址的数据
+        const validData = investmentData.filter(item => item.地址 && item.地址.trim() !== "");
+        console.log(`有效数据（有地址）：${validData.length}条记录`);
 
         // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', function() {
@@ -763,6 +934,10 @@
             
             // 隐藏结果区域
             resultsSection.style.display = 'none';
+            
+            // 显示有效记录数
+            document.getElementById('validRecordsCount').textContent = validData.length;
+            document.getElementById('dataStats').textContent = `有效记录：${validData.length}条`;
             
             // 计算每期应返金额（认购额度 * 11.8%）
             function calculateReturn(amount) {
@@ -783,45 +958,63 @@
                 return dates;
             }
             
-            // 计算返款状态
-            function calculateReturnStatus(startDate, currentDate = new Date('2026-02-06')) {
-                const returnDates = calculateReturnDates(startDate);
+            // 计算返款状态（返回每一期的状态）
+            function calculateAllPeriodsStatus(record) {
+                const returnDates = calculateReturnDates(record.开始);
+                const returnPerPeriod = parseFloat(record.每期返 || calculateReturn(record.认购额度));
+                const currentDate = new Date('2026-02-06');
                 const cutoffStart = new Date('2026-01-26');
                 const cutoffEnd = new Date('2026-02-05');
                 
-                let overdueCount = 0;
+                const periods = [];
                 let completedCount = 0;
+                let overdueCount = 0;
                 let pendingCount = 0;
                 
-                returnDates.forEach(date => {
+                for (let i = 0; i < returnDates.length; i++) {
+                    const date = returnDates[i];
+                    let status, statusText;
+                    
                     if (date <= currentDate) {
-                        // 在当前日期之前应返
                         if (date >= cutoffStart && date <= cutoffEnd) {
+                            status = 'overdue';
+                            statusText = '逾期';
                             overdueCount++;
                         } else if (date < cutoffStart) {
+                            status = 'completed';
+                            statusText = '已返';
                             completedCount++;
                         } else {
-                            // 2月6日及之后
+                            status = 'pending';
+                            statusText = '待返';
                             pendingCount++;
                         }
                     } else {
-                        // 在当前日期之后
+                        status = 'pending';
+                        statusText = '待返';
                         pendingCount++;
                     }
-                });
+                    
+                    periods.push({
+                        period: i + 1,
+                        date: date,
+                        amount: returnPerPeriod,
+                        status: status,
+                        statusText: statusText
+                    });
+                }
                 
                 return {
-                    total: 10,
-                    overdue: overdueCount,
+                    periods: periods,
                     completed: completedCount,
-                    pending: pendingCount,
-                    returnDates: returnDates
+                    overdue: overdueCount,
+                    pending: pendingCount
                 };
             }
             
             // 搜索用户数据
             function searchUserData(phoneNumber) {
-                return filteredData.filter(item => item.会员ID === phoneNumber);
+                return validData.filter(item => item.会员ID === phoneNumber);
             }
             
             // 计算系统总览统计（只计算有地址的记录）
@@ -835,27 +1028,25 @@
                     let totalPendingAmount = 0;
                     let totalUsers = new Set();
                     
-                    filteredData.forEach(record => {
+                    validData.forEach(record => {
                         // 添加用户到集合中（去重）
                         totalUsers.add(record.会员ID);
                         
                         // 累加认购额度
                         totalInvestment += parseFloat(record.认购额度);
                         
-                        // 计算返款状态
-                        const status = calculateReturnStatus(record.开始);
-                        
-                        // 计算每期返款金额
+                        // 计算返款状态和金额
+                        const periodStatus = calculateAllPeriodsStatus(record);
                         const returnPerPeriod = parseFloat(record.每期返 || calculateReturn(record.认购额度));
                         
                         // 计算已返金额
-                        totalCompletedAmount += returnPerPeriod * status.completed;
+                        totalCompletedAmount += returnPerPeriod * periodStatus.completed;
                         
                         // 计算逾期金额
-                        totalOverdueAmount += returnPerPeriod * status.overdue;
+                        totalOverdueAmount += returnPerPeriod * periodStatus.overdue;
                         
                         // 计算待返金额
-                        totalPendingAmount += returnPerPeriod * status.pending;
+                        totalPendingAmount += returnPerPeriod * periodStatus.pending;
                     });
                     
                     // 显示统计结果
@@ -906,21 +1097,32 @@
                 let totalCompleted = 0;
                 let totalOverdue = 0;
                 let totalPending = 0;
+                let allPeriods = [];
                 
                 // 获取用户地址（取第一条记录的地址）
                 const userAddress = userData[0].地址;
                 
-                // 计算第一个记录的状态（用于期数明细）
-                const firstRecord = userData[0];
-                const status = calculateReturnStatus(firstRecord.开始);
-                totalCompleted = status.completed;
-                totalOverdue = status.overdue;
-                totalPending = status.pending;
-                
                 userData.forEach(record => {
                     totalInvestment += parseFloat(record.认购额度);
                     totalReturnPerPeriod += parseFloat(record.每期返 || calculateReturn(record.认购额度));
+                    
+                    // 计算该记录的所有期数
+                    const periodStatus = calculateAllPeriodsStatus(record);
+                    totalCompleted += periodStatus.completed;
+                    totalOverdue += periodStatus.overdue;
+                    totalPending += periodStatus.pending;
+                    
+                    // 添加所有期数到列表
+                    periodStatus.periods.forEach(period => {
+                        allPeriods.push({
+                            ...period,
+                            record: record
+                        });
+                    });
                 });
+                
+                // 按日期排序所有期数
+                allPeriods.sort((a, b) => a.date - b.date);
                 
                 // 更新用户信息
                 document.getElementById('userId').innerHTML = `<i class="fas fa-user"></i> ${phoneNumber}`;
@@ -929,8 +1131,13 @@
                 document.getElementById('periodReturn').textContent = totalReturnPerPeriod.toFixed(2);
                 document.getElementById('totalRecords').textContent = userData.length;
                 
+                // 更新状态汇总
+                document.getElementById('completedCount').textContent = totalCompleted;
+                document.getElementById('overdueCount').textContent = totalOverdue;
+                document.getElementById('pendingCount').textContent = totalPending;
+                
                 // 更新期数列表
-                updatePeriodsList(firstRecord);
+                updatePeriodsList(allPeriods);
                 
                 // 更新投资记录列表
                 updateInvestmentsList(userData);
@@ -940,52 +1147,46 @@
             }
             
             // 更新期数列表
-            function updatePeriodsList(record) {
-                const status = calculateReturnStatus(record.开始);
-                const returnDates = calculateReturnDates(record.开始);
-                const returnPerPeriod = parseFloat(record.每期返 || calculateReturn(record.认购额度));
-                
+            function updatePeriodsList(allPeriods) {
                 // 更新期数计数
-                document.getElementById('periodsCount').textContent = `共10期`;
+                document.getElementById('periodsCount').textContent = `共${allPeriods.length}期`;
+                
+                if (allPeriods.length === 0) {
+                    document.getElementById('periodsList').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-calendar"></i>
+                            <p>暂无返款期数数据</p>
+                        </div>
+                    `;
+                    return;
+                }
                 
                 // 生成期数列表
                 let periodsHTML = '';
                 
-                for (let i = 0; i < 10; i++) {
-                    const periodNum = i + 1;
-                    const returnDate = returnDates[i];
-                    const dateStr = returnDate.toLocaleDateString('zh-CN', {
+                allPeriods.forEach((period, index) => {
+                    const dateStr = period.date.toLocaleDateString('zh-CN', {
                         year: 'numeric',
                         month: '2-digit',
                         day: '2-digit'
                     });
                     
-                    // 确定状态
-                    let statusClass, statusText;
-                    if (periodNum <= status.completed) {
-                        statusClass = 'status-completed';
-                        statusText = '已返';
-                    } else if (periodNum <= status.completed + status.overdue) {
-                        statusClass = 'status-overdue';
-                        statusText = '逾期';
-                    } else {
-                        statusClass = 'status-pending';
-                        statusText = '待返';
-                    }
-                    
                     periodsHTML += `
                         <div class="period-card">
-                            <div class="period-info">
-                                <div class="period-number">第${periodNum}期</div>
+                            <div class="period-header">
+                                <div class="period-number">第${period.period}期</div>
+                                <div class="period-amount">${period.amount.toFixed(2)} USDT</div>
+                            </div>
+                            <div class="period-details">
                                 <div class="period-date">
                                     <i class="far fa-calendar"></i>
-                                    ${dateStr} | ${returnPerPeriod.toFixed(2)} USDT
+                                    ${dateStr}
                                 </div>
+                                <div class="period-status status-${period.status}">${period.statusText}</div>
                             </div>
-                            <div class="period-status ${statusClass}">${statusText}</div>
                         </div>
                     `;
-                }
+                });
                 
                 document.getElementById('periodsList').innerHTML = periodsHTML;
             }
@@ -994,8 +1195,8 @@
             function updateInvestmentsList(userData) {
                 let investmentsHTML = '';
                 
-                userData.forEach(record => {
-                    const status = calculateReturnStatus(record.开始);
+                userData.forEach((record, index) => {
+                    const periodStatus = calculateAllPeriodsStatus(record);
                     const returnPerPeriod = parseFloat(record.每期返 || calculateReturn(record.认购额度));
                     
                     investmentsHTML += `
@@ -1019,7 +1220,7 @@
                                 </div>
                                 <div class="investment-detail">
                                     返款状态
-                                    <span>已返:${status.completed} 逾期:${status.overdue} 待返:${status.pending}</span>
+                                    <span>已返:${periodStatus.completed} 逾期:${periodStatus.overdue} 待返:${periodStatus.pending}</span>
                                 </div>
                             </div>
                         </div>
@@ -1055,7 +1256,7 @@
             calculateSystemSummary();
             
             // 显示数据统计
-            console.log(`数据已加载，共 ${filteredData.length} 条有地址记录`);
+            console.log(`数据已加载，共 ${validData.length} 条有地址记录`);
         });
     </script>
 </body>
