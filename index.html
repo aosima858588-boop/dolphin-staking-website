@@ -3,18 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>USDT返款查询系统</title>
+    <title>USDT/INJ返款查询</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* CSS样式保持不变（上面已优化过的样式） */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
         }
         
         :root {
             --primary: #4361ee;
+            --primary-dark: #3a56d4;
             --secondary: #3a0ca3;
             --success: #4cc9f0;
             --warning: #f8961e;
@@ -23,92 +26,92 @@
             --dark: #212529;
             --gray: #6c757d;
             --gray-light: #e9ecef;
+            --inj-color: #7b61ff;
+            --periodic-color: #4361ee;
+            --daily-color: #4cc9f0;
+            --card-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            --card-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.1);
         }
         
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 0;
             color: #333;
+            line-height: 1.5;
         }
         
         .app-container {
-            max-width: 100%;
-            margin: 0 auto;
             background: white;
             min-height: 100vh;
             position: relative;
             overflow-x: hidden;
-            border-radius: 0;
-            box-shadow: none;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
         }
         
         /* 顶部导航 */
         .app-header {
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
-            padding: 20px 15px;
+            padding: 20px 16px;
             text-align: center;
-            position: relative;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         
         .app-header h1 {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-        }
-        
-        .app-header h1 i {
-            font-size: 1.3rem;
+            gap: 8px;
         }
         
         .app-header p {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             opacity: 0.9;
             font-weight: 400;
         }
         
         /* 搜索区域 */
         .search-section {
-            padding: 20px 15px;
+            padding: 16px;
             background: var(--light);
-            margin: 0;
-            border-radius: 0;
         }
         
         .search-card {
             background: white;
             border-radius: 16px;
             padding: 20px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            box-shadow: var(--card-shadow);
             border: 1px solid rgba(0, 0, 0, 0.05);
         }
         
         .search-header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 18px;
         }
         
         .search-header i {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             color: var(--primary);
         }
         
         .search-header h2 {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
             color: var(--dark);
         }
         
         .input-group {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
         
         .input-group label {
@@ -116,7 +119,7 @@
             margin-bottom: 8px;
             font-weight: 600;
             color: var(--dark);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
         
         .input-wrapper {
@@ -125,21 +128,22 @@
         
         .input-wrapper i {
             position: absolute;
-            left: 16px;
+            left: 14px;
             top: 50%;
             transform: translateY(-50%);
             color: var(--gray);
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
         
         .input-wrapper input {
             width: 100%;
-            padding: 16px 16px 16px 48px;
+            padding: 14px 14px 14px 44px;
             border: 2px solid var(--gray-light);
             border-radius: 12px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             transition: all 0.3s ease;
             background: white;
+            -webkit-appearance: none;
         }
         
         .input-wrapper input:focus {
@@ -153,116 +157,206 @@
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
             border: none;
-            padding: 18px;
+            padding: 16px;
             border-radius: 12px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
+            gap: 8px;
+            margin-top: 8px;
             box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
         }
         
-        .search-btn:hover, .search-btn:active {
-            transform: translateY(-2px);
+        .search-btn:active {
+            transform: translateY(-1px);
             box-shadow: 0 6px 15px rgba(67, 97, 238, 0.4);
         }
         
         /* 系统总览 */
         .summary-section {
-            padding: 20px 15px;
+            padding: 16px;
         }
         
         .section-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
         
         .section-header h2 {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
             color: var(--dark);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .refresh-btn {
-            background: var(--success);
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             gap: 8px;
         }
         
+        .section-header-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .refresh-btn, .export-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        
+        .export-btn {
+            background: var(--warning);
+        }
+        
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 16px;
         }
         
         .stat-card {
             background: white;
-            border-radius: 14px;
-            padding: 18px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: var(--card-shadow);
             border: 1px solid rgba(0, 0, 0, 0.05);
             text-align: center;
             transition: transform 0.3s ease;
         }
         
-        .stat-card:hover {
-            transform: translateY(-4px);
+        .stat-card:active {
+            transform: translateY(-2px);
         }
         
         .stat-value {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: var(--primary);
-            margin: 8px 0;
+            margin: 6px 0;
         }
         
         .stat-label {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--gray);
             font-weight: 500;
         }
         
         .stat-note {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--gray);
             text-align: center;
-            font-style: italic;
-            margin-top: 15px;
             background: #f8f9fa;
-            padding: 10px;
+            padding: 12px;
             border-radius: 8px;
             border-left: 4px solid var(--primary);
+            margin-top: 16px;
+            line-height: 1.4;
         }
         
-        /* 结果区域 */
+        .stat-note i {
+            margin-right: 4px;
+        }
+        
+        /* 产品筛选 */
+        .product-filter {
+            display: flex;
+            gap: 8px;
+            margin: 16px 0;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .product-filter::-webkit-scrollbar {
+            height: 3px;
+        }
+        
+        .filter-btn {
+            padding: 8px 14px;
+            border-radius: 20px;
+            border: 2px solid var(--gray-light);
+            background: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .filter-btn.inj-active {
+            background: var(--inj-color);
+            border-color: var(--inj-color);
+        }
+        
+        /* 最近查询记录 */
+        .recent-searches {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: var(--card-shadow);
+            margin-top: 16px;
+        }
+        
+        .recent-searches h4 {
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .recent-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .recent-item {
+            background: var(--gray-light);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .recent-item:active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* 查询结果 */
         .results-section {
-            padding: 0 15px 30px;
+            padding: 0 16px 30px;
             display: none;
         }
         
         .results-section.active {
             display: block;
-            animation: fadeIn 0.5s ease;
+            animation: fadeIn 0.3s ease;
         }
         
         @keyframes fadeIn {
@@ -272,41 +366,46 @@
         
         .user-info-card {
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 18px;
-            padding: 24px;
+            border-radius: 16px;
+            padding: 20px;
             color: white;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.3);
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(67, 97, 238, 0.3);
+            animation: slideUp 0.4s ease;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
         
         .user-id {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             font-weight: 700;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
         
         .user-address {
             background: rgba(255, 255, 255, 0.15);
             border-radius: 10px;
             padding: 12px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-family: 'Monaco', 'Consolas', monospace;
             word-break: break-all;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .user-stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            gap: 8px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 12px;
-            padding: 15px;
-            margin-top: 15px;
+            padding: 12px;
         }
         
         .user-stat-item {
@@ -314,42 +413,83 @@
         }
         
         .user-stat-value {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             font-weight: 700;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
         
         .user-stat-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             opacity: 0.9;
+        }
+        
+        /* 状态汇总 */
+        .status-summary {
+            display: flex;
+            justify-content: space-between;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid #e9ecef;
+            animation: slideUp 0.4s ease 0.1s both;
+        }
+        
+        .status-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .status-count {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .completed-count {
+            color: var(--success);
+        }
+        
+        .overdue-count {
+            color: var(--danger);
+        }
+        
+        .pending-count {
+            color: var(--primary);
+        }
+        
+        .status-label {
+            font-size: 0.75rem;
+            color: var(--gray);
         }
         
         /* 期数列表 */
         .periods-section {
-            margin-top: 25px;
+            margin-top: 20px;
+            animation: slideUp 0.4s ease 0.2s both;
         }
         
         .periods-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         
         .periods-header h3 {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             color: var(--dark);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
         
         .periods-count {
             background: var(--gray-light);
-            padding: 6px 12px;
+            padding: 4px 10px;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
             color: var(--dark);
         }
@@ -357,22 +497,21 @@
         .periods-list {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
         
         .period-card {
             background: white;
-            border-radius: 14px;
-            padding: 15px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: var(--card-shadow);
             border: 1px solid rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
-            position: relative;
         }
         
-        .period-card:hover {
-            transform: translateX(5px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        .period-card:active {
+            transform: translateX(3px);
+            box-shadow: var(--card-shadow-hover);
         }
         
         .period-header {
@@ -383,13 +522,16 @@
         }
         
         .period-number {
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 700;
             color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
         
         .period-amount {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
             color: var(--primary);
         }
@@ -398,22 +540,22 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--gray);
         }
         
         .period-date {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
         }
         
         .period-status {
-            padding: 5px 12px;
+            padding: 4px 10px;
             border-radius: 20px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 600;
-            min-width: 70px;
+            min-width: 60px;
             text-align: center;
         }
         
@@ -432,22 +574,47 @@
             color: #4361ee;
         }
         
+        /* 产品标签 */
+        .product-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.65rem;
+            font-weight: 600;
+        }
+        
+        .tag-periodic {
+            background: rgba(67, 97, 238, 0.15);
+            color: var(--periodic-color);
+        }
+        
+        .tag-daily {
+            background: rgba(76, 201, 240, 0.15);
+            color: var(--daily-color);
+        }
+        
+        .tag-inj {
+            background: rgba(123, 97, 255, 0.15);
+            color: var(--inj-color);
+        }
+        
         /* 投资记录 */
         .investments-section {
-            margin-top: 25px;
+            margin-top: 20px;
+            animation: slideUp 0.4s ease 0.3s both;
         }
         
         .investments-header {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         
         .investments-header h3 {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             color: var(--dark);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
         
         .investments-list {
@@ -458,9 +625,9 @@
         
         .investment-card {
             background: white;
-            border-radius: 14px;
-            padding: 18px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: var(--card-shadow);
             border: 1px solid rgba(0, 0, 0, 0.05);
         }
         
@@ -474,63 +641,35 @@
         .investment-product {
             font-weight: 600;
             color: var(--dark);
-            font-size: 1rem;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
         
         .investment-amount {
             font-weight: 700;
             color: var(--primary);
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
         
         .investment-details {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 10px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--gray);
+        }
+        
+        .investment-detail {
+            display: flex;
+            flex-direction: column;
         }
         
         .investment-detail span {
-            display: block;
             color: var(--dark);
             font-weight: 500;
-            margin-top: 3px;
-        }
-        
-        /* 加载指示器 */
-        .loading {
-            text-align: center;
-            padding: 40px 20px;
-        }
-        
-        .loader {
-            border: 4px solid var(--gray-light);
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* 底部导航 */
-        .app-footer {
-            background: var(--light);
-            padding: 20px 15px;
-            text-align: center;
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-            margin-top: 30px;
-        }
-        
-        .footer-text {
-            font-size: 0.85rem;
-            color: var(--gray);
+            margin-top: 2px;
         }
         
         /* 清除按钮 */
@@ -538,9 +677,9 @@
             background: var(--danger);
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 10px;
-            font-size: 0.95rem;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -549,41 +688,83 @@
             justify-content: center;
             gap: 8px;
             width: 100%;
-            margin-top: 20px;
+            margin-top: 24px;
+            box-shadow: 0 4px 12px rgba(247, 37, 133, 0.3);
+        }
+        
+        .clear-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        /* 加载指示器 */
+        .loading {
+            text-align: center;
+            padding: 30px 16px;
+        }
+        
+        .loader {
+            border: 3px solid var(--gray-light);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 底部 */
+        .app-footer {
+            background: var(--light);
+            padding: 20px 16px;
+            text-align: center;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            margin-top: 30px;
+        }
+        
+        .footer-text {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        
+        /* 复制按钮 */
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 8px;
+        }
+        
+        .copy-btn:active {
+            background: rgba(255, 255, 255, 0.3);
         }
         
         /* 空状态 */
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
+            padding: 40px 16px;
             color: var(--gray);
         }
         
         .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 15px;
+            font-size: 2.5rem;
+            margin-bottom: 12px;
             color: var(--gray-light);
-        }
-        
-        /* 响应式调整 */
-        @media (max-width: 480px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-            
-            .user-stats {
-                grid-template-columns: repeat(3, 1fr);
-            }
-            
-            .investment-details {
-                grid-template-columns: 1fr;
-            }
         }
         
         /* 滚动条美化 */
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 4px;
+            height: 4px;
         }
         
         ::-webkit-scrollbar-track {
@@ -592,69 +773,93 @@
         
         ::-webkit-scrollbar-thumb {
             background: var(--primary);
-            border-radius: 3px;
+            border-radius: 2px;
         }
         
-        /* 动画效果 */
-        .fade-in {
-            animation: fadeIn 0.5s ease;
+        /* 响应式调整 */
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .section-header-buttons {
+                flex-direction: column;
+            }
+            
+            .refresh-btn, .export-btn {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+            }
         }
         
-        .slide-up {
-            animation: slideUp 0.5s ease;
+        @media (min-width: 480px) and (max-width: 600px) {
+            .app-container {
+                border-radius: 12px;
+                margin: 10px auto;
+                min-height: calc(100vh - 20px);
+            }
         }
         
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        /* 触摸设备优化 */
+        @media (hover: none) and (pointer: coarse) {
+            .stat-card:hover, .period-card:hover, .recent-item:hover,
+            .search-btn:hover, .clear-btn:hover, .copy-btn:hover {
+                transform: none;
+            }
+            
+            .stat-card:active, .period-card:active, .recent-item:active,
+            .search-btn:active, .clear-btn:active, .copy-btn:active {
+                transform: scale(0.98);
+            }
         }
         
-        /* 状态汇总 */
-        .status-summary {
-            display: flex;
-            justify-content: space-between;
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid #e9ecef;
+        /* 数据统计徽章 */
+        .data-badge {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 6px;
         }
         
-        .status-item {
-            text-align: center;
-            flex: 1;
+        /* Toast提示样式 */
+        .toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: #4361ee;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s ease;
         }
         
-        .status-count {
-            font-size: 1.4rem;
-            font-weight: 700;
-            margin-bottom: 5px;
+        .toast-success {
+            background: #4cc9f0;
         }
         
-        .completed-count {
-            color: #4cc9f0;
-        }
-        
-        .overdue-count {
-            color: #f72585;
-        }
-        
-        .pending-count {
-            color: #4361ee;
-        }
-        
-        .status-label {
-            font-size: 0.8rem;
-            color: var(--gray);
+        .toast-error {
+            background: #f72585;
         }
     </style>
 </head>
 <body>
+    <!-- HTML结构保持不变 -->
     <div class="app-container">
         <!-- 顶部导航 -->
         <header class="app-header">
-            <h1><i class="fas fa-chart-line"></i> USDT返款查询系统</h1>
-            <p>输入手机号码查询认购信息及返款计划</p>
+            <h1><i class="fas fa-chart-line"></i> 返款查询系统</h1>
+            <p>输入手机号查询认购信息及返款计划</p>
         </header>
         
         <!-- 搜索区域 -->
@@ -669,7 +874,7 @@
                         <label for="phoneNumber">手机号码</label>
                         <div class="input-wrapper">
                             <i class="fas fa-phone"></i>
-                            <input type="tel" id="phoneNumber" placeholder="请输入您的手机号码" required>
+                            <input type="tel" id="phoneNumber" placeholder="请输入手机号码" required inputmode="numeric">
                         </div>
                     </div>
                     <button type="submit" class="search-btn">
@@ -683,9 +888,14 @@
         <section class="summary-section">
             <div class="section-header">
                 <h2><i class="fas fa-chart-pie"></i> 系统总览</h2>
-                <button class="refresh-btn" id="refreshSummary">
-                    <i class="fas fa-sync-alt"></i> 刷新
-                </button>
+                <div class="section-header-buttons">
+                    <button class="export-btn" id="exportData">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="refresh-btn" id="refreshSummary">
+                        <i class="fas fa-sync-alt"></i> 刷新
+                    </button>
+                </div>
             </div>
             
             <div class="stats-grid" id="summaryStats">
@@ -696,14 +906,36 @@
             </div>
             
             <div class="stat-note">
-                <i class="fas fa-info-circle"></i> 统计仅包含有地址的会员数据（共<span id="validRecordsCount">0</span>条记录）
+                <i class="fas fa-info-circle"></i> 系统包含三种产品：
+                <br>• USDT三期一返（10期，每3天返一期）
+                <br>• USDT每日返本返息（45天，每日返0.8%）
+                <br>• INJ到期返本（15天锁仓，0.5%利率，到期返本付息）
                 <br>当前日期：2026年2月6日 | 逾期期数：1月26日-2月5日
+            </div>
+            
+            <!-- 产品筛选 -->
+            <div class="product-filter" id="productFilter">
+                <button class="filter-btn active" data-product="all">全部产品</button>
+                <button class="filter-btn" data-product="periodic">USDT三期一返</button>
+                <button class="filter-btn" data-product="daily">USDT每日返</button>
+                <button class="filter-btn" data-product="inj">INJ到期返本</button>
+            </div>
+            
+            <!-- 最近查询记录 -->
+            <div class="recent-searches">
+                <h4><i class="fas fa-history"></i> 最近查询</h4>
+                <div class="recent-list" id="recentList">
+                    <div class="empty-state">
+                        <i class="fas fa-clock"></i>
+                        <p>暂无查询记录</p>
+                    </div>
+                </div>
             </div>
         </section>
         
         <!-- 查询结果 -->
         <section class="results-section" id="resultsSection">
-            <div class="user-info-card slide-up">
+            <div class="user-info-card">
                 <div class="user-id" id="userId">
                     <i class="fas fa-user"></i> 会员ID
                 </div>
@@ -713,11 +945,11 @@
                 <div class="user-stats">
                     <div class="user-stat-item">
                         <div class="user-stat-value" id="totalInvestment">0</div>
-                        <div class="user-stat-label">认购总额(USDT)</div>
+                        <div class="user-stat-label">认购总额</div>
                     </div>
                     <div class="user-stat-item">
                         <div class="user-stat-value" id="periodReturn">0</div>
-                        <div class="user-stat-label">每期应返(USDT)</div>
+                        <div class="user-stat-label">每期应返</div>
                     </div>
                     <div class="user-stat-item">
                         <div class="user-stat-value" id="totalRecords">0</div>
@@ -727,7 +959,7 @@
             </div>
             
             <!-- 状态汇总 -->
-            <div class="status-summary slide-up" id="statusSummary">
+            <div class="status-summary" id="statusSummary">
                 <div class="status-item">
                     <div class="status-count completed-count" id="completedCount">0</div>
                     <div class="status-label">已返期数</div>
@@ -743,7 +975,7 @@
             </div>
             
             <!-- 期数列表 -->
-            <div class="periods-section slide-up">
+            <div class="periods-section">
                 <div class="periods-header">
                     <h3><i class="fas fa-calendar-alt"></i> 返款期数明细</h3>
                     <div class="periods-count" id="periodsCount">共0期</div>
@@ -757,7 +989,7 @@
             </div>
             
             <!-- 投资记录 -->
-            <div class="investments-section slide-up">
+            <div class="investments-section">
                 <div class="investments-header">
                     <h3><i class="fas fa-file-invoice-dollar"></i> 投资记录</h3>
                 </div>
@@ -778,14 +1010,14 @@
         <!-- 底部 -->
         <footer class="app-footer">
             <div class="footer-text">
-                © 2026 USDT返款查询系统 | <span id="dataStats">数据统计中...</span>
+                © 2026 返款查询系统 | <span id="dataStats">数据统计中...</span>
             </div>
         </footer>
     </div>
 
     <script>
-        // 完整的USDT投资数据（包含所有记录）
-        const investmentData = [
+        // 完整数据 - USDT三期一返数据（100条）
+        const periodicInvestmentData = [
             {"会员ID":"13392776413","地址":"0xc6227cc01f436a4a6462b706aaa3ef5269cfe416","产品":"USDT三期一返","认购额度":300,"开始":"2026-01-25 08:21:00","结束":"2026-02-24 08:21:00","每期返":35.4},
             {"会员ID":"17620975996","地址":"0xd32d0cfba50e57f326afda63dc0362e367e71711","产品":"USDT三期一返","认购额度":1500,"开始":"2026-01-25 07:35:00","结束":"2026-02-24 07:35:00","每期返":177},
             {"会员ID":"15329356105","地址":"0x74dbab923aa7c7fd5aaeb955edf0e7125a4b5dc6","产品":"USDT三期一返","认购额度":300.1,"开始":"2026-01-24 22:17:00","结束":"2026-02-23 22:17:00","每期返":35.4118},
@@ -919,9 +1151,157 @@
             {"会员ID":"18121572793","地址":"0x5085b5e4b34fab0fee0aceed7714f49d64275a4e","产品":"USDT三期一返","认购额度":1000,"开始":"2026-01-04 12:35:00","结束":"2026-02-03 12:35:00","每期返":118}
         ];
 
-        // 过滤有地址的数据
-        const validData = investmentData.filter(item => item.地址 && item.地址.trim() !== "");
-        console.log(`有效数据（有地址）：${validData.length}条记录`);
+        // 完整数据 - USDT每日返本返息数据（44条）
+        const dailyInvestmentData = [
+            {"会员ID":"17645380028","地址":"XKOb5ec768b2fe2221ce2e79ff7adb837d655745377","产品":"USDT每日返本返息","认购额度":294,"开始":"2026-01-01 22:27:37","结束":"2026-02-14 22:27:37","每期返":2.352},
+            {"会员ID":"15182573335","地址":"","产品":"USDT每日返本返息","认购额度":140.37,"开始":"2026-01-01 22:24:44","结束":"2026-02-14 22:24:44","每期返":1.12296},
+            {"会员ID":"13982538859","地址":"","产品":"USDT每日返本返息","认购额度":100,"开始":"2026-01-01 12:15:36","结束":"2026-02-14 12:15:36","每期返":0.8},
+            {"会员ID":"13766710787","地址":"0x1eb7632c30102da97055a1412edbf6e6de2ae000","产品":"USDT每日返本返息","认购额度":121.47,"开始":"2026-01-01 13:24:52","结束":"2026-02-12 13:24:52","每期返":0.97176},
+            {"会员ID":"16646838418","地址":"","产品":"USDT每日返本返息","认购额度":242.04,"开始":"2026-01-01 22:56:18","结束":"2026-02-11 22:56:18","每期返":1.93632},
+            {"会员ID":"15946640598","地址":"","产品":"USDT每日返本返息","认购额度":248.03,"开始":"2026-01-01 22:44:17","结束":"2026-02-11 22:44:17","每期返":1.98424},
+            {"会员ID":"15314681270","地址":"","产品":"USDT每日返本返息","认购额度":105.12,"开始":"2026-01-01 10:25:15","结束":"2026-02-11 10:25:15","每期返":0.84096},
+            {"会员ID":"17645380028","地址":"XKOb5ec768b2fe2221ce2e79ff7adb837d655745377","产品":"USDT每日返本返息","认购额度":508,"开始":"2026-01-01 00:21:08","结束":"2026-02-11 00:21:08","每期返":4.064},
+            {"会员ID":"18225091264","地址":"","产品":"USDT每日返本返息","认购额度":500,"开始":"2026-01-01 12:29:36","结束":"2026-02-10 12:29:36","每期返":4},
+            {"会员ID":"18202396727","地址":"","产品":"USDT每日返本返息","认购额度":500,"开始":"2026-01-01 10:47:16","结束":"2026-02-10 10:47:16","每期返":4},
+            {"会员ID":"13868841227","地址":"0x1c05e24db9d86c5f43c7b13ea8d16b782a560778","产品":"USDT每日返本返息","认购额度":104,"开始":"2026-01-01 21:58:26","结束":"2026-02-07 21:58:26","每期返":0.832},
+            {"会员ID":"15105672328","地址":"","产品":"USDT每日返本返息","认购额度":1000,"开始":"2026-01-01 22:31:03","结束":"2026-02-06 22:31:03","每期返":8},
+            {"会员ID":"13766710787","地址":"0x1eb7632c30102da97055a1412edbf6e6de2ae000","产品":"USDT每日返本返息","认购额度":219.23,"开始":"2026-01-01 06:06:27","结束":"2026-02-06 06:06:27","每期返":1.75384},
+            {"会员ID":"15336891871","地址":"","产品":"USDT每日返本返息","认购额度":200,"开始":"2026-01-01 20:52:12","结束":"2026-02-05 20:52:12","每期返":1.6},
+            {"会员ID":"18193008887","地址":"0x2d0a6fac327580091a1ec44bee3b641018407575","产品":"USDT每日返本返息","认购额度":301.4,"开始":"2026-01-01 20:51:57","结束":"2026-02-05 20:51:57","每期返":2.4112},
+            {"会员ID":"18066926652","地址":"","产品":"USDT每日返本返息","认购额度":5000,"开始":"2026-01-01 16:43:29","结束":"2026-02-05 16:43:29","每期返":40},
+            {"会员ID":"19144968086","地址":"","产品":"USDT每日返本返息","认购额度":100,"开始":"2026-01-01 15:57:52","结束":"2026-02-05 15:57:52","每期返":0.8},
+            {"会员ID":"18674006117","地址":"0xb075748440b3b37a8bae9d5fa5664b026e0a22eb","产品":"USDT每日返本返息","认购额度":500,"开始":"2026-01-01 14:32:14","结束":"2026-02-05 14:32:14","每期返":4},
+            {"会员ID":"15997972933","地址":"","产品":"USDT每日返本返息","认购额度":200,"开始":"2026-01-01 14:06:11","结束":"2026-02-05 14:06:11","每期返":1.6},
+            {"会员ID":"13649056634","地址":"","产品":"USDT每日返本返息","认购额度":2000,"开始":"2026-01-01 10:03:58","结束":"2026-02-05 10:03:58","每期返":16},
+            {"会员ID":"15150626892","地址":"0x1dd77317beac6b508afd8c651508ca281060c1d7","产品":"USDT每日返本返息","认购额度":1326,"开始":"2026-01-01 08:26:41","结束":"2026-02-05 08:26:41","每期返":10.608},
+            {"会员ID":"15085754224","地址":"","产品":"USDT每日返本返息","认购额度":500,"开始":"2026-01-01 22:55:52","结束":"2026-02-04 22:55:52","每期返":4},
+            {"会员ID":"13202117615","地址":"","产品":"USDT每日返本返息","认购额度":757,"开始":"2026-01-01 18:06:51","结束":"2026-02-04 18:06:51","每期返":6.056},
+            {"会员ID":"18608502379","地址":"","产品":"USDT每日返本返息","认购额度":1500,"开始":"2026-01-01 15:37:04","结束":"2026-02-04 15:37:04","每期返":12},
+            {"会员ID":"13221257605","地址":"","产品":"USDT每日返本返息","认购额度":1500,"开始":"2026-01-01 11:58:15","结束":"2026-02-04 11:58:15","每期返":12},
+            {"会员ID":"13881981086","地址":"0xf3719a1ffad749fc3aef0f0983dfb55a64cd1331","产品":"USDT每日返本返息","认购额度":100,"开始":"2026-01-01 22:15:17","结束":"2026-02-03 22:15:17","每期返":0.8},
+            {"会员ID":"13991109829","地址":"","产品":"USDT每日返本返息","认购额度":200,"开始":"2026-01-01 20:29:22","结束":"2026-02-03 20:29:22","每期返":1.6},
+            {"会员ID":"13982538859","地址":"","产品":"USDT每日返本返息","认购额度":127,"开始":"2026-01-01 14:54:25","结束":"2026-02-03 14:54:25","每期返":1.016},
+            {"会员ID":"13772963063","地址":"0x6857a3fa71ed3ad1a2bbcf0630cea10754131d97","产品":"USDT每日返本返息","认购额度":500,"开始":"2026-01-01 13:02:22","结束":"2026-02-03 13:02:22","每期返":4},
+            {"会员ID":"18248881751","地址":"0x3db840159962799404ca982fdfd85affa96f32e0","产品":"USDT每日返本返息","认购额度":500,"开始":"2026-01-01 12:30:16","结束":"2026-02-03 12:30:16","每期返":4},
+            {"会员ID":"19003163158","地址":"0x2eebba63be6109ad677a1ad4dbe0746bf3b43164","产品":"USDT每日返本返息","认购额度":500,"开始":"2026-01-01 11:20:58","结束":"2026-02-03 11:20:58","每期返":4},
+            {"会员ID":"13547794626","地址":"","产品":"USDT每日返本返息","认购额度":224.86,"开始":"2026-01-01 21:06:59","结束":"2026-02-02 21:06:59","每期返":1.79888},
+            {"会员ID":"13392776413","地址":"0xc6227cc01f436a4a6462b706aaa3ef5269cfe416","产品":"USDT每日返本返息","认购额度":309.84,"开始":"2026-01-01 13:59:42","结束":"2026-02-02 13:59:42","每期返":2.47872},
+            {"会员ID":"13484838912","地址":"","产品":"USDT每日返本返息","认购额度":200,"开始":"2026-01-01 13:59:25","结束":"2026-02-02 13:59:25","每期返":1.6},
+            {"会员ID":"18529441189","地址":"","产品":"USDT每日返本返息","认购额度":406,"开始":"2026-01-01 13:50:23","结束":"2026-02-02 13:50:23","每期返":3.248},
+            {"会员ID":"15066154118","地址":"0x20c60e32c1d5b4fb0110d10ce4d221ce414ee0bf","产品":"USDT每日返本返息","认购额度":400,"开始":"2026-01-01 13:11:46","结束":"2026-02-02 13:11:46","每期返":3.2},
+            {"会员ID":"15978011751","地址":"","产品":"USDT每日返本返息","认购额度":1000,"开始":"2026-01-01 12:00:14","结束":"2026-02-02 12:00:14","每期返":8},
+            {"会员ID":"19890856368","地址":"","产品":"USDT每日返本返息","认购额度":1000,"开始":"2026-01-01 11:39:37","结束":"2026-02-02 11:39:37","每期返":8},
+            {"会员ID":"18121572793","地址":"0x5085b5e4b34fab0fee0aceed7714f49d64275a4e","产品":"USDT每日返本返息","认购额度":1000,"开始":"2026-01-01 11:39:26","结束":"2026-02-02 11:39:26","每期返":8},
+            {"会员ID":"17735341409","地址":"","产品":"USDT每日返本返息","认购额度":500,"开始":"2026-01-01 11:35:00","结束":"2026-02-02 11:35:00","每期返":4},
+            {"会员ID":"15799654979","地址":"0xa7571ae41b2beff67d4374af47230c21250676ab","产品":"USDT每日返本返息","认购额度":200,"开始":"2026-01-01 11:34:22","结束":"2026-02-02 11:34:22","每期返":1.6},
+            {"会员ID":"17760178353","地址":"","产品":"USDT每日返本返息","认购额度":100,"开始":"2026-01-01 10:55:27","结束":"2026-02-02 10:55:27","每期返":0.8},
+            {"会员ID":"18094593122","地址":"","产品":"USDT每日返本返息","认购额度":800,"开始":"2026-01-01 10:53:05","结束":"2026-02-02 10:53:05","每期返":6.4},
+            {"会员ID":"13655775269","地址":"0xb9315912c68ab11730f6fb415cb3b4e994d20625","产品":"USDT每日返本返息","认购额度":200,"开始":"2026-01-01 12:35:58","结束":"2026-01-31 12:35:58","每期返":1.6},
+            {"会员ID":"15182573335","地址":"","产品":"USDT每日返本返息","认购额度":101,"开始":"2026-01-01 11:09:13","结束":"2026-01-30 11:09:13","每期返":0.808}
+        ];
+
+        // 完整数据 - INJ到期返本数据（100条）
+        const injInvestmentData = [
+            {"会员ID":"18829658872","地址":"","产品":"INJ到期返本","认购额度":169,"开始":"2026-01-14 23:15:33","结束":"2026-01-29 23:15:33","每期返":169.845},
+            {"会员ID":"13826515940","地址":"","产品":"INJ到期返本","认购额度":100,"开始":"2026-01-14 20:59:06","结束":"2026-01-29 20:59:06","每期返":100.5},
+            {"会员ID":"13928801429","地址":"","产品":"INJ到期返本","认购额度":217.3,"开始":"2026-01-14 20:25:55","结束":"2026-01-29 20:25:55","每期返":218.3865},
+            {"会员ID":"13868841227","地址":"","产品":"INJ到期返本","认购额度":500,"开始":"2026-01-14 19:36:12","结束":"2026-01-29 19:36:12","每期返":502.5},
+            {"会员ID":"13655775269","地址":"","产品":"INJ到期返本","认购额度":500,"开始":"2026-01-14 18:45:01","结束":"2026-01-29 18:45:01","每期返":502.5},
+            {"会员ID":"13542611281","地址":"","产品":"INJ到期返本","认购额度":300,"开始":"2026-01-14 18:29:22","结束":"2026-01-29 18:29:22","每期返":301.5},
+            {"会员ID":"13371730386","地址":"","产品":"INJ到期返本","认购额度":100,"开始":"2026-01-14 17:52:58","结束":"2026-01-29 17:52:58","每期返":100.5},
+            {"会员ID":"15066154118","地址":"","产品":"INJ到期返本","认购额度":300,"开始":"2026-01-14 17:36:06","结束":"2026-01-29 17:36:06","每期返":301.5},
+            {"会员ID":"15062497005","地址":"","产品":"INJ到期返本","认购额度":540,"开始":"2026-01-14 17:18:00","结束":"2026-01-29 17:18:00","每期返":542.7},
+            {"会员ID":"15005047470","地址":"","产品":"INJ到期返本","认购额度":1000,"开始":"2026-01-14 16:32:23","结束":"2026-01-29 16:32:23","每期返":1005},
+            {"会员ID":"15975256513","地址":"","产品":"INJ到期返本","认购额度":100,"开始":"2026-01-14 16:03:59","结束":"2026-01-29 16:03:59","每期返":100.5},
+            {"会员ID":"18999209780","地址":"","产品":"INJ到期返本","认购额度":1000,"开始":"2026-01-14 15:56:43","结束":"2026-01-29 15:56:43","每期返":1005},
+            {"会员ID":"15005034349","地址":"","产品":"INJ到期返本","认购额度":1000,"开始":"2026-01-14 15:43:05","结束":"2026-01-29 15:43:05","每期返":1005},
+            {"会员ID":"13537336492","地址":"","产品":"INJ到期返本","认购额度":1009,"开始":"2026-01-14 15:33:39","结束":"2026-01-29 15:33:39","每期返":1014.045},
+            {"会员ID":"15114124032","地址":"","产品":"INJ到期返本","认购额度":2500,"开始":"2026-01-14 15:27:48","结束":"2026-01-29 15:27:48","每期返":2512.5},
+            {"会员ID":"15875537350","地址":"","产品":"INJ到期返本","认购额度":1000,"开始":"2026-01-14 15:04:28","结束":"2026-01-29 15:04:28","每期返":1005},
+            {"会员ID":"13977635548","地址":"","产品":"INJ到期返本","认购额度":2000,"开始":"2026-01-14 14:47:12","结束":"2026-01-29 14:47:12","每期返":2010},
+            {"会员ID":"13881981086","地址":"","产品":"INJ到期返本","认购额度":178,"开始":"2026-01-14 13:36:21","结束":"2026-01-29 13:36:21","每期返":178.89},
+            {"会员ID":"13322179668","地址":"","产品":"INJ到期返本","认购额度":2000,"开始":"2026-01-14 12:32:25","结束":"2026-01-29 12:32:25","每期返":2010},
+            {"会员ID":"19191151542","地址":"","产品":"INJ到期返本","认购额度":100,"开始":"2026-01-14 12:23:02","结束":"2026-01-29 12:23:02","每期返":100.5},
+            {"会员ID":"19191539684","地址":"","产品":"INJ到期返本","认购额度":170,"开始":"2026-01-14 11:51:40","结束":"2026-01-29 11:51:40","每期返":170.85},
+            {"会员ID":"18278594048","地址":"","产品":"INJ到期返本","认购额度":1000,"开始":"2026-01-14 10:27:47","结束":"2026-01-29 10:27:47","每期返":1005},
+            {"会员ID":"15215181540","地址":"","产品":"INJ到期返本","认购额度":140,"开始":"2026-01-14 00:03:12","结束":"2026-01-29 00:03:12","每期返":140.7},
+            {"会员ID":"13880088060","地址":"","产品":"INJ到期返本","认购额度":100,"开始":"2026-01-13 23:48:36","结束":"2026-01-28 23:48:36","每期返":100.5},
+            {"会员ID":"13547794626","地址":"","产品":"INJ到期返本","认购额度":127,"开始":"2026-01-13 22:23:11","结束":"2026-01-28 22:23:11","每期返":127.635},
+            {"会员ID":"18737078910","地址":"","产品":"INJ到期返本","认购额度":200,"开始":"2026-01-13 21:13:33","结束":"2026-01-28 21:13:33","每期返":201},
+            {"会员ID":"15215181540","地址":"","产品":"INJ到期返本","认购额度":500,"开始":"2026-01-13 20:06:44","结束":"2026-01-28 20:06:44","每期返":502.5},
+            {"会员ID":"13322175990","地址":"","产品":"INJ到期返本","认购额度":2003,"开始":"2026-01-13 18:32:18","结束":"2026-01-28 18:32:18","每期返":2013.015},
+            {"会员ID":"15594745678","地址":"","产品":"INJ到期返本","认购额度":100.04,"开始":"2026-01-13 17:09:28","结束":"2026-01-28 17:09:28","每期返":100.5402},
+            {"会员ID":"18829658872","地址":"","产品":"INJ到期返本","认购额度":1004,"开始":"2026-01-13 16:51:59","结束":"2026-01-28 16:51:59","每期返":1009.02},
+            {"会员ID":"18674006117","地址":"","产品":"INJ到期返本","认购额度":100,"开始":"2026-01-13 14:51:51","结束":"2026-01-28 14:51:51","每期返":100.5},
+            {"会员ID":"15223491123","地址":"","产品":"INJ到期返本","认购额度":100,"开始":"2026-01-13 14:42:03","结束":"2026-01-28 14:42:03","每期返":100.5},
+            {"会员ID":"13250560106","地址":"","产品":"INJ到期返本","认购额度":1500,"开始":"2026-01-13 13:44:36","结束":"2026-01-28 13:44:36","每期返":1507.5},
+            {"会员ID":"13565959780","地址":"","产品":"INJ到期返本","认购额度":500,"开始":"2026-01-13 13:38:45","结束":"2026-01-28 13:38:45","每期返":502.5},
+            {"会员ID":"17729615406","地址":"","产品":"INJ到期返本","认购额度":201,"开始":"2026-01-13 13:07:52","结束":"2026-01-28 13:07:52","每期返":202.005},
+            {"会员ID":"18582888558","地址":"","产品":"INJ到期返本","认购额度":201,"开始":"2026-01-13 13:06:59","结束":"2026-01-28 13:06:59","每期返":202.005},
+            {"会员ID":"15199053267","地址":"","产品":"INJ到期返本","认购额度":999,"开始":"2026-01-13 13:06:29","结束":"2026-01-28 13:06:29","每期返":1003.995},
+            {"会员ID":"13983943190","地址":"","产品":"INJ到期返本","认购额度":102,"开始":"2026-01-13 12:38:36","结束":"2026-01-28 12:38:36","每期返":102.51},
+            {"会员ID":"13967921300","地址":"","产品":"INJ到期返本","认购额度":129,"开始":"2026-01-13 12:33:36","结束":"2026-01-28 12:33:36","每期返":129.645},
+            {"会员ID":"13591528666","地址":"","产品":"INJ到期返本","认购额度":20000,"开始":"2026-01-13 11:48:36","结束":"2026-01-28 11:48:36","每期返":20100},
+            {"会员ID":"18121572793","地址":"","产品":"INJ到期返本","认购额度":2011,"开始":"2026-01-13 10:24:34","结束":"2026-01-28 10:24:34","每期返":2021.055},
+            {"会员ID":"19882553196","地址":"","产品":"INJ到期返本","认购额度":103,"开始":"2026-01-12 22:10:52","结束":"2026-01-27 22:10:52","每期返":103.515},
+            {"会员ID":"15982521959","地址":"","产品":"INJ到期返本","认购额度":153,"开始":"2026-01-12 21:36:20","结束":"2026-01-27 21:36:20","每期返":153.765},
+            {"会员ID":"18982531249","地址":"","产品":"INJ到期返本","认购额度":105,"开始":"2026-01-12 21:34:34","结束":"2026-01-27 21:34:34","每期返":105.525},
+            {"会员ID":"15982513137","地址":"","产品":"INJ到期返本","认购额度":100,"开始":"2026-01-12 21:29:44","结束":"2026-01-27 21:29:44","每期返":100.5},
+            {"会员ID":"13330646195","地址":"","产品":"INJ到期返本","认购额度":100,"开始":"2026-01-12 21:07:41","结束":"2026-01-27 21:07:41","每期返":100.5},
+            {"会员ID":"15182573335","地址":"","产品":"INJ到期返本","认购额度":268,"开始":"2026-01-12 20:39:28","结束":"2026-01-27 20:39:28","每期返":269.34},
+            {"会员ID":"15836630929","地址":"","产品":"INJ到期返本","认购额度":1000,"开始":"2026-01-12 20:17:24","结束":"2026-01-27 20:17:24","每期返":1005},
+            {"会员ID":"13610491049","地址":"","产品":"INJ到期返本","认购额度":1200,"开始":"2026-01-12 19:58:31","结束":"2026-01-27 19:58:31","每期返":1206},
+            {"会员ID":"18968414706","地址":"","产品":"INJ到期返本","认购额度":1000,"开始":"2026-01-12 19:01:59","结束":"2026-01-27 19:01:59","每期返":1005},
+            {"会员ID":"15150626892","地址":"","产品":"INJ到期返本","认购额度":1300,"开始":"2026-01-12 18:41:40","结束":"2026-01-27 18:41:40","每期返":1306.5},
+            {"会员ID":"15604155677","地址":"","产品":"INJ到期返本","认购额度":5000,"开始":"2026-01-12 18:39:12","结束":"2026-01-27 18:39:12","每期返":5025},
+            {"会员ID":"18882571827","地址":"","产品":"INJ到期返本","认购额度":143,"开始":"2026-01-12 18:33:55","结束":"2026-01-27 18:33:55","每期返":143.715},
+            {"会员ID":"18113471864","地址":"","产品":"INJ到期返本","认购额度":113,"开始":"2026-01-12 18:19:41","结束":"2026-01-27 18:19:41","每期返":113.565},
+            {"会员ID":"19961003365","地址":"","产品":"INJ到期返本","认购额度":152,"开始":"2026-01-12 18:16:32","结束":"2026-01-27 18:16:32","每期返":152.76},
+            {"会员ID":"13996209473","地址":"","产品":"INJ到期返本","认购额度":199,"开始":"2026-01-12 17:58:43","结束":"2026-01-27 17:58:43","每期返":200.005},
+            {"会员ID":"18248881751","地址":"","产品":"INJ到期返本","认购额度":107,"开始":"2026-01-12 16:50:28","结束":"2026-01-27 16:50:28","每期返":107.535},
+            {"会员ID":"13531075314","地址":"","产品":"INJ到期返本","认购额度":200,"开始":"2026-01-12 16:27:38","结束":"2026-01-27 16:27:38","每期返":201},
+            {"会员ID":"19191539684","地址":"","产品":"INJ到期返本","认购额度":239,"开始":"2026-01-12 16:23:06","结束":"2026-01-27 16:23:06","每期返":240.195},
+            {"会员ID":"15757873105","地址":"","产品":"INJ到期返本","认购额度":5000,"开始":"2026-01-12 16:12:29","结束":"2026-01-27 16:12:29","每期返":5025},
+            {"会员ID":"13751312664","地址":"","产品":"INJ到期返本","认购额度":1000,"开始":"2026-01-12 15:26:41","结束":"2026-01-27 15:26:41","每期返":1005},
+            {"会员ID":"18969486007","地址":"","产品":"INJ到期返本","认购额度":101.98,"开始":"2026-01-12 15:01:04","结束":"2026-01-27 15:01:04","每期返":102.4899},
+            {"会员ID":"15889702499","地址":"","产品":"INJ到期返本","认购额度":1000,"开始":"2026-01-12 14:07:33","结束":"2026-01-27 14:07:33","每期返":1005},
+            {"会员ID":"19191151542","地址":"","产品":"INJ到期返本","认购额度":500,"开始":"2026-01-12 13:42:52","结束":"2026-01-27 13:42:52","每期返":502.5},
+            {"会员ID":"13679150326","地址":"","产品":"INJ到期返本","认购额度":1432,"开始":"2026-01-12 13:40:13","结束":"2026-01-27 13:40:13","每期返":1439.16},
+            {"会员ID":"13941502508","地址":"","产品":"INJ到期返本","认购额度":5000,"开始":"2026-01-12 11:21:00","结束":"2026-01-27 11:21:00","每期返":5025},
+            {"会员ID":"15741076331","地址":"","产品":"INJ到期返本","认购额度":1000,"开始":"2026-01-12 09:51:42","结束":"2026-01-27 09:51:42","每期返":1005},
+            {"会员ID":"1375536508","地址":"","产品":"INJ到期返本","认购额度":3000,"开始":"2026-01-12 09:47:07","结束":"2026-01-27 09:47:07","每期返":3015},
+            {"会员ID":"17645380028","地址":"","产品":"INJ到期返本","认购额度":248.47,"开始":"2026-01-12 04:08:10","结束":"2026-01-27 04:08:10","每期返":249.71235},
+            {"会员ID":"18568800273","地址":"","产品":"INJ到期返本","认购额度":140,"开始":"2026-01-11 22:18:40","结束":"2026-01-26 22:18:40","每期返":140.7},
+            {"会员ID":"18406141888","地址":"","产品":"INJ到期返本","认购额度":5000,"开始":"2026-01-11 21:23:47","结束":"2026-01-26 21:23:47","每期返":5025},
+            {"会员ID":"13982538859","地址":"","产品":"INJ到期返本","认购额度":174,"开始":"2026-01-11 20:26:28","结束":"2026-01-26 20:26:28","每期返":174.87},
+            {"会员ID":"14729951796","地址":"","产品":"INJ到期返本","认购额度":153,"开始":"2026-01-11 20:00:14","结束":"2026-01-26 20:00:14","每期返":153.765},
+            {"会员ID":"13795756609","地址":"","产品":"INJ到期返本","认购额度":100,"开始":"2026-01-11 19:17:33","结束":"2026-01-26 19:17:33","每期返":100.5},
+            {"会员ID":"19875769762","地址":"","产品":"INJ到期返本","认购额度":100,"开始":"2026-01-11 18:54:21","结束":"2026-01-26 18:54:21","每期返":100.5},
+            {"会员ID":"18089383698","地址":"","产品":"INJ到期返本","认购额度":300,"开始":"2026-01-11 18:34:29","结束":"2026-01-26 18:34:29","每期返":301.5},
+            {"会员ID":"17385302546","地址":"","产品":"INJ到期返本","认购额度":300,"开始":"2026-01-11 16:57:56","结束":"2026-01-26 16:57:56","每期返":301.5},
+            {"会员ID":"15146295846","地址":"","产品":"INJ到期返本","认购额度":3000,"开始":"2026-01-11 16:36:27","结束":"2026-01-26 16:36:27","每期返":3015},
+            {"会员ID":"18984124657","地址":"","产品":"INJ到期返本","认购额度":1000,"开始":"2026-01-11 15:50:56","结束":"2026-01-26 15:50:56","每期返":1005},
+            {"会员ID":"13831633469","地址":"","产品":"INJ到期返本","认购额度":100,"开始":"2026-01-11 15:01:07","结束":"2026-01-26 15:01:07","每期返":100.5},
+            {"会员ID":"1995813181","地址":"","产品":"INJ到期返本","认购额度":5000,"开始":"2026-01-11 14:58:41","结束":"2026-01-26 14:58:41","每期返":5025},
+            {"会员ID":"13687617776","地址":"","产品":"INJ到期返本","认购额度":150,"开始":"2026-01-11 14:24:20","结束":"2026-01-26 14:24:20","每期返":150.75},
+            {"会员ID":"13020350372","地址":"","产品":"INJ到期返本","认购额度":5000,"开始":"2026-01-11 12:20:12","结束":"2026-01-26 12:20:12","每期返":5025},
+            {"会员ID":"18509110606","地址":"","产品":"INJ到期返本","认购额度":107.82,"开始":"2026-01-11 11:25:45","结束":"2026-01-26 11:25:45","每期返":108.3591},
+            {"会员ID":"18718701984","地址":"","产品":"INJ到期返本","认购额度":1000,"开始":"2026-01-11 11:08:38","结束":"2026-01-26 11:08:38","每期返":1005},
+            {"会员ID":"18609298085","地址":"","产品":"INJ到期返本","认购额度":203,"开始":"2026-01-11 10:39:55","结束":"2026-01-26 10:39:55","每期返":204.015},
+            {"会员ID":"15116137325","地址":"","产品":"INJ到期返本","认购额度":1000,"开始":"2026-01-11 10:13:43","结束":"2026-01-26 10:13:43","每期返":1005},
+            {"会员ID":"13941561155","地址":"","产品":"INJ到期返本","认购额度":5000,"开始":"2026-01-11 09:51:04","结束":"2026-01-26 09:51:04","每期返":5025},
+            {"会员ID":"15059370607","地址":"","产品":"INJ到期返本","认购额度":3000,"开始":"2026-01-11 09:48:46","结束":"2026-01-26 09:48:46","每期返":3015}
+        ];
+
+        // 合并所有数据
+        const allInvestmentData = [...periodicInvestmentData, ...dailyInvestmentData, ...injInvestmentData];
+        
+        // 过滤有地址的数据（用于部分统计）
+        const validData = allInvestmentData.filter(item => item.地址 && item.地址.trim() !== "" && item.地址 !== "TRON");
+        
+        // 最近查询记录
+        let recentSearches = JSON.parse(localStorage.getItem('recentSearches')) || [];
+        let currentFilter = 'all'; // 当前筛选的产品类型
 
         // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', function() {
@@ -930,28 +1310,55 @@
             const phoneInput = document.getElementById('phoneNumber');
             const resultsSection = document.getElementById('resultsSection');
             const refreshSummaryBtn = document.getElementById('refreshSummary');
+            const exportDataBtn = document.getElementById('exportData');
             const summaryLoading = document.getElementById('summaryLoading');
+            const recentList = document.getElementById('recentList');
+            const productFilter = document.getElementById('productFilter');
             
             // 隐藏结果区域
             resultsSection.style.display = 'none';
             
             // 显示有效记录数
-            document.getElementById('validRecordsCount').textContent = validData.length;
-            document.getElementById('dataStats').textContent = `有效记录：${validData.length}条`;
+            document.getElementById('dataStats').textContent = `${allInvestmentData.length}条记录`;
             
-            // 计算每期应返金额（认购额度 * 11.8%）
-            function calculateReturn(amount) {
-                return (amount * 0.118).toFixed(2);
+            // 更新最近查询列表
+            updateRecentList();
+            
+            // 计算每期应返金额
+            function calculateReturn(amount, productType) {
+                if (productType === 'USDT三期一返') {
+                    return (amount * 0.118).toFixed(2);
+                } else if (productType === 'USDT每日返本返息') {
+                    return (amount * 0.008).toFixed(4);
+                } else if (productType === 'INJ到期返本') {
+                    return (amount * 1.005).toFixed(5); // 0.5%利息，到期返本付息
+                }
+                return 0;
             }
             
             // 计算返款日期
-            function calculateReturnDates(startDate, periods = 10, intervalDays = 3) {
+            function calculateReturnDates(startDate, productType) {
                 const dates = [];
                 const start = new Date(startDate);
                 
-                for (let i = 1; i <= periods; i++) {
+                if (productType === 'USDT三期一返') {
+                    // 每3天返一期，共10期
+                    for (let i = 1; i <= 10; i++) {
+                        const returnDate = new Date(start);
+                        returnDate.setDate(start.getDate() + (i * 3));
+                        dates.push(returnDate);
+                    }
+                } else if (productType === 'USDT每日返本返息') {
+                    // 每日返一期，共45期
+                    for (let i = 1; i <= 45; i++) {
+                        const returnDate = new Date(start);
+                        returnDate.setDate(start.getDate() + i);
+                        dates.push(returnDate);
+                    }
+                } else if (productType === 'INJ到期返本') {
+                    // 只有一期，到期日返还
                     const returnDate = new Date(start);
-                    returnDate.setDate(start.getDate() + (i * intervalDays));
+                    returnDate.setDate(start.getDate() + 15); // 15天锁仓
                     dates.push(returnDate);
                 }
                 
@@ -960,8 +1367,8 @@
             
             // 计算返款状态（返回每一期的状态）
             function calculateAllPeriodsStatus(record) {
-                const returnDates = calculateReturnDates(record.开始);
-                const returnPerPeriod = parseFloat(record.每期返 || calculateReturn(record.认购额度));
+                const returnDates = calculateReturnDates(record.开始, record.产品);
+                const returnPerPeriod = parseFloat(record.每期返 || calculateReturn(record.认购额度, record.产品));
                 const currentDate = new Date('2026-02-06');
                 const cutoffStart = new Date('2026-01-26');
                 const cutoffEnd = new Date('2026-02-05');
@@ -1014,68 +1421,183 @@
             
             // 搜索用户数据
             function searchUserData(phoneNumber) {
-                return validData.filter(item => item.会员ID === phoneNumber);
+                return allInvestmentData.filter(item => item.会员ID === phoneNumber);
             }
             
-            // 计算系统总览统计（只计算有地址的记录）
+            // 计算系统总览统计 - 优化版本
             function calculateSystemSummary() {
                 summaryLoading.style.display = 'block';
                 
-                setTimeout(() => {
-                    let totalInvestment = 0;
-                    let totalCompletedAmount = 0;
-                    let totalOverdueAmount = 0;
-                    let totalPendingAmount = 0;
-                    let totalUsers = new Set();
-                    
-                    validData.forEach(record => {
-                        // 添加用户到集合中（去重）
-                        totalUsers.add(record.会员ID);
+                // 使用requestAnimationFrame确保UI响应
+                requestAnimationFrame(() => {
+                    try {
+                        let totalInvestment = 0;
+                        let totalCompletedAmount = 0;
+                        let totalOverdueAmount = 0;
+                        let totalPendingAmount = 0;
+                        let totalPeriodicInvestment = 0;
+                        let totalDailyInvestment = 0;
+                        let totalInjInvestment = 0;
                         
-                        // 累加认购额度
-                        totalInvestment += parseFloat(record.认购额度);
+                        // 根据筛选条件显示数据
+                        let dataToShow = allInvestmentData;
+                        if (currentFilter === 'periodic') {
+                            dataToShow = periodicInvestmentData;
+                        } else if (currentFilter === 'daily') {
+                            dataToShow = dailyInvestmentData;
+                        } else if (currentFilter === 'inj') {
+                            dataToShow = injInvestmentData;
+                        }
                         
-                        // 计算返款状态和金额
-                        const periodStatus = calculateAllPeriodsStatus(record);
-                        const returnPerPeriod = parseFloat(record.每期返 || calculateReturn(record.认购额度));
+                        // 预计算当前日期
+                        const currentDate = new Date('2026-02-06');
+                        const cutoffStart = new Date('2026-01-26');
+                        const cutoffEnd = new Date('2026-02-05');
                         
-                        // 计算已返金额
-                        totalCompletedAmount += returnPerPeriod * periodStatus.completed;
+                        dataToShow.forEach(record => {
+                            // 累加认购额度
+                            totalInvestment += parseFloat(record.认购额度 || 0);
+                            
+                            // 按产品类型统计
+                            if (record.产品 === 'USDT三期一返') {
+                                totalPeriodicInvestment += parseFloat(record.认购额度 || 0);
+                            } else if (record.产品 === 'USDT每日返本返息') {
+                                totalDailyInvestment += parseFloat(record.认购额度 || 0);
+                            } else if (record.产品 === 'INJ到期返本') {
+                                totalInjInvestment += parseFloat(record.认购额度 || 0);
+                            }
+                            
+                            // 计算返款状态和金额
+                            const returnDates = calculateReturnDates(record.开始, record.产品);
+                            const returnPerPeriod = parseFloat(record.每期返 || calculateReturn(record.认购额度, record.产品) || 0);
+                            
+                            // 统计金额
+                            returnDates.forEach(date => {
+                                if (date <= currentDate) {
+                                    if (date >= cutoffStart && date <= cutoffEnd) {
+                                        totalOverdueAmount += returnPerPeriod;
+                                    } else if (date < cutoffStart) {
+                                        totalCompletedAmount += returnPerPeriod;
+                                    } else {
+                                        totalPendingAmount += returnPerPeriod;
+                                    }
+                                } else {
+                                    totalPendingAmount += returnPerPeriod;
+                                }
+                            });
+                        });
                         
-                        // 计算逾期金额
-                        totalOverdueAmount += returnPerPeriod * periodStatus.overdue;
+                        // 显示统计结果
+                        let summaryHTML = '';
                         
-                        // 计算待返金额
-                        totalPendingAmount += returnPerPeriod * periodStatus.pending;
-                    });
-                    
-                    // 显示统计结果
-                    const summaryHTML = `
-                        <div class="stat-card">
-                            <div class="stat-label">总认购额度</div>
-                            <div class="stat-value">${totalInvestment.toFixed(2)}</div>
-                            <div class="stat-label">USDT</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-label">已返金额</div>
-                            <div class="stat-value">${totalCompletedAmount.toFixed(2)}</div>
-                            <div class="stat-label">USDT</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-label">逾期金额</div>
-                            <div class="stat-value">${totalOverdueAmount.toFixed(2)}</div>
-                            <div class="stat-label">USDT</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-label">待返金额</div>
-                            <div class="stat-value">${totalPendingAmount.toFixed(2)}</div>
-                            <div class="stat-label">USDT</div>
-                        </div>
-                    `;
-                    
-                    document.getElementById('summaryStats').innerHTML = summaryHTML;
-                    summaryLoading.style.display = 'none';
-                }, 500);
+                        if (currentFilter === 'all') {
+                            summaryHTML = `
+                                <div class="stat-card">
+                                    <div class="stat-label">总认购额度</div>
+                                    <div class="stat-value">${totalInvestment.toFixed(2)}</div>
+                                    <div class="stat-label">USDT/INJ</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-label">三期一返额度</div>
+                                    <div class="stat-value">${totalPeriodicInvestment.toFixed(2)}</div>
+                                    <div class="stat-label">USDT</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-label">每日返本返息</div>
+                                    <div class="stat-value">${totalDailyInvestment.toFixed(2)}</div>
+                                    <div class="stat-label">USDT</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-label">INJ到期返本</div>
+                                    <div class="stat-value">${totalInjInvestment.toFixed(2)}</div>
+                                    <div class="stat-label">INJ</div>
+                                </div>
+                            `;
+                        } else if (currentFilter === 'periodic') {
+                            summaryHTML = `
+                                <div class="stat-card">
+                                    <div class="stat-label">总认购额度</div>
+                                    <div class="stat-value">${totalPeriodicInvestment.toFixed(2)}</div>
+                                    <div class="stat-label">USDT</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-label">已返金额</div>
+                                    <div class="stat-value">${totalCompletedAmount.toFixed(2)}</div>
+                                    <div class="stat-label">USDT</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-label">逾期金额</div>
+                                    <div class="stat-value">${totalOverdueAmount.toFixed(2)}</div>
+                                    <div class="stat-label">USDT</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-label">待返金额</div>
+                                    <div class="stat-value">${totalPendingAmount.toFixed(2)}</div>
+                                    <div class="stat-label">USDT</div>
+                                </div>
+                            `;
+                        } else if (currentFilter === 'daily') {
+                            summaryHTML = `
+                                <div class="stat-card">
+                                    <div class="stat-label">总认购额度</div>
+                                    <div class="stat-value">${totalDailyInvestment.toFixed(2)}</div>
+                                    <div class="stat-label">USDT</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-label">已返金额</div>
+                                    <div class="stat-value">${totalCompletedAmount.toFixed(2)}</div>
+                                    <div class="stat-label">USDT</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-label">逾期金额</div>
+                                    <div class="stat-value">${totalOverdueAmount.toFixed(2)}</div>
+                                    <div class="stat-label">USDT</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-label">待返金额</div>
+                                    <div class="stat-value">${totalPendingAmount.toFixed(2)}</div>
+                                    <div class="stat-label">USDT</div>
+                                </div>
+                            `;
+                        } else if (currentFilter === 'inj') {
+                            summaryHTML = `
+                                <div class="stat-card">
+                                    <div class="stat-label">总认购额度</div>
+                                    <div class="stat-value">${totalInjInvestment.toFixed(2)}</div>
+                                    <div class="stat-label">INJ</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-label">已返金额</div>
+                                    <div class="stat-value">${totalCompletedAmount.toFixed(2)}</div>
+                                    <div class="stat-label">INJ</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-label">逾期金额</div>
+                                    <div class="stat-value">${totalOverdueAmount.toFixed(2)}</div>
+                                    <div class="stat-label">INJ</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-label">待返金额</div>
+                                    <div class="stat-value">${totalPendingAmount.toFixed(2)}</div>
+                                    <div class="stat-label">INJ</div>
+                                </div>
+                            `;
+                        }
+                        
+                        document.getElementById('summaryStats').innerHTML = summaryHTML;
+                        summaryLoading.style.display = 'none';
+                        
+                    } catch (error) {
+                        console.error('计算统计数据时出错:', error);
+                        document.getElementById('summaryStats').innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <p>统计数据加载失败</p>
+                            </div>
+                        `;
+                        summaryLoading.style.display = 'none';
+                    }
+                });
             }
             
             // 显示查询结果
@@ -1083,7 +1605,7 @@
                 const userData = searchUserData(phoneNumber);
                 
                 if (userData.length === 0) {
-                    alert('未找到相关记录，请检查手机号码是否正确');
+                    showToast('未找到相关记录，请检查手机号码是否正确', 'error');
                     return;
                 }
                 
@@ -1099,12 +1621,18 @@
                 let totalPending = 0;
                 let allPeriods = [];
                 
-                // 获取用户地址（取第一条记录的地址）
-                const userAddress = userData[0].地址;
+                // 获取用户地址（优先使用有地址的记录）
+                let userAddress = '';
+                for (let record of userData) {
+                    if (record.地址 && record.地址.trim() !== "" && record.地址 !== "TRON") {
+                        userAddress = record.地址;
+                        break;
+                    }
+                }
                 
                 userData.forEach(record => {
-                    totalInvestment += parseFloat(record.认购额度);
-                    totalReturnPerPeriod += parseFloat(record.每期返 || calculateReturn(record.认购额度));
+                    totalInvestment += parseFloat(record.认购额度 || 0);
+                    totalReturnPerPeriod += parseFloat(record.每期返 || calculateReturn(record.认购额度, record.产品) || 0);
                     
                     // 计算该记录的所有期数
                     const periodStatus = calculateAllPeriodsStatus(record);
@@ -1122,729 +1650,8 @@
                 });
                 
                 // 按日期排序所有期数
-                allPeriods.sort((a, b) => a.date - b.date);
-                
-                // 更新用户信息
-                document.getElementById('userId').innerHTML = `<i class="fas fa-user"></i> ${phoneNumber}`;
-                document.getElementById('userAddress').textContent = userAddress;
-                document.getElementById('totalInvestment').textContent = totalInvestment.toFixed(2);
-                document.getElementById('periodReturn').textContent = totalReturnPerPeriod.toFixed(2);
-                document.getElementById('totalRecords').textContent = userData.length;
-                
-                // 更新状态汇总
-                document.getElementById('completedCount').textContent = totalCompleted;
-                document.getElementById('overdueCount').textContent = totalOverdue;
-                document.getElementById('pendingCount').textContent = totalPending;
-                
-                // 更新期数列表
-                updatePeriodsList(allPeriods);
-                
-                // 更新投资记录列表
-                updateInvestmentsList(userData);
-                
-                // 滚动到结果区域
-                resultsSection.scrollIntoView({ behavior: 'smooth' });
-            }
-            
-            // 更新期数列表
-            function updatePeriodsList(allPeriods) {
-                // 更新期数计数
-                document.getElementById('periodsCount').textContent = `共${allPeriods.length}期`;
-                
-                if (allPeriods.length === 0) {
-                    document.getElementById('periodsList').innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-calendar"></i>
-                            <p>暂无返款期数数据</p>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                // 生成期数列表
-                let periodsHTML = '';
-                
-                allPeriods.forEach((period, index) => {
-                    const dateStr = period.date.toLocaleDateString('zh-CN', {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit'
-                    });
-                    
-                    periodsHTML += `
-                        <div class="period-card">
-                            <div class="period-header">
-                                <div class="period-number">第${period.period}期</div>
-                                <div class="period-amount">${period.amount.toFixed(2)} USDT</div>
-                            </div>
-                            <div class="period-details">
-                                <div class="period-date">
-                                    <i class="far fa-calendar"></i>
-                                    ${dateStr}
-                                </div>
-                                <div class="period-status status-${period.status}">${period.statusText}</div>
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                document.getElementById('periodsList').innerHTML = periodsHTML;
-            }
-            
-            // 更新投资记录列表
-            function updateInvestmentsList(userData) {
-                let investmentsHTML = '';
-                
-                userData.forEach((record, index) => {
-                    const periodStatus = calculateAllPeriodsStatus(record);
-                    const returnPerPeriod = parseFloat(record.每期返 || calculateReturn(record.认购额度));
-                    
-                    investmentsHTML += `
-                        <div class="investment-card">
-                            <div class="investment-header">
-                                <div class="investment-product">${record.产品}</div>
-                                <div class="investment-amount">${parseFloat(record.认购额度).toFixed(2)} USDT</div>
-                            </div>
-                            <div class="investment-details">
-                                <div class="investment-detail">
-                                    开始时间
-                                    <span>${record.开始}</span>
-                                </div>
-                                <div class="investment-detail">
-                                    结束时间
-                                    <span>${record.结束}</span>
-                                </div>
-                                <div class="investment-detail">
-                                    每期应返
-                                    <span>${returnPerPeriod.toFixed(2)} USDT</span>
-                                </div>
-                                <div class="investment-detail">
-                                    返款状态
-                                    <span>已返:${periodStatus.completed} 逾期:${periodStatus.overdue} 待返:${periodStatus.pending}</span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                document.getElementById('investmentsList').innerHTML = investmentsHTML;
-            }
-            
-            // 表单提交事件
-            searchForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const phoneNumber = phoneInput.value.trim();
-                
-                if (phoneNumber) {
-                    displayResults(phoneNumber);
-                }
-            });
-            
-            // 清除结果事件
-            clearResultsBtn.addEventListener('click', function() {
-                resultsSection.style.display = 'none';
-                phoneInput.value = '';
-                phoneInput.focus();
-            });
-            
-            // 刷新统计事件
-            refreshSummaryBtn.addEventListener('click', function() {
-                calculateSystemSummary();
-            });
-            
-            // 初始化：计算系统总览
-            calculateSystemSummary();
-            
-            // 显示数据统计
-            console.log(`数据已加载，共 ${validData.length} 条有地址记录`);
-        });
+                allPeriods.sort((a
+                                         });
     </script>
-</body>
-</html>
-// ... 前面的代码继续 ...
-
-// 更新全部产品表格
-document.getElementById('summary-all').innerHTML = `
-    <tr>
-        <td>全部产品</td>
-        <td>${allTotal.toFixed(2)} USDT</td>
-        <td>${allPaid.toFixed(2)} USDT</td>
-        <td>${allPending.toFixed(2)} USDT</td>
-        <td>${allOverdue.toFixed(2)} USDT</td>
-        <td>${allCount}</td>
-        <td>不同产品返款规则不同</td>
-    </tr>
-    <tr>
-        <td>USDT三期一返</td>
-        <td>${usdtTotal.toFixed(2)} USDT</td>
-        <td>${usdtPaid.toFixed(2)} USDT</td>
-        <td>${usdtPending.toFixed(2)} USDT</td>
-        <td>${usdtOverdue.toFixed(2)} USDT</td>
-        <td>${usdtData.length}</td>
-        <td>共10期，每3天返一期，每期返11.8%</td>
-    </tr>
-    <tr>
-        <td>USDT45天</td>
-        <td>${usdt45Total.toFixed(2)} USDT</td>
-        <td>${usdt45Paid.toFixed(2)} USDT</td>
-        <td>${usdt45Pending.toFixed(2)} USDT</td>
-        <td>${usdt45Overdue.toFixed(2)} USDT</td>
-        <td>${usdt45Data.length}</td>
-        <td>每日返0.8%，共返45天</td>
-    </tr>
-    <tr>
-        <td>INJ理财</td>
-        <td>${injTotal.toFixed(2)} USDT</td>
-        <td>${injPaid.toFixed(2)} USDT</td>
-        <td>${injPending.toFixed(2)} USDT</td>
-        <td>${injOverdue.toFixed(2)} USDT</td>
-        <td>${injData.length}</td>
-        <td>15天到期一次性返本息</td>
-    </tr>
-`;
-
-// 更新USDT三期一返表格
-let usdtTableHtml = '';
-usdtData.forEach(item => {
-    const status = calculateUSDTStatus(item);
-    usdtTableHtml += `
-        <tr>
-            <td>${item.phone}</td>
-            <td class="address">${item.address}</td>
-            <td>${item.amount.toFixed(2)}</td>
-            <td>${item.startDate.toLocaleDateString()}</td>
-            <td>${item.endDate.toLocaleDateString()}</td>
-            <td>${item.perReturn.toFixed(2)}</td>
-            <td>${status.paidPeriods}</td>
-            <td>${status.pendingPeriods}</td>
-            <td>${status.paidAmount.toFixed(2)}</td>
-            <td>${status.pendingAmount.toFixed(2)}</td>
-            <td>${status.overduePeriods}</td>
-            <td><span class="status-${status.status === '已完成' ? 'paid' : status.status === '部分逾期' ? 'overdue' : 'pending'}">${status.status}</span></td>
-        </tr>
-    `;
-});
-document.getElementById('summary-usdt').innerHTML = usdtTableHtml;
-
-// 更新USDT45天表格
-let usdt45TableHtml = '';
-usdt45Data.forEach(item => {
-    const status = calculateUSDT45Status(item);
-    usdt45TableHtml += `
-        <tr>
-            <td>${item.phone}</td>
-            <td class="address">${item.address}</td>
-            <td>${item.amount.toFixed(2)}</td>
-            <td>${item.startDate.toLocaleDateString()}</td>
-            <td>${item.endDate.toLocaleDateString()}</td>
-            <td>${item.dailyReturn.toFixed(4)}</td>
-            <td>${status.paidDays}</td>
-            <td>${status.pendingDays}</td>
-            <td>${status.paidAmount.toFixed(2)}</td>
-            <td>${status.pendingAmount.toFixed(2)}</td>
-            <td>${status.overdueDays}</td>
-            <td><span class="status-${status.status === '已完成' ? 'paid' : status.status === '部分逾期' ? 'overdue' : 'pending'}">${status.status}</span></td>
-        </tr>
-    `;
-});
-document.getElementById('summary-usdt45').innerHTML = usdt45TableHtml;
-
-// 更新INJ表格
-let injTableHtml = '';
-injData.forEach(item => {
-    const status = calculateINJStatus(item);
-    injTableHtml += `
-        <tr>
-            <td>${item.phone}</td>
-            <td class="address">${item.address}</td>
-            <td>${item.amount.toFixed(2)}</td>
-            <td>${item.startDate.toLocaleDateString()}</td>
-            <td>${item.endDate.toLocaleDateString()}</td>
-            <td>${status.isExpired ? '已到期' : '未到期'}</td>
-            <td>${status.isOverdue ? '是' : '否'}</td>
-            <td><span class="status-${status.status === '已返款' ? 'paid' : status.status === '即将逾期' ? 'overdue' : 'pending'}">${status.status}</span></td>
-            <td>${status.paidAmount.toFixed(2)}</td>
-        </tr>
-    `;
-});
-document.getElementById('summary-inj').innerHTML = injTableHtml;
-
-// 更新逾期记录表格
-let overdueTableHtml = '';
-// 收集所有逾期记录
-const overdueRecords = [];
-
-// USDT三期一返逾期记录
-usdtData.forEach(item => {
-    const status = calculateUSDTStatus(item);
-    if (status.overduePeriods > 0) {
-        overdueRecords.push({
-            productType: 'USDT三期一返',
-            phone: item.phone,
-            address: item.address,
-            amount: item.amount,
-            overdueAmount: status.overdueAmount,
-            overdueStartDate: OVERDUE_START_DATE.toISOString().split('T')[0],
-            overdueDays: status.overduePeriods * 3,
-            status: '待处理'
-        });
-    }
-});
-
-// USDT45天逾期记录
-usdt45Data.forEach(item => {
-    const status = calculateUSDT45Status(item);
-    if (status.overdueDays > 0) {
-        overdueRecords.push({
-            productType: 'USDT45天',
-            phone: item.phone,
-            address: item.address,
-            amount: item.amount,
-            overdueAmount: status.overdueAmount,
-            overdueStartDate: OVERDUE_START_DATE.toISOString().split('T')[0],
-            overdueDays: status.overdueDays,
-            status: '待处理'
-        });
-    }
-});
-
-// INJ逾期记录
-injData.forEach(item => {
-    const status = calculateINJStatus(item);
-    if (status.isOverdue) {
-        overdueRecords.push({
-            productType: 'INJ理财',
-            phone: item.phone,
-            address: item.address,
-            amount: item.amount,
-            overdueAmount: status.overdueAmount,
-            overdueStartDate: OVERDUE_START_DATE.toISOString().split('T')[0],
-            overdueDays: Math.ceil((item.endDate - OVERDUE_START_DATE) / (1000 * 60 * 60 * 24)),
-            status: '待处理'
-        });
-    }
-});
-
-// 渲染逾期记录表格
-overdueRecords.forEach(record => {
-    overdueTableHtml += `
-        <tr>
-            <td>${record.productType}</td>
-            <td>${record.phone}</td>
-            <td class="address">${record.address}</td>
-            <td>${record.amount.toFixed(2)}</td>
-            <td>${record.overdueAmount.toFixed(2)}</td>
-            <td>${record.overdueStartDate}</td>
-            <td>${record.overdueDays}</td>
-            <td>${record.status}</td>
-        </tr>
-    `;
-});
-document.getElementById('summary-overdue').innerHTML = overdueTableHtml;
-}
-
-// 查询功能
-let recentSearches = JSON.parse(localStorage.getItem('recentSearches')) || [];
-
-function searchByPhone(phone) {
-    const resultContainer = document.getElementById('result-container');
-    const noResult = document.getElementById('no-result');
-    
-    // 验证手机号格式
-    if (!phone || phone.length !== 11 || !/^\d+$/.test(phone)) {
-        resultContainer.innerHTML = `
-            <div class="no-result">
-                请输入有效的11位手机号
-            </div>
-        `;
-        return;
-    }
-    
-    // 查找相关记录
-    const usdtRecords = usdtData.filter(item => item.phone === phone);
-    const usdt45Records = usdt45Data.filter(item => item.phone === phone);
-    const injRecords = injData.filter(item => item.phone === phone);
-    
-    // 如果没有找到任何记录
-    if (usdtRecords.length === 0 && usdt45Records.length === 0 && injRecords.length === 0) {
-        resultContainer.innerHTML = `
-            <div class="no-result">
-                未找到手机号 ${phone} 对应的返款记录
-            </div>
-        `;
-        return;
-    }
-    
-    // 构建结果显示
-    let resultHtml = '';
-    
-    // 添加USDT三期一返记录
-    usdtRecords.forEach((record, index) => {
-        const status = calculateUSDTStatus(record);
-        resultHtml += `
-            <div class="result-item">
-                <h3>
-                    <span>USDT三期一返</span>
-                    <span class="product-badge badge-usdt">USDT</span>
-                    <span class="status-badge status-${status.status === '已完成' ? 'paid' : status.status === '部分逾期' ? 'overdue' : 'pending'}">${status.status}</span>
-                </h3>
-                <div class="result-details">
-                    <div class="detail-item">
-                        <div class="detail-label">手机号:</div>
-                        <div>${record.phone}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">地址:</div>
-                        <div class="address">${record.address}</div>
-                        <button class="copy-btn" onclick="copyToClipboard('${record.address}')">复制</button>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">认购金额:</div>
-                        <div>${record.amount.toFixed(2)} USDT</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">开始日期:</div>
-                        <div>${record.startDate.toLocaleDateString()}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">结束日期:</div>
-                        <div>${record.endDate.toLocaleDateString()}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">每期返款:</div>
-                        <div>${record.perReturn.toFixed(2)} USDT</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">已返期数:</div>
-                        <div>${status.paidPeriods}期</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">待返期数:</div>
-                        <div>${status.pendingPeriods}期</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">已返金额:</div>
-                        <div>${status.paidAmount.toFixed(2)} USDT</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">待返金额:</div>
-                        <div>${status.pendingAmount.toFixed(2)} USDT</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">逾期期数:</div>
-                        <div>${status.overduePeriods}期</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">逾期金额:</div>
-                        <div>${status.overdueAmount.toFixed(2)} USDT</div>
-                    </div>
-                </div>
-                <div class="repayment-plan">
-                    <h4>返款计划表</h4>
-                    <table class="repayment-table">
-                        <thead>
-                            <tr>
-                                <th>期数</th>
-                                <th>返款日期</th>
-                                <th>返款金额</th>
-                                <th>状态</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${record.returnDates.map((date, i) => {
-                                const period = i + 1;
-                                const isPaid = date <= CURRENT_DATE;
-                                const isOverdue = date >= OVERDUE_START_DATE && date <= OVERDUE_END_DATE && date > CURRENT_DATE;
-                                let statusText = '待返款';
-                                let statusClass = 'repayment-pending';
-                                
-                                if (isPaid) {
-                                    statusText = '已返款';
-                                    statusClass = 'repayment-paid';
-                                } else if (isOverdue) {
-                                    statusText = '已逾期';
-                                    statusClass = 'repayment-overdue';
-                                }
-                                
-                                return `
-                                    <tr>
-                                        <td>第${period}期</td>
-                                        <td>${date.toLocaleDateString()}</td>
-                                        <td>${record.perReturn.toFixed(2)} USDT</td>
-                                        <td class="${statusClass}">${statusText}</td>
-                                    </tr>
-                                `;
-                            }).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        `;
-    });
-    
-    // 添加USDT45天记录
-    usdt45Records.forEach((record, index) => {
-        const status = calculateUSDT45Status(record);
-        resultHtml += `
-            <div class="result-item">
-                <h3>
-                    <span>USDT45天理财</span>
-                    <span class="product-badge badge-usdt45">USDT45</span>
-                    <span class="status-badge status-${status.status === '已完成' ? 'paid' : status.status === '部分逾期' ? 'overdue' : 'pending'}">${status.status}</span>
-                </h3>
-                <div class="result-details">
-                    <div class="detail-item">
-                        <div class="detail-label">手机号:</div>
-                        <div>${record.phone}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">地址:</div>
-                        <div class="address">${record.address}</div>
-                        <button class="copy-btn" onclick="copyToClipboard('${record.address}')">复制</button>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">购买金额:</div>
-                        <div>${record.amount.toFixed(2)} USDT</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">开始日期:</div>
-                        <div>${record.startDate.toLocaleDateString()}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">结束日期:</div>
-                        <div>${record.endDate.toLocaleDateString()}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">每日应返:</div>
-                        <div>${record.dailyReturn.toFixed(4)} USDT</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">已返天数:</div>
-                        <div>${status.paidDays}天</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">待返天数:</div>
-                        <div>${status.pendingDays}天</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">已返金额:</div>
-                        <div>${status.paidAmount.toFixed(2)} USDT</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">待返金额:</div>
-                        <div>${status.pendingAmount.toFixed(2)} USDT</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">逾期天数:</div>
-                        <div>${status.overdueDays}天</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">逾期金额:</div>
-                        <div>${status.overdueAmount.toFixed(2)} USDT</div>
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-    
-    // 添加INJ记录
-    injRecords.forEach((record, index) => {
-        const status = calculateINJStatus(record);
-        resultHtml += `
-            <div class="result-item">
-                <h3>
-                    <span>INJ理财</span>
-                    <span class="product-badge badge-inj">INJ</span>
-                    <span class="status-badge status-${status.status === '已返款' ? 'paid' : status.status === '即将逾期' ? 'overdue' : 'pending'}">${status.status}</span>
-                </h3>
-                <div class="result-details">
-                    <div class="detail-item">
-                        <div class="detail-label">手机号:</div>
-                        <div>${record.phone}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">地址:</div>
-                        <div class="address">${record.address}</div>
-                        <button class="copy-btn" onclick="copyToClipboard('${record.address}')">复制</button>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">购买金额:</div>
-                        <div>${record.amount.toFixed(2)} USDT</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">买入时间:</div>
-                        <div>${record.startDate.toLocaleDateString()}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">结束时间:</div>
-                        <div>${record.endDate.toLocaleDateString()}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">是否到期:</div>
-                        <div>${status.isExpired ? '已到期' : '未到期'}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">是否逾期:</div>
-                        <div>${status.isOverdue ? '是' : '否'}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">返款金额:</div>
-                        <div>${record.returnAmount.toFixed(2)} USDT</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">返款状态:</div>
-                        <div>${status.status}</div>
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-    
-    // 更新结果容器
-    resultContainer.innerHTML = resultHtml;
-    
-    // 添加到最近查询记录
-    addToRecentSearches(phone);
-}
-
-// 复制到剪贴板
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        alert('地址已复制到剪贴板');
-    }).catch(err => {
-        console.error('复制失败:', err);
-    });
-}
-
-// 添加到最近查询记录
-function addToRecentSearches(phone) {
-    // 移除重复项
-    recentSearches = recentSearches.filter(item => item !== phone);
-    
-    // 添加到开头
-    recentSearches.unshift(phone);
-    
-    // 限制最多保存10个
-    if (recentSearches.length > 10) {
-        recentSearches = recentSearches.slice(0, 10);
-    }
-    
-    // 保存到本地存储
-    localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
-    
-    // 更新显示
-    updateRecentSearches();
-}
-
-// 更新最近查询记录显示
-function updateRecentSearches() {
-    const recentList = document.getElementById('recent-list');
-    recentList.innerHTML = '';
-    
-    recentSearches.forEach(phone => {
-        const item = document.createElement('div');
-        item.className = 'recent-item';
-        item.textContent = phone;
-        item.onclick = () => {
-            document.getElementById('phone-input').value = phone;
-            searchByPhone(phone);
-        };
-        recentList.appendChild(item);
-    });
-}
-
-// 导出CSV数据
-function exportToCSV() {
-    let csvContent = "data:text/csv;charset=utf-8,";
-    
-    // 添加标题行
-    csvContent += "产品类型,手机号,地址,认购金额,开始日期,结束日期,每期返款,已返期数,待返期数,已返金额,待返金额,逾期期数,逾期金额,状态\r\n";
-    
-    // 添加USDT三期一返数据
-    usdtData.forEach(item => {
-        const status = calculateUSDTStatus(item);
-        csvContent += `"USDT三期一返",${item.phone},"${item.address}",${item.amount},"${item.startDate.toLocaleDateString()}","${item.endDate.toLocaleDateString()}",${item.perReturn},${status.paidPeriods},${status.pendingPeriods},${status.paidAmount},${status.pendingAmount},${status.overduePeriods},${status.overdueAmount},"${status.status}"\r\n`;
-    });
-    
-    // 添加USDT45天数据
-    usdt45Data.forEach(item => {
-        const status = calculateUSDT45Status(item);
-        csvContent += `"USDT45天",${item.phone},"${item.address}",${item.amount},"${item.startDate.toLocaleDateString()}","${item.endDate.toLocaleDateString()}",${item.dailyReturn},${status.paidDays},${status.pendingDays},${status.paidAmount},${status.pendingAmount},${status.overdueDays},${status.overdueAmount},"${status.status}"\r\n`;
-    });
-    
-    // 添加INJ数据
-    injData.forEach(item => {
-        const status = calculateINJStatus(item);
-        csvContent += `"INJ理财",${item.phone},"${item.address}",${item.amount},"${item.startDate.toLocaleDateString()}","${item.endDate.toLocaleDateString()}","-","-","-",${status.paidAmount},${status.pendingAmount},"-",${status.overdueAmount},"${status.status}"\r\n`;
-    });
-    
-    // 创建下载链接
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `USDT理财返款统计_${CURRENT_DATE.toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
-// 初始化页面
-function initPage() {
-    // 加载数据
-    loadUSDTData();
-    loadUSDT45Data();
-    loadINJData();
-    
-    // 初始化统计信息
-    initStats();
-    
-    // 更新最近查询记录
-    updateRecentSearches();
-    
-    // 设置当前日期
-    document.getElementById('current-date').textContent = CURRENT_DATE.toISOString().split('T')[0];
-    document.getElementById('update-time').textContent = new Date().toLocaleDateString();
-    
-    // 绑定搜索按钮事件
-    document.getElementById('search-btn').addEventListener('click', () => {
-        const phone = document.getElementById('phone-input').value.trim();
-        if (phone) {
-            searchByPhone(phone);
-        } else {
-            alert('请输入手机号');
-        }
-    });
-    
-    // 绑定回车键搜索
-    document.getElementById('phone-input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            const phone = document.getElementById('phone-input').value.trim();
-            if (phone) {
-                searchByPhone(phone);
-            }
-        }
-    });
-    
-    // 绑定导出按钮事件
-    document.getElementById('export-btn').addEventListener('click', exportToCSV);
-    
-    // 绑定标签切换事件
-    document.querySelectorAll('.product-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            // 移除所有active类
-            document.querySelectorAll('.product-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.product-content').forEach(c => c.classList.remove('active'));
-            
-            // 添加当前active类
-            tab.classList.add('active');
-            const product = tab.getAttribute('data-product');
-            document.getElementById(`content-${product}`).classList.add('active');
-        });
-    });
-}
-
-// 页面加载完成后初始化
-document.addEventListener('DOMContentLoaded', initPage);
-</script>
 </body>
 </html>
