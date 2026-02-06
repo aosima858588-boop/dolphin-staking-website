@@ -1321,14 +1321,30 @@
                     let totalPending = 0;
                     let allPeriods = [];
                     
-                    // 获取用户地址
-                    let userAddress = '';
-                    for (let record of userData) {
-                        if (record.地址 && record.地址.trim() !== "" && record.地址 !== "TRON") {
-                            userAddress = record.地址;
-                            break;
-                        }
-                    }
+                    // 修复地址显示逻辑
+let userAddress = '';
+for (let record of userData) {
+    if (record.地址 && record.地址.trim() !== "" && record.地址 !== "TRON") {
+        userAddress = record.地址;
+        break; // 找到第一个有效地址就停止
+    }
+}
+
+// 如果还是没有有效地址，尝试从其他记录中查找
+if (!userAddress) {
+    // 查看数据集中是否有该用户的其他有效地址
+    for (let record of allInvestmentData) {
+        if (record.会员ID === phoneNumber && record.地址 && record.地址.trim() !== "" && record.地址 !== "TRON") {
+            userAddress = record.地址;
+            break;
+        }
+    }
+}
+
+// 如果还是没有地址，显示占位文本
+if (!userAddress) {
+    userAddress = "地址未提供";
+}
                     
                     // 批量处理记录
                     userData.forEach(record => {
@@ -1737,3 +1753,4 @@
     </script>
 </body>
 </html>
+
