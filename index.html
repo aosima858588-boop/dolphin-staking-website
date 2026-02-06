@@ -1651,7 +1651,357 @@
                 
                 // 按日期排序所有期数
                 allPeriods.sort((a
-                                         });
+ allPeriods.sort((a, b) => a.date - b.date);
+                
+                // 更新用户信息
+                document.getElementById('userId').innerHTML = `<i class="fas fa-user"></i> ${phoneNumber}`;
+                
+                if (userAddress) {
+                    document.getElementById('userAddress').innerHTML = `
+                        ${userAddress}
+                        <button class="copy-btn" onclick="copyToClipboard('${userAddress}')">
+                            <i class="fas fa-copy"></i> 复制
+                        </button>
+                    `;
+                } else {
+                    document.getElementById('userAddress').textContent = '地址未提供';
+                }
+                
+                document.getElementById('totalInvestment').textContent = totalInvestment.toFixed(2);
+                document.getElementById('periodReturn').textContent = totalReturnPerPeriod.toFixed(4);
+                document.getElementById('totalRecords').textContent = userData.length;
+                
+                // 更新状态汇总
+                document.getElementById('completedCount').textContent = totalCompleted;
+                document.getElementById('overdueCount').textContent = totalOverdue;
+                document.getElementById('pendingCount').textContent = totalPending;
+                
+                // 更新期数列表
+                updatePeriodsList(allPeriods);
+                
+                // 更新投资记录列表
+                updateInvestmentsList(userData);
+                
+                // 添加到最近查询记录
+                addToRecentSearches(phoneNumber);
+                
+                // 滚动到结果区域
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            // 更新期数列表
+            function updatePeriodsList(allPeriods) {
+                // 更新期数计数
+                document.getElementById('periodsCount').textContent = `共${allPeriods.length}期`;
+                
+                if (allPeriods.length === 0) {
+                    document.getElementById('periodsList').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-calendar"></i>
+                            <p>暂无返款期数数据</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // 生成期数列表
+                let periodsHTML = '';
+                
+                allPeriods.forEach((period, index) => {
+                    const dateStr = period.date.toLocaleDateString('zh-CN', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    });
+                    
+                    let productTag = '';
+                    if (period.record.产品 === 'USDT三期一返') {
+                        productTag = '<span class="product-tag tag-periodic">三期一返</span>';
+                    } else if (period.record.产品 === 'USDT每日返本返息') {
+                        productTag = '<span class="product-tag tag-daily">每日返</span>';
+                    } else if (period.record.产品 === 'INJ到期返本') {
+                        productTag = '<span class="product-tag tag-inj">INJ到期</span>';
+                    }
+                    
+                    // 对于INJ到期返本，显示到期返还总金额
+                    let amountDisplay = period.amount.toFixed(4);
+                    if (period.record.产品 === 'INJ到期返本') {
+                        amountDisplay = period.amount.toFixed(2) + ' (本+息)';
+                    }
+                    
+                    periodsHTML += `
+                        <div class="period-card">
+                            <div class="period-header">
+                                <div class="period-number">第${period.period}期 ${productTag}</div>
+                                <div class="period-amount">${amountDisplay} ${period.record.产品.includes('USDT') ? 'USDT' : 'INJ'}</div>
+                            </div>
+                            <div class="period-details">
+                                <div class="period-date">
+                                    <i class="far fa-calendar"></i>
+                                    ${dateStr}
+                                </div>
+                                <div class="period-status status-${period.status}">${period.statusText}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('periodsList').innerHTML = periodsHTML;
+            }
+            
+            // 更新投资记录列表
+            function updateInvestmentsList(userData) {
+                let investmentsHTML = '';
+                
+                userData.forEach((record, index) => {
+                    const periodStatus = calculateAllPeriodsStatus(record);
+                    const returnPerPeriod = parseFloat(record.每期返 || calculateReturn(record.认购额度, record.产品));
+                    
+                    let productTag = '';
+                    if (record.产品 === 'USDT三期一返') {
+                        productTag = '<span class="product-tag tag-periodic">三期一返</span>';
+                    } else if (record.产品 === 'USDT每日返本返息') {
+                        productTag = '<span class="product-tag tag-daily">每日返本返息</span>';
+                    } else if (record.产品 === 'INJ到期返本') {
+                        productTag = '<span class="product-tag tag-inj">INJ到期返本</span>';
+                    }
+                    
+                    // 对于INJ到期返本，显示利息计算
+                    let returnDetail = '';
+                    if (record.产品 === 'INJ到期返本') {
+                        const interest = (parseFloat(record.认购额度) * 0.005).toFixed(2);
+                        returnDetail = `本金:${record.认购额度} + 利息:${interest}`;
+                    }
+                    
+                    investmentsHTML += `
+                        <div class="investment-card">
+                            <div class="investment-header">
+                                <div class="investment-product">${record.产品} ${productTag}</div>
+                                <div class="investment-amount">${parseFloat(record.认购额度).toFixed(2)} ${record.产品.includes('USDT') ? 'USDT' : 'INJ'}</div>
+                            </div>
+                            <div class="investment-details">
+                                <div class="investment-detail">
+                                    开始时间
+                                    <span>${record.开始}</span>
+                                </div>
+                                <div class="investment-detail">
+                                    结束时间
+                                    <span>${record.结束}</span>
+                                </div>
+                                <div class="investment-detail">
+                                    每期应返
+                                    <span>${returnPerPeriod.toFixed(4)} ${record.产品.includes('USDT') ? 'USDT' : 'INJ'}</span>
+                                    ${returnDetail ? `<br><small>${returnDetail}</small>` : ''}
+                                </div>
+                                <div class="investment-detail">
+                                    返款状态
+                                    <span>已返:${periodStatus.completed} 逾期:${periodStatus.overdue} 待返:${periodStatus.pending}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('investmentsList').innerHTML = investmentsHTML;
+            }
+            
+            // 更新最近查询列表
+            function updateRecentList() {
+                if (recentSearches.length === 0) {
+                    recentList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-clock"></i>
+                            <p>暂无查询记录</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let recentHTML = '';
+                recentSearches.forEach(phone => {
+                    recentHTML += `<div class="recent-item" onclick="searchPhoneNumber('${phone}')">${phone}</div>`;
+                });
+                recentList.innerHTML = recentHTML;
+            }
+            
+            // 添加到最近查询记录
+            function addToRecentSearches(phoneNumber) {
+                // 移除重复项
+                recentSearches = recentSearches.filter(item => item !== phoneNumber);
+                
+                // 添加到开头
+                recentSearches.unshift(phoneNumber);
+                
+                // 限制最多保存10个
+                if (recentSearches.length > 10) {
+                    recentSearches = recentSearches.slice(0, 10);
+                }
+                
+                // 保存到本地存储
+                localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+                
+                // 更新显示
+                updateRecentList();
+            }
+            
+            // 导出数据为CSV
+            function exportDataToCSV() {
+                try {
+                    let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+                    
+                    // 添加标题行
+                    const headers = ["会员ID", "地址", "产品", "认购额度", "开始时间", "结束时间", "每期返款", "状态"];
+                    csvContent += headers.join(",") + "\r\n";
+                    
+                    // 添加数据行
+                    allInvestmentData.forEach(item => {
+                        const periodStatus = calculateAllPeriodsStatus(item);
+                        const status = `已返:${periodStatus.completed} 逾期:${periodStatus.overdue} 待返:${periodStatus.pending}`;
+                        const row = [
+                            item.会员ID,
+                            `"${item.地址 || ''}"`,
+                            item.产品,
+                            item.认购额度,
+                            `"${item.开始}"`,
+                            `"${item.结束}"`,
+                            item.每期返 || calculateReturn(item.认购额度, item.产品),
+                            `"${status}"`
+                        ];
+                        csvContent += row.join(",") + "\r\n";
+                    });
+                    
+                    // 创建下载链接
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement("a");
+                    link.setAttribute("href", encodedUri);
+                    link.setAttribute("download", `返款数据_${new Date().toISOString().split('T')[0]}.csv`);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    // 显示导出成功提示
+                    showToast('数据导出成功', 'success');
+                } catch (error) {
+                    console.error('导出数据时出错:', error);
+                    showToast('数据导出失败', 'error');
+                }
+            }
+            
+            // 显示Toast提示
+            function showToast(message, type = 'info') {
+                // 移除已存在的toast
+                const existingToast = document.querySelector('.toast');
+                if (existingToast) {
+                    existingToast.remove();
+                }
+                
+                // 创建toast元素
+                const toast = document.createElement('div');
+                toast.className = `toast toast-${type}`;
+                toast.textContent = message;
+                toast.style.cssText = `
+                    position: fixed;
+                    top: 80px;
+                    left: 50%;
+                    transform: translateX(-50%) translateY(-20px);
+                    background: ${type === 'error' ? '#f72585' : type === 'success' ? '#4cc9f0' : '#4361ee'};
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    font-size: 0.9rem;
+                    font-weight: 500;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    z-index: 1000;
+                    opacity: 0;
+                    transition: all 0.3s ease;
+                `;
+                
+                document.body.appendChild(toast);
+                
+                // 触发动画
+                setTimeout(() => {
+                    toast.style.opacity = '1';
+                    toast.style.transform = 'translateX(-50%) translateY(0)';
+                }, 10);
+                
+                // 3秒后移除
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(-50%) translateY(-20px)';
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 300);
+                }, 3000);
+            }
+            
+            // 复制到剪贴板
+            window.copyToClipboard = function(text) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('地址已复制到剪贴板', 'success');
+                }).catch(err => {
+                    console.error('复制失败:', err);
+                    showToast('复制失败，请手动复制', 'error');
+                });
+            };
+            
+            // 通过手机号搜索
+            window.searchPhoneNumber = function(phoneNumber) {
+                document.getElementById('phoneNumber').value = phoneNumber;
+                displayResults(phoneNumber);
+            };
+            
+            // 表单提交事件
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const phoneNumber = phoneInput.value.trim();
+                
+                if (phoneNumber) {
+                    displayResults(phoneNumber);
+                }
+            });
+            
+            // 清除结果事件
+            clearResultsBtn.addEventListener('click', function() {
+                resultsSection.style.display = 'none';
+                phoneInput.value = '';
+                phoneInput.focus();
+            });
+            
+            // 刷新统计事件
+            refreshSummaryBtn.addEventListener('click', function() {
+                calculateSystemSummary();
+                showToast('统计数据已刷新', 'success');
+            });
+            
+            // 导出数据事件
+            exportDataBtn.addEventListener('click', function() {
+                exportDataToCSV();
+            });
+            
+            // 产品筛选事件
+            productFilter.addEventListener('click', function(e) {
+                if (e.target.classList.contains('filter-btn')) {
+                    // 移除所有active类
+                    document.querySelectorAll('.filter-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    
+                    // 添加当前active类
+                    e.target.classList.add('active');
+                    
+                    // 更新当前筛选条件
+                    currentFilter = e.target.getAttribute('data-product');
+                    
+                    // 重新计算统计
+                    calculateSystemSummary();
+                }
+            });
+            
+            // 初始化：计算系统总览
+            calculateSystemSummary();
+            
+            console.log('系统初始化完成');
+        });
     </script>
 </body>
 </html>
