@@ -1296,9 +1296,6 @@
         // 合并所有数据
         const allInvestmentData = [...periodicInvestmentData, ...dailyInvestmentData, ...injInvestmentData];
         
-        // 过滤有地址的数据（用于部分统计）
-        const validData = allInvestmentData.filter(item => item.地址 && item.地址.trim() !== "" && item.地址 !== "TRON");
-        
         // 最近查询记录
         let recentSearches = JSON.parse(localStorage.getItem('recentSearches')) || [];
         let currentFilter = 'all'; // 当前筛选的产品类型
@@ -1314,9 +1311,7 @@
             const summaryLoading = document.getElementById('summaryLoading');
             const recentList = document.getElementById('recentList');
             const productFilter = document.getElementById('productFilter');
-            
-            // 隐藏结果区域
-            resultsSection.style.display = 'none';
+            const searchBtn = document.getElementById('searchBtn');
             
             // 显示有效记录数
             document.getElementById('dataStats').textContent = `${allInvestmentData.length}条记录`;
@@ -1365,13 +1360,10 @@
                 return dates;
             }
             
-            // 计算返款状态（返回每一期的状态）
+            // 计算返款状态（返回每一期的状态） - 优化版本
             function calculateAllPeriodsStatus(record) {
                 const returnDates = calculateReturnDates(record.开始, record.产品);
                 const returnPerPeriod = parseFloat(record.每期返 || calculateReturn(record.认购额度, record.产品));
-                const currentDate = new Date('2026-02-06');
-                const cutoffStart = new Date('2026-01-26');
-                const cutoffEnd = new Date('2026-02-05');
                 
                 const periods = [];
                 let completedCount = 0;
@@ -1382,12 +1374,12 @@
                     const date = returnDates[i];
                     let status, statusText;
                     
-                    if (date <= currentDate) {
-                        if (date >= cutoffStart && date <= cutoffEnd) {
+                    if (date <= CURRENT_DATE) {
+                        if (date >= CUTOFF_START && date <= CUTOFF_END) {
                             status = 'overdue';
                             statusText = '逾期';
                             overdueCount++;
-                        } else if (date < cutoffStart) {
+                        } else if (date < CUTOFF_START) {
                             status = 'completed';
                             statusText = '已返';
                             completedCount++;
@@ -1424,13 +1416,23 @@
                 return allInvestmentData.filter(item => item.会员ID === phoneNumber);
             }
             
-            // 计算系统总览统计 - 优化版本
+            // 计算系统总览统计 - 优化版本（使用缓存）
+            let summaryCache = {};
+            
             function calculateSystemSummary() {
                 summaryLoading.style.display = 'block';
                 
                 // 使用requestAnimationFrame确保UI响应
                 requestAnimationFrame(() => {
                     try {
+                        // 检查缓存
+                        const cacheKey = currentFilter;
+                        if (summaryCache[cacheKey]) {
+                            document.getElementById('summaryStats').innerHTML = summaryCache[cacheKey];
+                            summaryLoading.style.display = 'none';
+                            return;
+                        }
+                        
                         let totalInvestment = 0;
                         let totalCompletedAmount = 0;
                         let totalOverdueAmount = 0;
@@ -1448,11 +1450,6 @@
                         } else if (currentFilter === 'inj') {
                             dataToShow = injInvestmentData;
                         }
-                        
-                        // 预计算当前日期
-                        const currentDate = new Date('2026-02-06');
-                        const cutoffStart = new Date('2026-01-26');
-                        const cutoffEnd = new Date('2026-02-05');
                         
                         dataToShow.forEach(record => {
                             // 累加认购额度
@@ -1473,10 +1470,10 @@
                             
                             // 统计金额
                             returnDates.forEach(date => {
-                                if (date <= currentDate) {
-                                    if (date >= cutoffStart && date <= cutoffEnd) {
+                                if (date <= CURRENT_DATE) {
+                                    if (date >= CUTOFF_START && date <= CUTOFF_END) {
                                         totalOverdueAmount += returnPerPeriod;
-                                    } else if (date < cutoffStart) {
+                                    } else if (date < CUTOFF_START) {
                                         totalCompletedAmount += returnPerPeriod;
                                     } else {
                                         totalPendingAmount += returnPerPeriod;
@@ -1584,6 +1581,8 @@
                             `;
                         }
                         
+                        // 缓存结果
+                        summaryCache[cacheKey] = summaryHTML;
                         document.getElementById('summaryStats').innerHTML = summaryHTML;
                         summaryLoading.style.display = 'none';
                         
@@ -1602,91 +1601,114 @@
             
             // 显示查询结果
             function displayResults(phoneNumber) {
-                const userData = searchUserData(phoneNumber);
-                
-                if (userData.length === 0) {
-                    showToast('未找到相关记录，请检查手机号码是否正确', 'error');
+                // 验证手机号格式
+                if (!phoneNumber || phoneNumber.length !== 11 || !/^\d+$/.test(phoneNumber)) {
+                    showToast('请输入有效的11位手机号码', 'error');
                     return;
                 }
                 
-                // 显示结果区域
-                resultsSection.style.display = 'block';
-                resultsSection.classList.add('active');
+                // 显示加载状态
+                searchBtn.disabled = true;
+                searchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 查询中...';
                 
-                // 计算用户统计数据
-                let totalInvestment = 0;
-                let totalReturnPerPeriod = 0;
-                let totalCompleted = 0;
-                let totalOverdue = 0;
-                let totalPending = 0;
-                let allPeriods = [];
-                
-                // 获取用户地址（优先使用有地址的记录）
-                let userAddress = '';
-                for (let record of userData) {
-                    if (record.地址 && record.地址.trim() !== "" && record.地址 !== "TRON") {
-                        userAddress = record.地址;
-                        break;
+                // 延迟执行以显示加载状态
+                setTimeout(() => {
+                    const userData = searchUserData(phoneNumber);
+                    
+                    if (userData.length === 0) {
+                        showToast('未找到相关记录，请检查手机号码是否正确', 'error');
+                        searchBtn.disabled = false;
+                        searchBtn.innerHTML = '<i class="fas fa-search"></i> 查询返款计划';
+                        return;
                     }
-                }
-                
-                userData.forEach(record => {
-                    totalInvestment += parseFloat(record.认购额度 || 0);
-                    totalReturnPerPeriod += parseFloat(record.每期返 || calculateReturn(record.认购额度, record.产品) || 0);
                     
-                    // 计算该记录的所有期数
-                    const periodStatus = calculateAllPeriodsStatus(record);
-                    totalCompleted += periodStatus.completed;
-                    totalOverdue += periodStatus.overdue;
-                    totalPending += periodStatus.pending;
+                    // 显示结果区域
+                    resultsSection.style.display = 'block';
+                    resultsSection.classList.add('active');
                     
-                    // 添加所有期数到列表
-                    periodStatus.periods.forEach(period => {
-                        allPeriods.push({
-                            ...period,
-                            record: record
+                    // 计算用户统计数据
+                    let totalInvestment = 0;
+                    let totalReturnPerPeriod = 0;
+                    let totalCompleted = 0;
+                    let totalOverdue = 0;
+                    let totalPending = 0;
+                    let allPeriods = [];
+                    
+                    // 获取用户地址（优先使用有地址的记录）
+                    let userAddress = '';
+                    for (let record of userData) {
+                        if (record.地址 && record.地址.trim() !== "" && record.地址 !== "TRON") {
+                            userAddress = record.地址;
+                            break;
+                        }
+                    }
+                    
+                    userData.forEach(record => {
+                        totalInvestment += parseFloat(record.认购额度 || 0);
+                        totalReturnPerPeriod += parseFloat(record.每期返 || calculateReturn(record.认购额度, record.产品) || 0);
+                        
+                        // 计算该记录的所有期数
+                        const periodStatus = calculateAllPeriodsStatus(record);
+                        totalCompleted += periodStatus.completed;
+                        totalOverdue += periodStatus.overdue;
+                        totalPending += periodStatus.pending;
+                        
+                        // 添加所有期数到列表
+                        periodStatus.periods.forEach(period => {
+                            allPeriods.push({
+                                ...period,
+                                record: record
+                            });
                         });
                     });
-                });
-                
-                // 按日期排序所有期数
-                allPeriods.sort((a
- allPeriods.sort((a, b) => a.date - b.date);
-                
-                // 更新用户信息
-                document.getElementById('userId').innerHTML = `<i class="fas fa-user"></i> ${phoneNumber}`;
-                
-                if (userAddress) {
-                    document.getElementById('userAddress').innerHTML = `
-                        ${userAddress}
-                        <button class="copy-btn" onclick="copyToClipboard('${userAddress}')">
-                            <i class="fas fa-copy"></i> 复制
-                        </button>
-                    `;
-                } else {
-                    document.getElementById('userAddress').textContent = '地址未提供';
-                }
-                
-                document.getElementById('totalInvestment').textContent = totalInvestment.toFixed(2);
-                document.getElementById('periodReturn').textContent = totalReturnPerPeriod.toFixed(4);
-                document.getElementById('totalRecords').textContent = userData.length;
-                
-                // 更新状态汇总
-                document.getElementById('completedCount').textContent = totalCompleted;
-                document.getElementById('overdueCount').textContent = totalOverdue;
-                document.getElementById('pendingCount').textContent = totalPending;
-                
-                // 更新期数列表
-                updatePeriodsList(allPeriods);
-                
-                // 更新投资记录列表
-                updateInvestmentsList(userData);
-                
-                // 添加到最近查询记录
-                addToRecentSearches(phoneNumber);
-                
-                // 滚动到结果区域
-                resultsSection.scrollIntoView({ behavior: 'smooth' });
+                    
+                    // 按日期排序所有期数
+                    allPeriods.sort((a, b) => a.date - b.date);
+                    
+                    // 更新用户信息
+                    document.getElementById('userId').innerHTML = `<i class="fas fa-user"></i> ${phoneNumber}`;
+                    
+                    if (userAddress) {
+                        document.getElementById('userAddress').innerHTML = `
+                            <span>${userAddress}</span>
+                            <button class="copy-btn" onclick="copyToClipboard('${userAddress}')">
+                                <i class="fas fa-copy"></i> 复制
+                            </button>
+                        `;
+                    } else {
+                        document.getElementById('userAddress').textContent = '地址未提供';
+                    }
+                    
+                    document.getElementById('totalInvestment').textContent = totalInvestment.toFixed(2);
+                    document.getElementById('periodReturn').textContent = totalReturnPerPeriod.toFixed(4);
+                    document.getElementById('totalRecords').textContent = userData.length;
+                    
+                    // 更新状态汇总
+                    document.getElementById('completedCount').textContent = totalCompleted;
+                    document.getElementById('overdueCount').textContent = totalOverdue;
+                    document.getElementById('pendingCount').textContent = totalPending;
+                    
+                    // 更新期数列表
+                    updatePeriodsList(allPeriods);
+                    
+                    // 更新投资记录列表
+                    updateInvestmentsList(userData);
+                    
+                    // 添加到最近查询记录
+                    addToRecentSearches(phoneNumber);
+                    
+                    // 恢复按钮状态
+                    searchBtn.disabled = false;
+                    searchBtn.innerHTML = '<i class="fas fa-search"></i> 查询返款计划';
+                    
+                    // 滚动到结果区域
+                    setTimeout(() => {
+                        resultsSection.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                    
+                    showToast('查询成功', 'success');
+                    
+                }, 500); // 模拟网络延迟
             }
             
             // 更新期数列表
@@ -1914,6 +1936,8 @@
                     z-index: 1000;
                     opacity: 0;
                     transition: all 0.3s ease;
+                    max-width: 90%;
+                    text-align: center;
                 `;
                 
                 document.body.appendChild(toast);
@@ -1940,7 +1964,18 @@
                     showToast('地址已复制到剪贴板', 'success');
                 }).catch(err => {
                     console.error('复制失败:', err);
-                    showToast('复制失败，请手动复制', 'error');
+                    // 备用复制方法
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        showToast('地址已复制到剪贴板', 'success');
+                    } catch (err) {
+                        showToast('复制失败，请手动复制', 'error');
+                    }
+                    document.body.removeChild(textArea);
                 });
             };
             
@@ -1957,6 +1992,8 @@
                 
                 if (phoneNumber) {
                     displayResults(phoneNumber);
+                } else {
+                    showToast('请输入手机号码', 'error');
                 }
             });
             
@@ -1965,10 +2002,13 @@
                 resultsSection.style.display = 'none';
                 phoneInput.value = '';
                 phoneInput.focus();
+                showToast('查询结果已清除', 'info');
             });
             
             // 刷新统计事件
             refreshSummaryBtn.addEventListener('click', function() {
+                // 清除缓存
+                summaryCache = {};
                 calculateSystemSummary();
                 showToast('统计数据已刷新', 'success');
             });
@@ -1994,6 +2034,14 @@
                     
                     // 重新计算统计
                     calculateSystemSummary();
+                }
+            });
+            
+            // 输入框实时验证
+            phoneInput.addEventListener('input', function() {
+                const value = this.value;
+                if (value.length > 11) {
+                    this.value = value.slice(0, 11);
                 }
             });
             
