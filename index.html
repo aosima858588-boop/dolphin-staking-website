@@ -1261,3 +1261,590 @@
     </script>
 </body>
 </html>
+// ... 前面的代码继续 ...
+
+// 更新全部产品表格
+document.getElementById('summary-all').innerHTML = `
+    <tr>
+        <td>全部产品</td>
+        <td>${allTotal.toFixed(2)} USDT</td>
+        <td>${allPaid.toFixed(2)} USDT</td>
+        <td>${allPending.toFixed(2)} USDT</td>
+        <td>${allOverdue.toFixed(2)} USDT</td>
+        <td>${allCount}</td>
+        <td>不同产品返款规则不同</td>
+    </tr>
+    <tr>
+        <td>USDT三期一返</td>
+        <td>${usdtTotal.toFixed(2)} USDT</td>
+        <td>${usdtPaid.toFixed(2)} USDT</td>
+        <td>${usdtPending.toFixed(2)} USDT</td>
+        <td>${usdtOverdue.toFixed(2)} USDT</td>
+        <td>${usdtData.length}</td>
+        <td>共10期，每3天返一期，每期返11.8%</td>
+    </tr>
+    <tr>
+        <td>USDT45天</td>
+        <td>${usdt45Total.toFixed(2)} USDT</td>
+        <td>${usdt45Paid.toFixed(2)} USDT</td>
+        <td>${usdt45Pending.toFixed(2)} USDT</td>
+        <td>${usdt45Overdue.toFixed(2)} USDT</td>
+        <td>${usdt45Data.length}</td>
+        <td>每日返0.8%，共返45天</td>
+    </tr>
+    <tr>
+        <td>INJ理财</td>
+        <td>${injTotal.toFixed(2)} USDT</td>
+        <td>${injPaid.toFixed(2)} USDT</td>
+        <td>${injPending.toFixed(2)} USDT</td>
+        <td>${injOverdue.toFixed(2)} USDT</td>
+        <td>${injData.length}</td>
+        <td>15天到期一次性返本息</td>
+    </tr>
+`;
+
+// 更新USDT三期一返表格
+let usdtTableHtml = '';
+usdtData.forEach(item => {
+    const status = calculateUSDTStatus(item);
+    usdtTableHtml += `
+        <tr>
+            <td>${item.phone}</td>
+            <td class="address">${item.address}</td>
+            <td>${item.amount.toFixed(2)}</td>
+            <td>${item.startDate.toLocaleDateString()}</td>
+            <td>${item.endDate.toLocaleDateString()}</td>
+            <td>${item.perReturn.toFixed(2)}</td>
+            <td>${status.paidPeriods}</td>
+            <td>${status.pendingPeriods}</td>
+            <td>${status.paidAmount.toFixed(2)}</td>
+            <td>${status.pendingAmount.toFixed(2)}</td>
+            <td>${status.overduePeriods}</td>
+            <td><span class="status-${status.status === '已完成' ? 'paid' : status.status === '部分逾期' ? 'overdue' : 'pending'}">${status.status}</span></td>
+        </tr>
+    `;
+});
+document.getElementById('summary-usdt').innerHTML = usdtTableHtml;
+
+// 更新USDT45天表格
+let usdt45TableHtml = '';
+usdt45Data.forEach(item => {
+    const status = calculateUSDT45Status(item);
+    usdt45TableHtml += `
+        <tr>
+            <td>${item.phone}</td>
+            <td class="address">${item.address}</td>
+            <td>${item.amount.toFixed(2)}</td>
+            <td>${item.startDate.toLocaleDateString()}</td>
+            <td>${item.endDate.toLocaleDateString()}</td>
+            <td>${item.dailyReturn.toFixed(4)}</td>
+            <td>${status.paidDays}</td>
+            <td>${status.pendingDays}</td>
+            <td>${status.paidAmount.toFixed(2)}</td>
+            <td>${status.pendingAmount.toFixed(2)}</td>
+            <td>${status.overdueDays}</td>
+            <td><span class="status-${status.status === '已完成' ? 'paid' : status.status === '部分逾期' ? 'overdue' : 'pending'}">${status.status}</span></td>
+        </tr>
+    `;
+});
+document.getElementById('summary-usdt45').innerHTML = usdt45TableHtml;
+
+// 更新INJ表格
+let injTableHtml = '';
+injData.forEach(item => {
+    const status = calculateINJStatus(item);
+    injTableHtml += `
+        <tr>
+            <td>${item.phone}</td>
+            <td class="address">${item.address}</td>
+            <td>${item.amount.toFixed(2)}</td>
+            <td>${item.startDate.toLocaleDateString()}</td>
+            <td>${item.endDate.toLocaleDateString()}</td>
+            <td>${status.isExpired ? '已到期' : '未到期'}</td>
+            <td>${status.isOverdue ? '是' : '否'}</td>
+            <td><span class="status-${status.status === '已返款' ? 'paid' : status.status === '即将逾期' ? 'overdue' : 'pending'}">${status.status}</span></td>
+            <td>${status.paidAmount.toFixed(2)}</td>
+        </tr>
+    `;
+});
+document.getElementById('summary-inj').innerHTML = injTableHtml;
+
+// 更新逾期记录表格
+let overdueTableHtml = '';
+// 收集所有逾期记录
+const overdueRecords = [];
+
+// USDT三期一返逾期记录
+usdtData.forEach(item => {
+    const status = calculateUSDTStatus(item);
+    if (status.overduePeriods > 0) {
+        overdueRecords.push({
+            productType: 'USDT三期一返',
+            phone: item.phone,
+            address: item.address,
+            amount: item.amount,
+            overdueAmount: status.overdueAmount,
+            overdueStartDate: OVERDUE_START_DATE.toISOString().split('T')[0],
+            overdueDays: status.overduePeriods * 3,
+            status: '待处理'
+        });
+    }
+});
+
+// USDT45天逾期记录
+usdt45Data.forEach(item => {
+    const status = calculateUSDT45Status(item);
+    if (status.overdueDays > 0) {
+        overdueRecords.push({
+            productType: 'USDT45天',
+            phone: item.phone,
+            address: item.address,
+            amount: item.amount,
+            overdueAmount: status.overdueAmount,
+            overdueStartDate: OVERDUE_START_DATE.toISOString().split('T')[0],
+            overdueDays: status.overdueDays,
+            status: '待处理'
+        });
+    }
+});
+
+// INJ逾期记录
+injData.forEach(item => {
+    const status = calculateINJStatus(item);
+    if (status.isOverdue) {
+        overdueRecords.push({
+            productType: 'INJ理财',
+            phone: item.phone,
+            address: item.address,
+            amount: item.amount,
+            overdueAmount: status.overdueAmount,
+            overdueStartDate: OVERDUE_START_DATE.toISOString().split('T')[0],
+            overdueDays: Math.ceil((item.endDate - OVERDUE_START_DATE) / (1000 * 60 * 60 * 24)),
+            status: '待处理'
+        });
+    }
+});
+
+// 渲染逾期记录表格
+overdueRecords.forEach(record => {
+    overdueTableHtml += `
+        <tr>
+            <td>${record.productType}</td>
+            <td>${record.phone}</td>
+            <td class="address">${record.address}</td>
+            <td>${record.amount.toFixed(2)}</td>
+            <td>${record.overdueAmount.toFixed(2)}</td>
+            <td>${record.overdueStartDate}</td>
+            <td>${record.overdueDays}</td>
+            <td>${record.status}</td>
+        </tr>
+    `;
+});
+document.getElementById('summary-overdue').innerHTML = overdueTableHtml;
+}
+
+// 查询功能
+let recentSearches = JSON.parse(localStorage.getItem('recentSearches')) || [];
+
+function searchByPhone(phone) {
+    const resultContainer = document.getElementById('result-container');
+    const noResult = document.getElementById('no-result');
+    
+    // 验证手机号格式
+    if (!phone || phone.length !== 11 || !/^\d+$/.test(phone)) {
+        resultContainer.innerHTML = `
+            <div class="no-result">
+                请输入有效的11位手机号
+            </div>
+        `;
+        return;
+    }
+    
+    // 查找相关记录
+    const usdtRecords = usdtData.filter(item => item.phone === phone);
+    const usdt45Records = usdt45Data.filter(item => item.phone === phone);
+    const injRecords = injData.filter(item => item.phone === phone);
+    
+    // 如果没有找到任何记录
+    if (usdtRecords.length === 0 && usdt45Records.length === 0 && injRecords.length === 0) {
+        resultContainer.innerHTML = `
+            <div class="no-result">
+                未找到手机号 ${phone} 对应的返款记录
+            </div>
+        `;
+        return;
+    }
+    
+    // 构建结果显示
+    let resultHtml = '';
+    
+    // 添加USDT三期一返记录
+    usdtRecords.forEach((record, index) => {
+        const status = calculateUSDTStatus(record);
+        resultHtml += `
+            <div class="result-item">
+                <h3>
+                    <span>USDT三期一返</span>
+                    <span class="product-badge badge-usdt">USDT</span>
+                    <span class="status-badge status-${status.status === '已完成' ? 'paid' : status.status === '部分逾期' ? 'overdue' : 'pending'}">${status.status}</span>
+                </h3>
+                <div class="result-details">
+                    <div class="detail-item">
+                        <div class="detail-label">手机号:</div>
+                        <div>${record.phone}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">地址:</div>
+                        <div class="address">${record.address}</div>
+                        <button class="copy-btn" onclick="copyToClipboard('${record.address}')">复制</button>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">认购金额:</div>
+                        <div>${record.amount.toFixed(2)} USDT</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">开始日期:</div>
+                        <div>${record.startDate.toLocaleDateString()}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">结束日期:</div>
+                        <div>${record.endDate.toLocaleDateString()}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">每期返款:</div>
+                        <div>${record.perReturn.toFixed(2)} USDT</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">已返期数:</div>
+                        <div>${status.paidPeriods}期</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">待返期数:</div>
+                        <div>${status.pendingPeriods}期</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">已返金额:</div>
+                        <div>${status.paidAmount.toFixed(2)} USDT</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">待返金额:</div>
+                        <div>${status.pendingAmount.toFixed(2)} USDT</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">逾期期数:</div>
+                        <div>${status.overduePeriods}期</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">逾期金额:</div>
+                        <div>${status.overdueAmount.toFixed(2)} USDT</div>
+                    </div>
+                </div>
+                <div class="repayment-plan">
+                    <h4>返款计划表</h4>
+                    <table class="repayment-table">
+                        <thead>
+                            <tr>
+                                <th>期数</th>
+                                <th>返款日期</th>
+                                <th>返款金额</th>
+                                <th>状态</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${record.returnDates.map((date, i) => {
+                                const period = i + 1;
+                                const isPaid = date <= CURRENT_DATE;
+                                const isOverdue = date >= OVERDUE_START_DATE && date <= OVERDUE_END_DATE && date > CURRENT_DATE;
+                                let statusText = '待返款';
+                                let statusClass = 'repayment-pending';
+                                
+                                if (isPaid) {
+                                    statusText = '已返款';
+                                    statusClass = 'repayment-paid';
+                                } else if (isOverdue) {
+                                    statusText = '已逾期';
+                                    statusClass = 'repayment-overdue';
+                                }
+                                
+                                return `
+                                    <tr>
+                                        <td>第${period}期</td>
+                                        <td>${date.toLocaleDateString()}</td>
+                                        <td>${record.perReturn.toFixed(2)} USDT</td>
+                                        <td class="${statusClass}">${statusText}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    });
+    
+    // 添加USDT45天记录
+    usdt45Records.forEach((record, index) => {
+        const status = calculateUSDT45Status(record);
+        resultHtml += `
+            <div class="result-item">
+                <h3>
+                    <span>USDT45天理财</span>
+                    <span class="product-badge badge-usdt45">USDT45</span>
+                    <span class="status-badge status-${status.status === '已完成' ? 'paid' : status.status === '部分逾期' ? 'overdue' : 'pending'}">${status.status}</span>
+                </h3>
+                <div class="result-details">
+                    <div class="detail-item">
+                        <div class="detail-label">手机号:</div>
+                        <div>${record.phone}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">地址:</div>
+                        <div class="address">${record.address}</div>
+                        <button class="copy-btn" onclick="copyToClipboard('${record.address}')">复制</button>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">购买金额:</div>
+                        <div>${record.amount.toFixed(2)} USDT</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">开始日期:</div>
+                        <div>${record.startDate.toLocaleDateString()}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">结束日期:</div>
+                        <div>${record.endDate.toLocaleDateString()}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">每日应返:</div>
+                        <div>${record.dailyReturn.toFixed(4)} USDT</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">已返天数:</div>
+                        <div>${status.paidDays}天</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">待返天数:</div>
+                        <div>${status.pendingDays}天</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">已返金额:</div>
+                        <div>${status.paidAmount.toFixed(2)} USDT</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">待返金额:</div>
+                        <div>${status.pendingAmount.toFixed(2)} USDT</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">逾期天数:</div>
+                        <div>${status.overdueDays}天</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">逾期金额:</div>
+                        <div>${status.overdueAmount.toFixed(2)} USDT</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    // 添加INJ记录
+    injRecords.forEach((record, index) => {
+        const status = calculateINJStatus(record);
+        resultHtml += `
+            <div class="result-item">
+                <h3>
+                    <span>INJ理财</span>
+                    <span class="product-badge badge-inj">INJ</span>
+                    <span class="status-badge status-${status.status === '已返款' ? 'paid' : status.status === '即将逾期' ? 'overdue' : 'pending'}">${status.status}</span>
+                </h3>
+                <div class="result-details">
+                    <div class="detail-item">
+                        <div class="detail-label">手机号:</div>
+                        <div>${record.phone}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">地址:</div>
+                        <div class="address">${record.address}</div>
+                        <button class="copy-btn" onclick="copyToClipboard('${record.address}')">复制</button>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">购买金额:</div>
+                        <div>${record.amount.toFixed(2)} USDT</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">买入时间:</div>
+                        <div>${record.startDate.toLocaleDateString()}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">结束时间:</div>
+                        <div>${record.endDate.toLocaleDateString()}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">是否到期:</div>
+                        <div>${status.isExpired ? '已到期' : '未到期'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">是否逾期:</div>
+                        <div>${status.isOverdue ? '是' : '否'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">返款金额:</div>
+                        <div>${record.returnAmount.toFixed(2)} USDT</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">返款状态:</div>
+                        <div>${status.status}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    // 更新结果容器
+    resultContainer.innerHTML = resultHtml;
+    
+    // 添加到最近查询记录
+    addToRecentSearches(phone);
+}
+
+// 复制到剪贴板
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        alert('地址已复制到剪贴板');
+    }).catch(err => {
+        console.error('复制失败:', err);
+    });
+}
+
+// 添加到最近查询记录
+function addToRecentSearches(phone) {
+    // 移除重复项
+    recentSearches = recentSearches.filter(item => item !== phone);
+    
+    // 添加到开头
+    recentSearches.unshift(phone);
+    
+    // 限制最多保存10个
+    if (recentSearches.length > 10) {
+        recentSearches = recentSearches.slice(0, 10);
+    }
+    
+    // 保存到本地存储
+    localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+    
+    // 更新显示
+    updateRecentSearches();
+}
+
+// 更新最近查询记录显示
+function updateRecentSearches() {
+    const recentList = document.getElementById('recent-list');
+    recentList.innerHTML = '';
+    
+    recentSearches.forEach(phone => {
+        const item = document.createElement('div');
+        item.className = 'recent-item';
+        item.textContent = phone;
+        item.onclick = () => {
+            document.getElementById('phone-input').value = phone;
+            searchByPhone(phone);
+        };
+        recentList.appendChild(item);
+    });
+}
+
+// 导出CSV数据
+function exportToCSV() {
+    let csvContent = "data:text/csv;charset=utf-8,";
+    
+    // 添加标题行
+    csvContent += "产品类型,手机号,地址,认购金额,开始日期,结束日期,每期返款,已返期数,待返期数,已返金额,待返金额,逾期期数,逾期金额,状态\r\n";
+    
+    // 添加USDT三期一返数据
+    usdtData.forEach(item => {
+        const status = calculateUSDTStatus(item);
+        csvContent += `"USDT三期一返",${item.phone},"${item.address}",${item.amount},"${item.startDate.toLocaleDateString()}","${item.endDate.toLocaleDateString()}",${item.perReturn},${status.paidPeriods},${status.pendingPeriods},${status.paidAmount},${status.pendingAmount},${status.overduePeriods},${status.overdueAmount},"${status.status}"\r\n`;
+    });
+    
+    // 添加USDT45天数据
+    usdt45Data.forEach(item => {
+        const status = calculateUSDT45Status(item);
+        csvContent += `"USDT45天",${item.phone},"${item.address}",${item.amount},"${item.startDate.toLocaleDateString()}","${item.endDate.toLocaleDateString()}",${item.dailyReturn},${status.paidDays},${status.pendingDays},${status.paidAmount},${status.pendingAmount},${status.overdueDays},${status.overdueAmount},"${status.status}"\r\n`;
+    });
+    
+    // 添加INJ数据
+    injData.forEach(item => {
+        const status = calculateINJStatus(item);
+        csvContent += `"INJ理财",${item.phone},"${item.address}",${item.amount},"${item.startDate.toLocaleDateString()}","${item.endDate.toLocaleDateString()}","-","-","-",${status.paidAmount},${status.pendingAmount},"-",${status.overdueAmount},"${status.status}"\r\n`;
+    });
+    
+    // 创建下载链接
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `USDT理财返款统计_${CURRENT_DATE.toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// 初始化页面
+function initPage() {
+    // 加载数据
+    loadUSDTData();
+    loadUSDT45Data();
+    loadINJData();
+    
+    // 初始化统计信息
+    initStats();
+    
+    // 更新最近查询记录
+    updateRecentSearches();
+    
+    // 设置当前日期
+    document.getElementById('current-date').textContent = CURRENT_DATE.toISOString().split('T')[0];
+    document.getElementById('update-time').textContent = new Date().toLocaleDateString();
+    
+    // 绑定搜索按钮事件
+    document.getElementById('search-btn').addEventListener('click', () => {
+        const phone = document.getElementById('phone-input').value.trim();
+        if (phone) {
+            searchByPhone(phone);
+        } else {
+            alert('请输入手机号');
+        }
+    });
+    
+    // 绑定回车键搜索
+    document.getElementById('phone-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const phone = document.getElementById('phone-input').value.trim();
+            if (phone) {
+                searchByPhone(phone);
+            }
+        }
+    });
+    
+    // 绑定导出按钮事件
+    document.getElementById('export-btn').addEventListener('click', exportToCSV);
+    
+    // 绑定标签切换事件
+    document.querySelectorAll('.product-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            // 移除所有active类
+            document.querySelectorAll('.product-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.product-content').forEach(c => c.classList.remove('active'));
+            
+            // 添加当前active类
+            tab.classList.add('active');
+            const product = tab.getAttribute('data-product');
+            document.getElementById(`content-${product}`).classList.add('active');
+        });
+    });
+}
+
+// 页面加载完成后初始化
+document.addEventListener('DOMContentLoaded', initPage);
+</script>
+</body>
+</html>
