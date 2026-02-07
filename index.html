@@ -1,1 +1,61 @@
-<!DOCTYPE html>\n<html lang="zh-CN">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>返款查询系统</title>\n    <link rel="stylesheet" href="styles.css">\n    <script src="script.js" defer></script>\n</head>\n<body>\n    <header>\n        <h1>返款查询系统</h1>\n    </header>\n    <main>\n        <section id="investment-products">\n            <h2>投资产品</h2>\n            <ul>\n                <li>USDT 三期一返</li>\n                <li>USDT 每日返本返息</li>\n                <li>INJ 到期返本</li>\n            </ul>\n        </section>\n        <section id="query-section">\n            <h2>查询您的返款信息</h2>\n            <form id="query-form">\n                <label for="address-input">输入您的地址:</label>\n                <input type="text" id="address-input" placeholder="请输入有效地址">\n                <button type="submit">查询</button>\n            </form>\n            <div id="results"></div>\n        </section>\n    </main>\n    <footer>\n        <p>© 2026 返款查询系统. 保留所有权利.</p>\n    </footer>\n</body>\n</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dolphin Staking Website</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="script.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Dolphin Staking Investment Dashboard</h1>
+    </header>
+    <main>
+        <section id="investment-data">
+            <h2>Investment Data</h2>
+            <div id="investment-summary"></div>
+            <div id="filtered-products"></div>
+        </section>
+        <section id="search">
+            <input type="text" id="search-phone" placeholder="Search by Phone Number">
+            <button id="search-btn">Search</button>
+            <div id="search-results"></div>
+        </section>
+        <section id="system-summary">
+            <h2>System Summary</h2>
+            <div id="summary-stats"></div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2026 Dolphin Staking</p>
+    </footer>
+    <script>
+        const periodicInvestmentData = [...];
+        const dailyInvestmentData = [...];
+        const injInvestmentData = [...];
+
+        // Function to filter valid addresses
+        function getValidRecords(data) {
+            return data.filter(record => record.address && record.address !== '地址未提供' && record.address !== 'TRON');
+        }
+
+        function displaySummaryStats() {
+            const validRecords = getValidRecords([...periodicInvestmentData, ...dailyInvestmentData, ...injInvestmentData]);
+            const totalInvestment = validRecords.reduce((sum, record) => sum + record.amount, 0);
+            document.getElementById('summary-stats').innerHTML = `Total Valid Investments: ${validRecords.length}<br>Total Investment Amount: $${totalInvestment}`;
+        }
+
+        document.getElementById('search-btn').addEventListener('click', () => {
+            const phoneNumber = document.getElementById('search-phone').value;
+            // Implement search logic based on phone number
+            // Display results in the search-results div
+        });
+
+        window.onload = () => {
+            displaySummaryStats();
+            // Additional logic to display investment data and handle searches
+        };
+    </script>
+</body>
+</html>
