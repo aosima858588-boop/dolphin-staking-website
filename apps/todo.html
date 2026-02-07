@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>待办事项 - Dolphin Staking</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #764ba2;
+            margin-bottom: 10px;
+        }
+
+        .user-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .user-info p {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .user-info strong {
+            color: #764ba2;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .content-card h2 {
+            color: #764ba2;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 待办事项</h1>
+            <p>Todo List Application</p>
+            
+            <div class="user-info" id="userInfo">
+                <p><strong>用户号码：</strong><span id="userId">加载中...</span></p>
+                <p><strong>访问时间：</strong><span id="queryTime"></span></p>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h2>我的待办</h2>\n        <div class="form-group" style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <input type="text" id="taskInput" placeholder="添加新任务..." style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+            <button id="addTaskBtn" style="padding: 12px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s;">添加</button>
+        </div>
+        <div class="filters" style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <select id="categoryFilter" style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; flex: 1;">
+                <option value="all">所有类别</option>
+                <option value="work">工作</option>
+                <option value="personal">个人</option>
+            </select>
+            <select id="priorityFilter" style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; flex: 1;">
+                <option value="all">所有优先级</option>
+                <option value="high">高</option>
+                <option value="medium">中</option>
+                <option value="low">低</option>
+            </select>
+        </div>
+        <ul id="taskList" style="list-style: none;"></ul>
+    </div>
+
+    <div class="content-card">
+        <a href="../index.html" style="display: inline-block; padding: 12px 30px; background: #667eea; color: white; text-decoration: none; border-radius: 25px; transition: all 0.3s;">← 返回首页</a>
+    </div>
+    </div>\n    <script>
+// Get user ID from URL parameters
+const urlParams = new URLSearchParams(window.location.search);
+const userId = urlParams.get('id');
+
+// Display user info
+if (userId) {
+    document.getElementById('userId').textContent = userId;
+} else {
+    document.getElementById('userId').textContent = '未提供';
+}
+
+// Display current time
+const now = new Date();
+document.getElementById('queryTime').textContent = now.toLocaleString('zh-CN');
+
+// Todo list functionality
+const tasks = JSON.parse(localStorage.getItem('tasks_' + userId)) || [];
+
+function renderTasks() {
+    const taskList = document.getElementById('taskList');
+    taskList.innerHTML = '';
+    tasks.forEach((task, index) => {
+        const li = document.createElement('li');
+        li.style.cssText = 'background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;';
+        li.innerHTML = `
+            <span>
+                <span style="color: ${task.priority === 'high' ? '#dc3545' : task.priority === 'medium' ? '#ffc107' : '#28a745'}; font-weight: bold;">[${task.priority}]</span> 
+                ${task.title}
+            </span>
+            <div>
+                <button onclick="editTask(${index})" style="padding: 8px 15px; margin-left: 5px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">编辑</button> 
+                <button onclick="deleteTask(${index})" style="padding: 8px 15px; margin-left: 5px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">删除</button>
+            </div>
+        `;
+        taskList.appendChild(li);
+    });
+}
+
+function addTask() {
+    const taskInput = document.getElementById('taskInput');
+    if (!taskInput.value.trim()) return;
+    
+    const newTask = {
+        title: taskInput.value,
+        priority: 'medium',
+        category: 'personal'
+    };
+    tasks.push(newTask);
+    localStorage.setItem('tasks_' + userId, JSON.stringify(tasks));
+    taskInput.value = '';
+    renderTasks();
+}
+
+document.getElementById('addTaskBtn').addEventListener('click', addTask);
+document.getElementById('taskInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') addTask();
+});
+
+function editTask(index) {
+    const title = prompt('编辑任务标题:', tasks[index].title);
+    if (title && title.trim()) {
+        tasks[index].title = title;
+        localStorage.setItem('tasks_' + userId, JSON.stringify(tasks));
+        renderTasks();
+    }
+}
+
+function deleteTask(index) {
+    if (confirm('确定要删除这个任务吗？')) {
+        tasks.splice(index, 1);
+        localStorage.setItem('tasks_' + userId, JSON.stringify(tasks));
+        renderTasks();
+    }
+}
+
+renderTasks();
+</script>\n

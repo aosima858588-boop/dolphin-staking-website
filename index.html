@@ -1,41 +1,490 @@
-<html>
+<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
-    <title>Improved User Query System</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>海豚链上赚币 - 用户查询系统</title>
     <style>
-        /* Optimized Design */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             padding: 20px;
-            background-color: #f4f4f4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        input[type="text"] {
+
+        .main-container {
+            max-width: 1200px;
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            margin: 0 auto;
         }
-        button {
-            padding: 10px 15px;
-            background-color: #008cba;
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        .header h1 {
+            font-size: 42px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.95;
+        }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .module-card {
+            background: white;
+            border-radius: 15px;
+            padding: 35px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .module-card:nth-child(1) { animation-delay: 0.1s; }
+        .module-card:nth-child(2) { animation-delay: 0.2s; }
+        .module-card:nth-child(3) { animation-delay: 0.3s; }
+
+        .module-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .module-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .module-card h2 {
+            color: #764ba2;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .module-card .subtitle {
+            color: #999;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .module-card .description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            min-height: 60px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .input-group input.error {
+            border-color: #dc3545;
+            animation: shake 0.4s;
+        }
+
+        .input-group .error-message {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .input-group .error-message.show {
+            display: block;
+        }
+
+        .query-button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
             cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
         }
-        button:hover {
-            background-color: #005f75;
+
+        .query-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+
+        .query-button:active {
+            transform: translateY(0);
+        }
+
+        .query-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .query-button.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .query-button.loading span {
+            opacity: 0;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.9;
+            animation: fadeIn 1s ease-out 0.5s both;
+        }
+
+        .footer p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 32px;
+            }
+
+            .header p {
+                font-size: 16px;
+            }
+
+            .modules-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .module-card {
+                padding: 25px;
+            }
+        }
+
+        .features-info {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            color: white;
+            margin-top: 30px;
+            animation: fadeIn 1s ease-out 0.4s both;
+        }
+
+        .features-info h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .features-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .feature-item::before {
+            content: '✓';
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            flex-shrink: 0;
         }
     </style>
 </head>
 <body>
-    <h1>Improved User Query System</h1>
-    <form>
-        <label for="queryInput">Input your query:</label>
-        <input type="text" id="queryInput" name="queryInput" placeholder="Type your query here...">
-        <button type="submit">Submit</button>
-    </form>
-    <div id="results"></div>
+    <div class="main-container">
+        <div class="header">
+            <h1>🐬 海豚链上赚币</h1>
+            <p>Dolphin Staking - 用户查询系统</p>
+        </div>
+
+        <div class="modules-grid">
+            <!-- 返款查询模块 -->
+            <div class="module-card">
+                <span class="module-icon">💰</span>
+                <h2>返款查询系统</h2>
+                <p class="subtitle">Rebate Query System</p>
+                <p class="description">查询您的质押返款记录、返款金额统计、以及待返款信息。实时了解您的收益情况。</p>
+                
+                <form id="rebateForm" onsubmit="handleQuery(event, 'rebate')">
+                    <div class="input-group">
+                        <label for="rebateId">请输入您的号码</label>
+                        <input 
+                            type="text" 
+                            id="rebateId" 
+                            name="userId" 
+                            placeholder="6-10位数字" 
+                            pattern="[0-9]{6,10}"
+                            required
+                        >
+                        <div class="error-message" id="rebateError">请输入6-10位数字号码</div>
+                    </div>
+                    <button type="submit" class="query-button">
+                        <span>立即查询</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- VIP会员模块 -->
+            <div class="module-card">
+                <span class="module-icon">👑</span>
+                <h2>VIP会员中心</h2>
+                <p class="subtitle">VIP Membership Center</p>
+                <p class="description">查看您的VIP等级、专属权益、升级进度以及积分使用情况。享受尊贵会员服务。</p>
+                
+                <form id="vipForm" onsubmit="handleQuery(event, 'vip')">
+                    <div class="input-group">
+                        <label for="vipId">请输入您的号码</label>
+                        <input 
+                            type="text" 
+                            id="vipId" 
+                            name="userId" 
+                            placeholder="6-12位字母或数字" 
+                            pattern="[A-Za-z0-9]{6,12}"
+                            required
+                        >
+                        <div class="error-message" id="vipError">请输入6-12位字母或数字</div>
+                    </div>
+                    <button type="submit" class="query-button">
+                        <span>立即查询</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- 待办事项模块 -->
+            <div class="module-card">
+                <span class="module-icon">📝</span>
+                <h2>待办事项</h2>
+                <p class="subtitle">Todo List</p>
+                <p class="description">管理您的任务列表，记录重要事项，设置优先级。高效管理您的日常工作和计划。</p>
+                
+                <form id="todoForm" onsubmit="handleQuery(event, 'todo')">
+                    <div class="input-group">
+                        <label for="todoId">请输入您的号码</label>
+                        <input 
+                            type="text" 
+                            id="todoId" 
+                            name="userId" 
+                            placeholder="6-12位字母或数字" 
+                            pattern="[A-Za-z0-9]{6,12}"
+                            required
+                        >
+                        <div class="error-message" id="todoError">请输入6-12位字母或数字</div>
+                    </div>
+                    <button type="submit" class="query-button">
+                        <span>立即查询</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="features-info">
+            <h3>💡 系统特色</h3>
+            <div class="features-list">
+                <div class="feature-item">实时查询您的账户信息</div>
+                <div class="feature-item">安全的数据加密传输</div>
+                <div class="feature-item">便捷的移动端访问</div>
+                <div class="feature-item">7x24小时在线服务</div>
+                <div class="feature-item">详细的数据统计分析</div>
+                <div class="feature-item">个性化的用户体验</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2026 Dolphin Staking. All rights reserved.</p>
+            <p>为了更好的体验，请使用现代浏览器访问</p>
+        </div>
+    </div>
+
+    <script>
+        // Module routes configuration
+        const moduleRoutes = {
+            rebate: 'staking/index.html',
+            vip: 'vip-membership/vip.html',
+            todo: 'apps/todo.html'
+        };
+
+        // Validation patterns
+        const validationPatterns = {
+            rebate: /^[0-9]{6,10}$/,
+            vip: /^[A-Za-z0-9]{6,12}$/,
+            todo: /^[A-Za-z0-9]{6,12}$/
+        };
+
+        // Handle query form submission
+        function handleQuery(event, module) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const input = form.querySelector('input[name="userId"]');
+            const button = form.querySelector('.query-button');
+            const errorMsg = form.querySelector('.error-message');
+            const userId = input.value.trim();
+
+            // Validate input
+            if (!validationPatterns[module].test(userId)) {
+                input.classList.add('error');
+                errorMsg.classList.add('show');
+                
+                // Remove error after 3 seconds
+                setTimeout(() => {
+                    input.classList.remove('error');
+                    errorMsg.classList.remove('show');
+                }, 3000);
+                return false;
+            }
+
+            // Clear any previous errors
+            input.classList.remove('error');
+            errorMsg.classList.remove('show');
+
+            // Show loading state
+            button.classList.add('loading');
+            button.disabled = true;
+
+            // Simulate loading time for better UX
+            setTimeout(() => {
+                // Navigate to the module page with user ID
+                const targetUrl = `${moduleRoutes[module]}?id=${encodeURIComponent(userId)}`;
+                window.location.href = targetUrl;
+            }, 800);
+
+            return false;
+        }
+
+        // Add input validation on blur
+        document.querySelectorAll('input[name="userId"]').forEach(input => {
+            input.addEventListener('input', function() {
+                // Remove error state when user starts typing
+                this.classList.remove('error');
+                const errorMsg = this.parentElement.querySelector('.error-message');
+                if (errorMsg) {
+                    errorMsg.classList.remove('show');
+                }
+            });
+        });
+
+        // Add enter key support for forms
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    form.querySelector('.query-button').click();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
