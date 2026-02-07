@@ -408,6 +408,10 @@
     </div>
 
     <script>
+        // 时间常量配置
+        const LOADING_DELAY = 1000; // 加载动画显示时间（毫秒）
+        const REDIRECT_DELAY = 1500; // 成功消息显示后跳转延迟（毫秒）
+        
         // 表单提交处理
         function handleSubmit(event, module) {
             event.preventDefault();
@@ -454,8 +458,8 @@
                 // 跳转到对应页面
                 setTimeout(() => {
                     navigateToModule(module, userId);
-                }, 1500);
-            }, 1000);
+                }, REDIRECT_DELAY);
+            }, LOADING_DELAY);
         }
         
         // 获取模块中文名称
@@ -466,6 +470,11 @@
                 'todo': '待办事项'
             };
             return names[module] || '';
+        }
+        
+        // 显示页面未开放提示
+        function showPageNotAvailableMessage(userId) {
+            alert(`页面暂未开放，敬请期待！\n查询号码: ${userId}`);
         }
         
         // 跳转到对应模块页面
@@ -484,12 +493,11 @@
                         if (response.ok) {
                             window.location.href = url;
                         } else {
-                            alert(`页面暂未开放，敬请期待！\n查询号码: ${userId}`);
+                            showPageNotAvailableMessage(userId);
                         }
                     })
                     .catch(() => {
-                        // 如果页面不存在，显示提示信息
-                        alert(`页面暂未开放，敬请期待！\n查询号码: ${userId}`);
+                        showPageNotAvailableMessage(userId);
                     });
             }
         }
