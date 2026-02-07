@@ -1,12 +1,807 @@
-function calculateSystemSummary() {
-    // ... existing code ...
-
-    dataToShow.forEach(record => {
-        // Filter records by address
-        const validAddresses = record.address && record.address !== "地址未提供" && record.address !== "TRON";
-        if (validAddresses) {
-            // existing logic to handle valid records
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>海豚链 - 返款查询系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-    });
-    // ... existing code ...
-}
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-primary);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+            animation: slideInDown 0.6s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .navbar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 3px;
+            background: var(--primary-gradient);
+            animation: shimmer 3s infinite;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .navbar-title {
+            font-size: 28px;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .navbar-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-left: 15px;
+            animation: fadeInUp 0.8s ease-out 0.3s both;
+        }
+
+        .search-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+            animation: scaleIn 0.6s ease-out 0.2s both;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: var(--transition);
+            background: white;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .search-input:focus + .input-icon {
+            color: #667eea;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .search-btn {
+            padding: 15px 40px;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .search-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .search-btn:active {
+            transform: translateY(0);
+        }
+
+        .search-btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            animation: scaleIn 0.6s ease-out both;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.3s; }
+        .stat-card:nth-child(2) { animation-delay: 0.4s; }
+        .stat-card:nth-child(3) { animation-delay: 0.5s; }
+        .stat-card:nth-child(4) { animation-delay: 0.6s; }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            color: #48bb78;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .filter-section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+            animation: scaleIn 0.6s ease-out 0.7s both;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 24px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .filter-btn.active {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .filter-btn.active::after {
+            content: '✓';
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+        }
+
+        .results-section {
+            animation: fadeInUp 0.6s ease-out 0.8s both;
+        }
+
+        .user-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+
+        .user-card:hover {
+            box-shadow: var(--hover-shadow);
+        }
+
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f7fafc;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .user-details {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .user-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .user-address {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-family: monospace;
+        }
+
+        .copy-btn {
+            padding: 6px 12px;
+            background: #f7fafc;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .copy-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.active {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            color: #0c4a3c;
+        }
+
+        .status-badge.pending {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            color: #6c5ce7;
+        }
+
+        .status-badge.completed {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #6c5ce7;
+        }
+
+        .periods-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .period-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+            transition: var(--transition);
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .period-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .period-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: var(--primary-gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .period-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .period-date {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .period-amount {
+            font-size: 24px;
+            font-weight: 700;
+            background: var(--success-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .period-status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .period-status.paid {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            color: #0c4a3c;
+        }
+
+        .period-status.unpaid {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            color: #d63031;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+        }
+
+        .empty-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .empty-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .loading {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .loading.show {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: none;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        .toast.show {
+            display: flex;
+        }
+
+        .toast.success {
+            border-left: 4px solid #48bb78;
+        }
+
+        .toast.error {
+            border-left: 4px solid #f56565;
+        }
+
+        .toast-icon {
+            font-size: 24px;
+        }
+
+        .toast-message {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .navbar { padding: 15px 20px; }
+            .navbar-title { font-size: 22px; }
+            .navbar-subtitle { display: block; margin-left: 0; margin-top: 5px; }
+            .search-section { padding: 20px; }
+            .search-box { flex-direction: column; }
+            .input-wrapper { width: 100%; }
+            .search-btn { width: 100%; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .stat-value { font-size: 28px; }
+            .filter-buttons { justify-content: center; }
+            .user-info { flex-direction: column; align-items: flex-start; }
+            .period-card { grid-template-columns: 1fr; gap: 15px; }
+            .period-amount { font-size: 20px; }
+            .toast { bottom: 20px; right: 20px; left: 20px; }
+        }
+
+        .stat-value.animate {
+            animation: countUp 0.6s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <div class="navbar-content">
+                <div>
+                    <span class="navbar-title">🐬 海豚链返款查询系统</span>
+                    <span class="navbar-subtitle">Dolphin Chain Rebate Query System</span>
+                </div>
+            </div>
+        </nav>
+
+        <div class="search-section">
+            <div class="search-box">
+                <div class="input-wrapper">
+                    <input type="text" id="searchInput" class="search-input" placeholder="请输入用户地址查询...">
+                    <span class="input-icon">🔍</span>
+                </div>
+                <button class="search-btn" onclick="searchUser()">查询返款</button>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label"><span>👥</span><span>总用户数</span></div>
+                <div class="stat-value" id="totalUsers">0</div>
+                <div class="stat-change"><span>↗</span><span>较上期增长 12%</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label"><span>💰</span><span>总返款金额</span></div>
+                <div class="stat-value" id="totalAmount">0</div>
+                <div class="stat-change"><span>↗</span><span>较上期增长 8%</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label"><span>📊</span><span>当期返款</span></div>
+                <div class="stat-value" id="currentPeriod">0</div>
+                <div class="stat-change"><span>↗</span><span>本期新增</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label"><span>✅</span><span>已发放数</span></div>
+                <div class="stat-value" id="paidCount">0</div>
+                <div class="stat-change"><span>↗</span><span>发放率 95%</span></div>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="filterStatus('all')">全部</button>
+                <button class="filter-btn" onclick="filterStatus('paid')">已发放</button>
+                <button class="filter-btn" onclick="filterStatus('unpaid')">待发放</button>
+                <button class="filter-btn" onclick="filterStatus('pending')">处理中</button>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+        </div>
+
+        <div class="results-section" id="results">
+            <div class="empty-state">
+                <div class="empty-icon">🔍</div>
+                <div class="empty-title">暂无查询结果</div>
+                <div class="empty-description">请输入用户地址进行查询</div>
+            </div>
+        </div>
+
+        <div class="toast" id="toast">
+            <span class="toast-icon" id="toastIcon"></span>
+            <span class="toast-message" id="toastMessage"></span>
+        </div>
+    </div>
+
+    <script>
+        const mockData = {
+            'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t': {
+                name: '用户 A',
+                address: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
+                status: 'active',
+                periods: [
+                    { number: 1, date: '2024-01-15', amount: 1250.50, status: 'paid' },
+                    { number: 2, date: '2024-02-15', amount: 1430.75, status: 'paid' },
+                    { number: 3, date: '2024-03-15', amount: 1680.25, status: 'unpaid' }
+                ]
+            },
+            'TXWkP3jLBqRGojUih1ShzNyDaN5Csnebok': {
+                name: '用户 B',
+                address: 'TXWkP3jLBqRGojUih1ShzNyDaN5Csnebok',
+                status: 'active',
+                periods: [
+                    { number: 1, date: '2024-01-15', amount: 980.00, status: 'paid' },
+                    { number: 2, date: '2024-02-15', amount: 1120.50, status: 'paid' },
+                    { number: 3, date: '2024-03-15', amount: 1350.00, status: 'paid' }
+                ]
+            }
+        };
+
+        function initializeStats() {
+            animateValue('totalUsers', 0, 1258, 1500);
+            animateValue('totalAmount', 0, 285000, 1500, '¥');
+            animateValue('currentPeriod', 0, 45, 1500);
+            animateValue('paidCount', 0, 1195, 1500);
+        }
+
+        function animateValue(id, start, end, duration, prefix = '') {
+            const element = document.getElementById(id);
+            const range = end - start;
+            const increment = range / (duration / 16);
+            let current = start;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= end) { current = end; clearInterval(timer); }
+                element.textContent = prefix + Math.floor(current).toLocaleString();
+                element.classList.add('animate');
+            }, 16);
+        }
+
+        function searchUser() {
+            const input = document.getElementById('searchInput');
+            const address = input.value.trim();
+            if (!address) { showToast('error', '请输入用户地址'); return; }
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            loading.classList.add('show');
+            results.innerHTML = '';
+            setTimeout(() => {
+                loading.classList.remove('show');
+                const userData = mockData[address];
+                if (userData) {
+                    displayUserData(userData);
+                    showToast('success', '查询成功！');
+                } else {
+                    displayEmptyState('未找到该地址的返款记录');
+                    showToast('error', '未找到该地址的返款记录');
+                }
+            }, 1000);
+        }
+
+        function displayUserData(userData) {
+            const results = document.getElementById('results');
+            const totalAmount = userData.periods.reduce((sum, p) => sum + p.amount, 0);
+            results.innerHTML = \`
+                <div class="user-card">
+                    <div class="user-info">
+                        <div class="user-avatar">\${userData.name.charAt(userData.name.length - 1)}</div>
+                        <div class="user-details">
+                            <div class="user-name">\${userData.name}</div>
+                            <div class="user-address">
+                                <span>\${userData.address}</span>
+                                <button class="copy-btn" onclick="copyAddress('\${userData.address}')">📋 复制</button>
+                            </div>
+                        </div>
+                        <div class="status-badge \${userData.status}">\${getStatusText(userData.status)}</div>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="margin-bottom: 15px; color: var(--text-primary);">返款明细</h3>
+                        <div style="display: flex; gap: 20px; padding: 15px; background: #f7fafc; border-radius: 12px;">
+                            <div style="flex: 1;">
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">总返款期数</div>
+                                <div style="font-size: 24px; font-weight: 700; color: var(--text-primary);">\${userData.periods.length}</div>
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">累计返款金额</div>
+                                <div style="font-size: 24px; font-weight: 700; color: #48bb78;">¥\${totalAmount.toFixed(2)}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="periods-list">
+                        \${userData.periods.map(period => \`
+                            <div class="period-card">
+                                <div class="period-number">#\${period.number}</div>
+                                <div class="period-info">
+                                    <div class="period-date">📅 \${period.date}</div>
+                                    <div class="period-amount">¥\${period.amount.toFixed(2)}</div>
+                                </div>
+                                <div class="period-status \${period.status}">\${getPeriodStatusText(period.status)}</div>
+                            </div>
+                        \`).join('')}
+                    </div>
+                </div>
+            \`;
+        }
+
+        function displayEmptyState(message) {
+            document.getElementById('results').innerHTML = \`
+                <div class="empty-state">
+                    <div class="empty-icon">😔</div>
+                    <div class="empty-title">\${message}</div>
+                    <div class="empty-description">请检查地址是否正确或稍后再试</div>
+                </div>
+            \`;
