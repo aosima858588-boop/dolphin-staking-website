@@ -3,31 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Investment Data System</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js" defer></script>
+    <title>Investment Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        header, footer {
+            text-align: center;
+            padding: 10px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 10px;
+        }
+        .search {
+            margin-bottom: 20px;
+        }
+        input {
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #fff;
+            padding: 10px;
+            text-align: left;
+        }
+        .data-table th {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
-        <h1>Investment Data System</h1>
+        <h1>Investment Dashboard</h1>
     </header>
-    <main>
-        <section id="investment-summary">
-            <h2>Investment Summary</h2>
-            <!-- Summary statistics will be displayed here -->
-        </section>
-        <section id="investments">
-            <h2>Your Investments</h2>
-            <form id="investment-form">
-                <input type="text" id="investment-address" placeholder="Enter Investment Address" required />
-                <input type="number" id="investment-amount" placeholder="Enter Investment Amount" required />
-                <button type="submit">Add Investment</button>
-            </form>
-            <ul id="investment-list"></ul>
-        </section>
-        <footer>
-            <p>&copy; 2026 - Investment Data System</p>
-        </footer>
-    </main>
+    <div class="container">
+        <div class="search">
+            <input type="text" id="search-box" placeholder="Search..." onkeyup="filterData()">
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Period</th>
+                    <th>Product Type</th>
+                    <th>Valid Addresses Count</th>
+                    <th>Investment Records</th>
+                </tr>
+            </thead>
+            <tbody id="data-body">
+                <!-- Investment data will be populated here -->
+            </tbody>
+        </table>
+    </div>
+    <footer>
+        <p>&copy; 2026 Investment Dashboard. All Rights Reserved.</p>
+    </footer>
+    <script>
+        const periodicInvestmentData = [/* Data Here */];
+        const dailyInvestmentData = [/* Data Here */];
+        const injInvestmentData = [/* Data Here */];
+
+        function populateData() {
+            const dataBody = document.getElementById('data-body');
+            // Process data and create rows
+            periodicInvestmentData.forEach(data => {
+                const row = `<tr>
+                    <td>${data.period}</td>
+                    <td>${data.productType}</td>
+                    <td>${data.validAddressCount}</td>
+                    <td>${data.investmentRecords}</td>
+                </tr>`;
+                dataBody.innerHTML += row;
+            });
+        }
+
+        function filterData() {
+            const filter = document.getElementById('search-box').value.toLowerCase();
+            const rows = document.querySelectorAll('#data-body tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            });
+        }
+
+        window.onload = populateData;
+    </script>
 </body>
 </html>
