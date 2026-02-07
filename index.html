@@ -475,16 +475,6 @@
                 }
             });
         });
-
-        // Add enter key support for forms
-        document.querySelectorAll('form').forEach(form => {
-            form.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    form.querySelector('.query-button').click();
-                }
-            });
-        });
     </script>
 </body>
 </html>

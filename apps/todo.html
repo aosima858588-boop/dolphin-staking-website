@@ -123,6 +123,15 @@ document.getElementById('queryTime').textContent = now.toLocaleString('zh-CN');
 // Todo list functionality
 const tasks = JSON.parse(localStorage.getItem('tasks_' + userId)) || [];
 
+function getPriorityColor(priority) {
+    switch(priority) {
+        case 'high': return '#dc3545';
+        case 'medium': return '#ffc107';
+        case 'low': return '#28a745';
+        default: return '#6c757d';
+    }
+}
+
 function renderTasks() {
     const taskList = document.getElementById('taskList');
     taskList.innerHTML = '';
@@ -131,7 +140,7 @@ function renderTasks() {
         li.style.cssText = 'background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;';
         li.innerHTML = `
             <span>
-                <span style="color: ${task.priority === 'high' ? '#dc3545' : task.priority === 'medium' ? '#ffc107' : '#28a745'}; font-weight: bold;">[${task.priority}]</span> 
+                <span style="color: ${getPriorityColor(task.priority)}; font-weight: bold;">[${task.priority}]</span> 
                 ${task.title}
             </span>
             <div>
