@@ -1397,8 +1397,17 @@
             const productFilter = document.getElementById('productFilter');
             const searchBtn = document.getElementById('searchBtn');
             
-            // 初始化显示数据统计
-            document.getElementById('dataStats').textContent = `${allInvestmentData.length}条记录`;
+            // 辅助函数：检查地址是否有效
+            function hasValidAddress(record) {
+                return record.地址 && 
+                       record.地址.trim() !== "" && 
+                       record.地址 !== "TRON" && 
+                       record.地址 !== "地址未提供";
+            }
+            
+            // 初始化显示数据统计 - 只统计有有效地址的记录
+            const validAddressCount = allInvestmentData.filter(hasValidAddress).length;
+            document.getElementById('dataStats').textContent = `${validAddressCount}条有地址记录`;
             updateRecentList();
             calculateSystemSummary();
             
@@ -1530,8 +1539,13 @@
                     dataToShow = injInvestmentData;
                 }
                 
-                // 批量计算，优化性能
+                // 批量计算，优化性能 - 只统计有有效地址的数据
                 dataToShow.forEach(record => {
+                    // 添加地址验证条件
+                    if (!record.地址 || record.地址.trim() === "" || record.地址 === "TRON" || record.地址 === "地址未提供") {
+                        return; // 跳过这条记录
+                    }
+                    
                     totalInvestment += parseFloat(record.认购额度 || 0);
                     
                     const status = precalculateRecordStatus(record);
