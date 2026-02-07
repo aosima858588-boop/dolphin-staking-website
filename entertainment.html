@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIP娱乐中心</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; }
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+        }
+        header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+        header p { font-size: 0.95rem; opacity: 0.95; }
+        .back-btn {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .content { padding: 25px; }
+        .game-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .game-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+        .game-board {
+            display: inline-grid;
+            grid-template-columns: repeat(3, 100px);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border: 3px solid var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .cell:hover:not(.taken) {
+            background: var(--light);
+            transform: scale(1.05);
+        }
+        .cell.taken {
+            cursor: not-allowed;
+        }
+        .game-controls {
+            margin-top: 20px;
+        }
+        .game-btn {
+            padding: 12px 28px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0 5px;
+            transition: transform 0.2s;
+        }
+        .game-btn:hover { transform: scale(1.05); }
+        .game-status {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 20px 0;
+            color: var(--primary);
+        }
+        .score-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .score-card {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid #ddd;
+        }
+        .score-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 8px;
+        }
+        .score-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .number-game {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        .number-display {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 20px 0;
+            text-align: center;
+        }
+        .number-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <button class="back-btn" onclick="location.href='vip.html'">← 返回</button>
+            <h1>🎮 VIP娱乐中心</h1>
+            <p>轻松一刻，玩转游戏</p>
+        </header>
+        
+        <div class="content">
+            <div class="game-section">
+                <div class="game-title">🎯 井字棋游戏</div>
+                <div class="game-status" id="status">你的回合 (⭕)</div>
+                
+                <div class="game-board" id="board">
+                    <div class="cell" onclick="makeMove(0)"></div>
+                    <div class="cell" onclick="makeMove(1)"></div>
+                    <div class="cell" onclick="makeMove(2)"></div>
+                    <div class="cell" onclick="makeMove(3)"></div>
+                    <div class="cell" onclick="makeMove(4)"></div>
+                    <div class="cell" onclick="makeMove(5)"></div>
+                    <div class="cell" onclick="makeMove(6)"></div>
+                    <div class="cell" onclick="makeMove(7)"></div>
+                    <div class="cell" onclick="makeMove(8)"></div>
+                </div>
+                
+                <div class="game-controls">
+                    <button class="game-btn" onclick="resetGame()">🔄 重新开始</button>
+                </div>
+                
+                <div class="score-board">
+                    <div class="score-card">
+                        <div class="score-label">你的胜利</div>
+                        <div class="score-value" id="playerWins">0</div>
+                    </div>
+                    <div class="score-card">
+                        <div class="score-label">平局</div>
+                        <div class="score-value" id="draws">0</div>
+                    </div>
+                    <div class="score-card">
+                        <div class="score-label">AI胜利</div>
+                        <div class="score-value" id="aiWins">0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="number-game">
+                <h3 style="text-align: center; margin-bottom: 20px; color: var(--dark);">🔢 猜数字游戏</h3>
+                <p style="text-align: center; color: var(--gray); margin-bottom: 20px;">
+                    我想了一个1-100之间的数字，你能猜到吗？
+                </p>
+                <div class="number-display" id="hint">?</div>
+                <input type="number" class="number-input" id="guessInput" placeholder="输入你的猜测 (1-100)" min="1" max="100">
+                <button class="game-btn" style="width: 100%;" onclick="makeGuess()">提交猜测</button>
+                <p style="text-align: center; margin-top: 15px; color: var(--gray);" id="guessResult">还没有开始猜测</p>
+                <p style="text-align: center; margin-top: 10px; color: var(--gray);">
+                    已猜测次数: <strong id="attempts">0</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Tic-tac-toe game
+        let board = ['', '', '', '', '', '', '', '', ''];
+        let currentPlayer = 'O';
+        let gameActive = true;
+        let scores = { player: 0, draws: 0, ai: 0 };
+        
+        const winPatterns = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+        
+        function makeMove(index) {
+            if (!gameActive || board[index] !== '') return;
+            
+            board[index] = currentPlayer;
+            document.querySelectorAll('.cell')[index].textContent = currentPlayer;
+            document.querySelectorAll('.cell')[index].classList.add('taken');
+            
+            if (checkWin(currentPlayer)) {
+                document.getElementById('status').textContent = '🎉 你赢了！';
+                scores.player++;
+                document.getElementById('playerWins').textContent = scores.player;
+                gameActive = false;
+                return;
+            }
+            
+            if (board.every(cell => cell !== '')) {
+                document.getElementById('status').textContent = '🤝 平局！';
+                scores.draws++;
+                document.getElementById('draws').textContent = scores.draws;
+                gameActive = false;
+                return;
+            }
+            
+            currentPlayer = 'X';
+            document.getElementById('status').textContent = 'AI思考中...';
+            
+            setTimeout(aiMove, 500);
+        }
+        
+        function aiMove() {
+            const emptyCells = board.map((cell, idx) => cell === '' ? idx : null).filter(idx => idx !== null);
+            const randomIndex = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+            
+            board[randomIndex] = 'X';
+            document.querySelectorAll('.cell')[randomIndex].textContent = 'X';
+            document.querySelectorAll('.cell')[randomIndex].classList.add('taken');
+            
+            if (checkWin('X')) {
+                document.getElementById('status').textContent = '🤖 AI赢了！';
+                scores.ai++;
+                document.getElementById('aiWins').textContent = scores.ai;
+                gameActive = false;
+                return;
+            }
+            
+            if (board.every(cell => cell !== '')) {
+                document.getElementById('status').textContent = '🤝 平局！';
+                scores.draws++;
+                document.getElementById('draws').textContent = scores.draws;
+                gameActive = false;
+                return;
+            }
+            
+            currentPlayer = 'O';
+            document.getElementById('status').textContent = '你的回合 (⭕)';
+        }
+        
+        function checkWin(player) {
+            return winPatterns.some(pattern => 
+                pattern.every(index => board[index] === player)
+            );
+        }
+        
+        function resetGame() {
+            board = ['', '', '', '', '', '', '', '', ''];
+            currentPlayer = 'O';
+            gameActive = true;
+            document.getElementById('status').textContent = '你的回合 (⭕)';
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.textContent = '';
+                cell.classList.remove('taken');
+            });
+        }
+        
+        // Number guessing game
+        let targetNumber = Math.floor(Math.random() * 100) + 1;
+        let attempts = 0;
+        
+        function makeGuess() {
+            const guess = parseInt(document.getElementById('guessInput').value);
+            
+            if (!guess || guess < 1 || guess > 100) {
+                document.getElementById('guessResult').textContent = '请输入1-100之间的数字！';
+                return;
+            }
+            
+            attempts++;
+            document.getElementById('attempts').textContent = attempts;
+            
+            if (guess === targetNumber) {
+                document.getElementById('hint').textContent = '🎉';
+                document.getElementById('guessResult').textContent = `恭喜！你猜对了！用了 ${attempts} 次`;
+                document.getElementById('guessResult').style.color = 'var(--success)';
+                setTimeout(() => {
+                    targetNumber = Math.floor(Math.random() * 100) + 1;
+                    attempts = 0;
+                    document.getElementById('attempts').textContent = '0';
+                    document.getElementById('hint').textContent = '?';
+                    document.getElementById('guessInput').value = '';
+                    document.getElementById('guessResult').textContent = '新游戏开始！继续猜吧';
+                    document.getElementById('guessResult').style.color = 'var(--gray)';
+                }, 2000);
+            } else if (guess < targetNumber) {
+                document.getElementById('hint').textContent = '⬆️';
+                document.getElementById('guessResult').textContent = '太小了！试试更大的数字';
+                document.getElementById('guessResult').style.color = 'var(--warning)';
+            } else {
+                document.getElementById('hint').textContent = '⬇️';
+                document.getElementById('guessResult').textContent = '太大了！试试更小的数字';
+                document.getElementById('guessResult').style.color = 'var(--warning)';
+            }
+        }
+        
+        document.getElementById('guessInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') makeGuess();
+        });
+    </script>
+</body>
+</html>

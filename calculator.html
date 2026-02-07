@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>收益计算器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; }
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+        }
+        header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+        header p { font-size: 0.95rem; opacity: 0.95; }
+        .back-btn {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .content { padding: 25px; }
+        .calculator-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .calc-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .calc-btn:hover { transform: scale(1.02); }
+        .results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+        }
+        .result-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid var(--primary);
+        }
+        .result-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 10px;
+        }
+        .result-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .history-section {
+            margin-top: 30px;
+        }
+        .history-section h2 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        .profit-positive { color: var(--success); font-weight: 700; }
+        .profit-negative { color: var(--danger); font-weight: 700; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <button class="back-btn" onclick="location.href='vip.html'">← 返回</button>
+            <h1>💰 收益计算器</h1>
+            <p>精准计算投资收益，助您做出明智决策</p>
+        </header>
+        
+        <div class="content">
+            <div class="calculator-section">
+                <h2 style="margin-bottom: 20px; color: var(--dark);">投资收益计算</h2>
+                
+                <div class="form-group">
+                    <label for="productType">选择产品类型</label>
+                    <select id="productType" onchange="updateRateInfo()">
+                        <option value="periodic">USDT三期一返 (年化20%)</option>
+                        <option value="daily">USDT每日返 (年化18%)</option>
+                        <option value="inj">INJ到期返本 (年化25%)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="amount">投资金额 (USDT)</label>
+                    <input type="number" id="amount" placeholder="请输入投资金额" value="1000">
+                </div>
+                
+                <div class="form-group">
+                    <label for="days">投资天数</label>
+                    <input type="number" id="days" placeholder="请输入投资天数" value="365">
+                </div>
+                
+                <button class="calc-btn" onclick="calculate()">
+                    <i class="fas fa-calculator"></i> 计算收益
+                </button>
+                
+                <div class="results" id="results" style="display: none;">
+                    <div class="result-card">
+                        <div class="result-label">预期收益</div>
+                        <div class="result-value" id="profit">0</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-label">本金+收益</div>
+                        <div class="result-value" id="total">0</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-label">年化收益率</div>
+                        <div class="result-value" id="apr">0%</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-label">日均收益</div>
+                        <div class="result-value" id="daily">0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="history-section">
+                <h2>📊 历史收益记录</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>产品</th>
+                            <th>投资金额</th>
+                            <th>收益</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTable">
+                        <tr>
+                            <td>2026-02-06</td>
+                            <td>USDT三期一返</td>
+                            <td>1,000 USDT</td>
+                            <td class="profit-positive">+54.79 USDT</td>
+                            <td>✅ 已返</td>
+                        </tr>
+                        <tr>
+                            <td>2026-02-05</td>
+                            <td>USDT每日返</td>
+                            <td>500 USDT</td>
+                            <td class="profit-positive">+2.47 USDT</td>
+                            <td>✅ 已返</td>
+                        </tr>
+                        <tr>
+                            <td>2026-02-04</td>
+                            <td>INJ到期返本</td>
+                            <td>2,000 USDT</td>
+                            <td class="profit-positive">+137.00 USDT</td>
+                            <td>✅ 已返</td>
+                        </tr>
+                        <tr>
+                            <td>2026-02-03</td>
+                            <td>USDT三期一返</td>
+                            <td>1,500 USDT</td>
+                            <td class="profit-positive">+82.19 USDT</td>
+                            <td>✅ 已返</td>
+                        </tr>
+                        <tr>
+                            <td>2026-02-02</td>
+                            <td>USDT每日返</td>
+                            <td>800 USDT</td>
+                            <td class="profit-positive">+3.95 USDT</td>
+                            <td>⏳ 处理中</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const rates = {
+            periodic: 0.20,  // 20% annual
+            daily: 0.18,     // 18% annual
+            inj: 0.25        // 25% annual
+        };
+        
+        function updateRateInfo() {
+            // Update rate display if needed
+        }
+        
+        function calculate() {
+            const productType = document.getElementById('productType').value;
+            const amount = parseFloat(document.getElementById('amount').value) || 0;
+            const days = parseInt(document.getElementById('days').value) || 0;
+            
+            if (amount <= 0 || days <= 0) {
+                alert('请输入有效的金额和天数');
+                return;
+            }
+            
+            const annualRate = rates[productType];
+            const dailyRate = annualRate / 365;
+            
+            const profit = amount * dailyRate * days;
+            const total = amount + profit;
+            const effectiveAPR = (profit / amount) * (365 / days) * 100;
+            const dailyProfit = profit / days;
+            
+            document.getElementById('profit').textContent = profit.toFixed(2);
+            document.getElementById('total').textContent = total.toFixed(2);
+            document.getElementById('apr').textContent = effectiveAPR.toFixed(2) + '%';
+            document.getElementById('daily').textContent = dailyProfit.toFixed(2);
+            
+            document.getElementById('results').style.display = 'grid';
+        }
+    </script>
+</body>
+</html>

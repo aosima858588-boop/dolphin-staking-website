@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIP每日签到</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; }
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --gold: #ffd700;
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+        }
+        header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+        header p { font-size: 0.95rem; opacity: 0.95; }
+        .back-btn {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .content { padding: 25px; }
+        .checkin-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .streak-display {
+            background: linear-gradient(135deg, var(--gold), #ffed4e);
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+        }
+        .streak-number {
+            font-size: 5rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+        .streak-label {
+            font-size: 1.2rem;
+            color: var(--dark);
+            font-weight: 600;
+        }
+        .checkin-btn {
+            padding: 20px 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 5px 20px rgba(67, 97, 238, 0.4);
+            margin: 20px 0;
+        }
+        .checkin-btn:hover { transform: scale(1.05); }
+        .checkin-btn:disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        .calendar {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        .calendar-header {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            font-size: 0.9rem;
+            padding: 5px;
+        }
+        .calendar-day.checked {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+        .calendar-day.today {
+            border-color: var(--primary);
+            font-weight: 700;
+        }
+        .day-number {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        .check-icon {
+            font-size: 1.2rem;
+            margin-top: 5px;
+        }
+        .rewards-section {
+            margin-top: 30px;
+        }
+        .rewards-section h3 {
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        .rewards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        .reward-card {
+            background: white;
+            border: 2px solid var(--primary);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .reward-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(67, 97, 238, 0.2);
+        }
+        .reward-day {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-bottom: 8px;
+        }
+        .reward-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        .reward-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .reward-unlocked {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+        .reward-unlocked .reward-value,
+        .reward-unlocked .reward-day {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <button class="back-btn" onclick="location.href='vip.html'">← 返回</button>
+            <h1>✅ VIP每日签到</h1>
+            <p>坚持签到，获得更多奖励</p>
+        </header>
+        
+        <div class="content">
+            <div class="checkin-section">
+                <div class="streak-display">
+                    <div class="streak-number" id="streakNumber">0</div>
+                    <div class="streak-label">连续签到天数 🔥</div>
+                </div>
+                
+                <button class="checkin-btn" id="checkinBtn" onclick="doCheckin()">
+                    ✅ 立即签到
+                </button>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-value" id="totalDays">0</div>
+                        <div class="stat-label">累计签到</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-value" id="totalPoints">0</div>
+                        <div class="stat-label">获得积分</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🏆</div>
+                        <div class="stat-value" id="maxStreak">0</div>
+                        <div class="stat-label">最长连签</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="calendar">
+                <div class="calendar-header">📆 本月签到记录</div>
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- Calendar will be generated here -->
+                </div>
+            </div>
+            
+            <div class="rewards-section">
+                <h3>🎁 连续签到奖励</h3>
+                <div class="rewards-grid">
+                    <div class="reward-card" id="reward1">
+                        <div class="reward-day">第1天</div>
+                        <div class="reward-icon">🎁</div>
+                        <div class="reward-value">+10积分</div>
+                    </div>
+                    <div class="reward-card" id="reward3">
+                        <div class="reward-day">第3天</div>
+                        <div class="reward-icon">⭐</div>
+                        <div class="reward-value">+20积分</div>
+                    </div>
+                    <div class="reward-card" id="reward7">
+                        <div class="reward-day">第7天</div>
+                        <div class="reward-icon">💎</div>
+                        <div class="reward-value">+50积分</div>
+                    </div>
+                    <div class="reward-card" id="reward14">
+                        <div class="reward-day">第14天</div>
+                        <div class="reward-icon">🏆</div>
+                        <div class="reward-value">+100积分</div>
+                    </div>
+                    <div class="reward-card" id="reward30">
+                        <div class="reward-day">第30天</div>
+                        <div class="reward-icon">👑</div>
+                        <div class="reward-value">+300积分</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let checkinData = JSON.parse(localStorage.getItem('checkinData') || '{"streak": 0, "totalDays": 0, "totalPoints": 0, "maxStreak": 0, "lastCheckin": null, "checkedDates": []}');
+        
+        function updateDisplay() {
+            document.getElementById('streakNumber').textContent = checkinData.streak;
+            document.getElementById('totalDays').textContent = checkinData.totalDays;
+            document.getElementById('totalPoints').textContent = checkinData.totalPoints;
+            document.getElementById('maxStreak').textContent = checkinData.maxStreak;
+            
+            // Update reward cards
+            [1, 3, 7, 14, 30].forEach(day => {
+                const card = document.getElementById(`reward${day}`);
+                if (checkinData.streak >= day) {
+                    card.classList.add('reward-unlocked');
+                }
+            });
+            
+            // Check if already checked in today
+            const today = new Date().toDateString();
+            if (checkinData.lastCheckin === today) {
+                document.getElementById('checkinBtn').disabled = true;
+                document.getElementById('checkinBtn').textContent = '✅ 今日已签到';
+            }
+        }
+        
+        function generateCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            const today = now.getDate();
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            grid.innerHTML = '';
+            
+            // Add day labels
+            ['日', '一', '二', '三', '四', '五', '六'].forEach(day => {
+                const label = document.createElement('div');
+                label.style.textAlign = 'center';
+                label.style.fontWeight = '700';
+                label.style.color = 'var(--gray)';
+                label.textContent = day;
+                grid.appendChild(label);
+            });
+            
+            // Add empty cells for days before month starts
+            for (let i = 0; i < firstDay; i++) {
+                const empty = document.createElement('div');
+                grid.appendChild(empty);
+            }
+            
+            // Add day cells
+            for (let day = 1; day <= daysInMonth; day++) {
+                const cell = document.createElement('div');
+                cell.className = 'calendar-day';
+                
+                const dateStr = new Date(year, month, day).toDateString();
+                const isChecked = checkinData.checkedDates.includes(dateStr);
+                const isToday = day === today;
+                
+                if (isChecked) cell.classList.add('checked');
+                if (isToday) cell.classList.add('today');
+                
+                cell.innerHTML = `
+                    <div class="day-number">${day}</div>
+                    ${isChecked ? '<div class="check-icon">✓</div>' : ''}
+                `;
+                
+                grid.appendChild(cell);
+            }
+        }
+        
+        function doCheckin() {
+            const today = new Date().toDateString();
+            const yesterday = new Date(Date.now() - 86400000).toDateString();
+            
+            if (checkinData.lastCheckin === today) {
+                alert('今天已经签到过了哦！');
+                return;
+            }
+            
+            // Check if streak continues
+            if (checkinData.lastCheckin === yesterday) {
+                checkinData.streak++;
+            } else {
+                checkinData.streak = 1;
+            }
+            
+            // Calculate points based on streak
+            let points = 10;
+            if (checkinData.streak >= 30) points = 50;
+            else if (checkinData.streak >= 14) points = 30;
+            else if (checkinData.streak >= 7) points = 20;
+            else if (checkinData.streak >= 3) points = 15;
+            
+            checkinData.totalDays++;
+            checkinData.totalPoints += points;
+            checkinData.maxStreak = Math.max(checkinData.maxStreak, checkinData.streak);
+            checkinData.lastCheckin = today;
+            checkinData.checkedDates.push(today);
+            
+            // Update global points
+            const currentPoints = parseInt(localStorage.getItem('points') || '0');
+            localStorage.setItem('points', currentPoints + points);
+            localStorage.setItem('checkInStreak', checkinData.streak);
+            
+            localStorage.setItem('checkinData', JSON.stringify(checkinData));
+            
+            alert(`🎉 签到成功！\n连续签到 ${checkinData.streak} 天\n获得 ${points} 积分`);
+            
+            updateDisplay();
+            generateCalendar();
+        }
+        
+        updateDisplay();
+        generateCalendar();
+    </script>
+</body>
+</html>
