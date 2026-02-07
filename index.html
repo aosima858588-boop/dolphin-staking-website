@@ -1,41 +1,522 @@
-<html>
+<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
-    <title>Improved User Query System</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>海豚链上赚币 - 用户查询系统</title>
     <style>
-        /* Optimized Design */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             padding: 20px;
-            background-color: #f4f4f4;
         }
-        input[type="text"] {
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .modules-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            padding: 0 20px;
+        }
+
+        .module-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .module-icon {
+            font-size: 2.5em;
+            margin-right: 15px;
+        }
+
+        .module-title {
+            font-size: 1.8em;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .module-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            min-height: 60px;
+        }
+
+        .features-list {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+
+        .features-list li {
+            padding: 8px 0;
+            color: #555;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .features-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .query-form {
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .form-input {
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
         }
-        button {
-            padding: 10px 15px;
-            background-color: #008cba;
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-input.error {
+            border-color: #ff4444;
+        }
+
+        .error-message {
+            color: #ff4444;
+            font-size: 0.85em;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
             cursor: pointer;
+            transition: opacity 0.3s ease, transform 0.1s ease;
+            position: relative;
         }
-        button:hover {
-            background-color: #005f75;
+
+        .submit-btn:hover {
+            opacity: 0.9;
+        }
+
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .loading::after {
+            content: "";
+            width: 20px;
+            height: 20px;
+            border: 3px solid #ffffff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .btn-text {
+            display: inline-block;
+        }
+
+        .btn-text.hide {
+            visibility: hidden;
+        }
+
+        .input-hint {
+            font-size: 0.85em;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+
+            header p {
+                font-size: 1em;
+            }
+
+            .modules-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .module-card {
+                padding: 20px;
+            }
+
+            .module-title {
+                font-size: 1.5em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            header {
+                padding: 20px 10px;
+                margin-bottom: 20px;
+            }
+
+            header h1 {
+                font-size: 1.6em;
+            }
+
+            .module-card {
+                padding: 15px;
+            }
+        }
+
+        .success-message {
+            background: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Improved User Query System</h1>
-    <form>
-        <label for="queryInput">Input your query:</label>
-        <input type="text" id="queryInput" name="queryInput" placeholder="Type your query here...">
-        <button type="submit">Submit</button>
-    </form>
-    <div id="results"></div>
+    <div class="container">
+        <header>
+            <h1>🐬 海豚链上赚币</h1>
+            <p>用户查询系统 - 请输入您的号码查询相关信息</p>
+        </header>
+
+        <div class="modules-container">
+            <!-- 返款查询模块 -->
+            <div class="module-card">
+                <div class="module-header">
+                    <div class="module-icon">💰</div>
+                    <h2 class="module-title">返款查询</h2>
+                </div>
+                <p class="module-description">
+                    查询您的质押返款信息，包括返款金额、返款时间和历史记录。
+                </p>
+                <ul class="features-list">
+                    <li>实时返款金额查询</li>
+                    <li>返款历史记录</li>
+                    <li>返款时间追踪</li>
+                    <li>收益统计分析</li>
+                </ul>
+                <form class="query-form" onsubmit="handleSubmit(event, 'rebate')">
+                    <div class="form-group">
+                        <label class="form-label" for="rebate-id">请输入您的返款查询号码</label>
+                        <input 
+                            type="text" 
+                            id="rebate-id" 
+                            class="form-input" 
+                            placeholder="例如: 12345678"
+                            pattern="[0-9]{6,10}"
+                            required
+                        >
+                        <div class="input-hint">号码格式: 6-10位数字</div>
+                        <div class="error-message" id="rebate-error">请输入正确的号码格式（6-10位数字）</div>
+                    </div>
+                    <button type="submit" class="submit-btn" id="rebate-btn">
+                        <span class="btn-text">查询返款信息</span>
+                        <div class="loading"></div>
+                    </button>
+                    <div class="success-message" id="rebate-success"></div>
+                </form>
+            </div>
+
+            <!-- VIP会员模块 -->
+            <div class="module-card">
+                <div class="module-header">
+                    <div class="module-icon">👑</div>
+                    <h2 class="module-title">VIP会员</h2>
+                </div>
+                <p class="module-description">
+                    查看您的VIP会员等级、特权信息和会员专享福利。
+                </p>
+                <ul class="features-list">
+                    <li>会员等级查询</li>
+                    <li>专享特权查看</li>
+                    <li>积分余额查询</li>
+                    <li>升级进度追踪</li>
+                </ul>
+                <form class="query-form" onsubmit="handleSubmit(event, 'vip')">
+                    <div class="form-group">
+                        <label class="form-label" for="vip-id">请输入您的VIP会员号码</label>
+                        <input 
+                            type="text" 
+                            id="vip-id" 
+                            class="form-input" 
+                            placeholder="例如: VIP123456"
+                            pattern="[A-Za-z0-9]{6,12}"
+                            required
+                        >
+                        <div class="input-hint">号码格式: 6-12位字母或数字</div>
+                        <div class="error-message" id="vip-error">请输入正确的号码格式（6-12位字母或数字）</div>
+                    </div>
+                    <button type="submit" class="submit-btn" id="vip-btn">
+                        <span class="btn-text">查询VIP信息</span>
+                        <div class="loading"></div>
+                    </button>
+                    <div class="success-message" id="vip-success"></div>
+                </form>
+            </div>
+
+            <!-- 待办事项模块 -->
+            <div class="module-card">
+                <div class="module-header">
+                    <div class="module-icon">📋</div>
+                    <h2 class="module-title">待办事项</h2>
+                </div>
+                <p class="module-description">
+                    管理您的个人待办事项，包括任务提醒、优先级设置和完成状态。
+                </p>
+                <ul class="features-list">
+                    <li>个人任务管理</li>
+                    <li>优先级设置</li>
+                    <li>任务提醒功能</li>
+                    <li>完成进度追踪</li>
+                </ul>
+                <form class="query-form" onsubmit="handleSubmit(event, 'todo')">
+                    <div class="form-group">
+                        <label class="form-label" for="todo-id">请输入您的用户号码</label>
+                        <input 
+                            type="text" 
+                            id="todo-id" 
+                            class="form-input" 
+                            placeholder="例如: USER123456"
+                            pattern="[A-Za-z0-9]{6,12}"
+                            required
+                        >
+                        <div class="input-hint">号码格式: 6-12位字母或数字</div>
+                        <div class="error-message" id="todo-error">请输入正确的号码格式（6-12位字母或数字）</div>
+                    </div>
+                    <button type="submit" class="submit-btn" id="todo-btn">
+                        <span class="btn-text">查询待办事项</span>
+                        <div class="loading"></div>
+                    </button>
+                    <div class="success-message" id="todo-success"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 时间常量配置
+        const LOADING_DELAY = 1000; // 加载动画显示时间（毫秒）
+        const REDIRECT_DELAY = 1500; // 成功消息显示后跳转延迟（毫秒）
+        
+        // 表单提交处理
+        function handleSubmit(event, module) {
+            event.preventDefault();
+            
+            const inputId = `${module}-id`;
+            const btnId = `${module}-btn`;
+            const errorId = `${module}-error`;
+            const successId = `${module}-success`;
+            
+            const input = document.getElementById(inputId);
+            const btn = document.getElementById(btnId);
+            const errorMsg = document.getElementById(errorId);
+            const successMsg = document.getElementById(successId);
+            
+            // 清除之前的消息
+            errorMsg.classList.remove('show');
+            successMsg.classList.remove('show');
+            input.classList.remove('error');
+            
+            // 验证输入
+            if (!input.validity.valid) {
+                input.classList.add('error');
+                errorMsg.classList.add('show');
+                return;
+            }
+            
+            // 显示加载状态
+            btn.disabled = true;
+            btn.querySelector('.btn-text').classList.add('hide');
+            btn.querySelector('.loading').classList.add('show');
+            
+            // 模拟异步查询
+            setTimeout(() => {
+                // 隐藏加载状态
+                btn.disabled = false;
+                btn.querySelector('.btn-text').classList.remove('hide');
+                btn.querySelector('.loading').classList.remove('show');
+                
+                // 显示成功消息
+                const userId = input.value;
+                successMsg.textContent = `查询成功！正在跳转到${getModuleName(module)}页面...`;
+                successMsg.classList.add('show');
+                
+                // 跳转到对应页面
+                setTimeout(() => {
+                    navigateToModule(module, userId);
+                }, REDIRECT_DELAY);
+            }, LOADING_DELAY);
+        }
+        
+        // 获取模块中文名称
+        function getModuleName(module) {
+            const names = {
+                'rebate': '返款查询',
+                'vip': 'VIP会员',
+                'todo': '待办事项'
+            };
+            return names[module] || '';
+        }
+        
+        // 显示页面未开放提示
+        function showPageNotAvailableMessage(userId) {
+            alert(`页面暂未开放，敬请期待！\n查询号码: ${userId}`);
+        }
+        
+        // 跳转到对应模块页面
+        function navigateToModule(module, userId) {
+            const routes = {
+                'rebate': `rebate.html?id=${encodeURIComponent(userId)}`,
+                'vip': `vip.html?id=${encodeURIComponent(userId)}`,
+                'todo': `todo.html?id=${encodeURIComponent(userId)}`
+            };
+            
+            const url = routes[module];
+            if (url) {
+                // 检查页面是否存在
+                fetch(url, { method: 'HEAD' })
+                    .then(response => {
+                        if (response.ok) {
+                            window.location.href = url;
+                        } else {
+                            showPageNotAvailableMessage(userId);
+                        }
+                    })
+                    .catch(() => {
+                        showPageNotAvailableMessage(userId);
+                    });
+            }
+        }
+        
+        // 实时输入验证
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.addEventListener('input', function() {
+                const errorId = this.id.replace('-id', '-error');
+                const errorMsg = document.getElementById(errorId);
+                
+                if (this.validity.valid) {
+                    this.classList.remove('error');
+                    errorMsg.classList.remove('show');
+                } else if (this.value.length > 0) {
+                    this.classList.add('error');
+                    errorMsg.classList.add('show');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
