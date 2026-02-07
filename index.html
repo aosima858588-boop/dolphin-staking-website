@@ -3,59 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dolphin Staking Website</title>
-    <link rel="stylesheet" href="styles.css">
-    <script defer src="script.js"></script>
+    <title>Investment Data System</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
 </head>
 <body>
     <header>
-        <h1>Dolphin Staking Investment Dashboard</h1>
+        <h1>Investment Data System</h1>
     </header>
     <main>
-        <section id="investment-data">
-            <h2>Investment Data</h2>
-            <div id="investment-summary"></div>
-            <div id="filtered-products"></div>
+        <section id="investment-summary">
+            <h2>Investment Summary</h2>
+            <!-- Summary statistics will be displayed here -->
         </section>
-        <section id="search">
-            <input type="text" id="search-phone" placeholder="Search by Phone Number">
-            <button id="search-btn">Search</button>
-            <div id="search-results"></div>
+        <section id="investments">
+            <h2>Your Investments</h2>
+            <form id="investment-form">
+                <input type="text" id="investment-address" placeholder="Enter Investment Address" required />
+                <input type="number" id="investment-amount" placeholder="Enter Investment Amount" required />
+                <button type="submit">Add Investment</button>
+            </form>
+            <ul id="investment-list"></ul>
         </section>
-        <section id="system-summary">
-            <h2>System Summary</h2>
-            <div id="summary-stats"></div>
-        </section>
+        <footer>
+            <p>&copy; 2026 - Investment Data System</p>
+        </footer>
     </main>
-    <footer>
-        <p>&copy; 2026 Dolphin Staking</p>
-    </footer>
-    <script>
-        const periodicInvestmentData = [...];
-        const dailyInvestmentData = [...];
-        const injInvestmentData = [...];
-
-        // Function to filter valid addresses
-        function getValidRecords(data) {
-            return data.filter(record => record.address && record.address !== '地址未提供' && record.address !== 'TRON');
-        }
-
-        function displaySummaryStats() {
-            const validRecords = getValidRecords([...periodicInvestmentData, ...dailyInvestmentData, ...injInvestmentData]);
-            const totalInvestment = validRecords.reduce((sum, record) => sum + record.amount, 0);
-            document.getElementById('summary-stats').innerHTML = `Total Valid Investments: ${validRecords.length}<br>Total Investment Amount: $${totalInvestment}`;
-        }
-
-        document.getElementById('search-btn').addEventListener('click', () => {
-            const phoneNumber = document.getElementById('search-phone').value;
-            // Implement search logic based on phone number
-            // Display results in the search-results div
-        });
-
-        window.onload = () => {
-            displaySummaryStats();
-            // Additional logic to display investment data and handle searches
-        };
-    </script>
 </body>
 </html>
