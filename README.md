@@ -1,6 +1,10 @@
 # dolphin-staking-website
 海豚链上赚币官方网站
 
+> ⚠️ **重要提示**: 所有新功能都在 `copilot/add-community-vip-features` 分支上！  
+> 📖 详细说明请查看 [BRANCH_INFO.md](BRANCH_INFO.md)  
+> 🔗 GitHub链接: https://github.com/aosima858588-boop/dolphin-staking-website/tree/copilot/add-community-vip-features
+
 ## 📁 项目结构
 
 本项目采用模块化组织，各功能独立存放：
