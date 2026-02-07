@@ -81,7 +81,8 @@
         </div>
 
         <div class="content-card">
-            <h2>我的待办</h2>\n        <div class="form-group" style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <h2>我的待办</h2>
+        <div class="form-group" style="display: flex; gap: 10px; margin-bottom: 20px;">
             <input type="text" id="taskInput" placeholder="添加新任务..." style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
             <button id="addTaskBtn" style="padding: 12px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s;">添加</button>
         </div>
@@ -104,7 +105,8 @@
     <div class="content-card">
         <a href="../index.html" style="display: inline-block; padding: 12px 30px; background: #667eea; color: white; text-decoration: none; border-radius: 25px; transition: all 0.3s;">← 返回首页</a>
     </div>
-    </div>\n    <script>
+    </div>
+    <script>
 // Get user ID from URL parameters
 const urlParams = new URLSearchParams(window.location.search);
 const userId = urlParams.get('id');
@@ -190,4 +192,6 @@ function deleteTask(index) {
 }
 
 renderTasks();
-</script>\n
+</script>
+</body>
+</html>
