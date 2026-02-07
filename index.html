@@ -755,53 +755,114 @@
         function displayUserData(userData) {
             const results = document.getElementById('results');
             const totalAmount = userData.periods.reduce((sum, p) => sum + p.amount, 0);
-            results.innerHTML = \`
+            results.innerHTML = `
                 <div class="user-card">
                     <div class="user-info">
-                        <div class="user-avatar">\${userData.name.charAt(userData.name.length - 1)}</div>
+                        <div class="user-avatar">${userData.name.charAt(userData.name.length - 1)}</div>
                         <div class="user-details">
-                            <div class="user-name">\${userData.name}</div>
+                            <div class="user-name">${userData.name}</div>
                             <div class="user-address">
-                                <span>\${userData.address}</span>
-                                <button class="copy-btn" onclick="copyAddress('\${userData.address}')">📋 复制</button>
+                                <span>${userData.address}</span>
+                                <button class="copy-btn" onclick="copyAddress('${userData.address}')">📋 复制</button>
                             </div>
                         </div>
-                        <div class="status-badge \${userData.status}">\${getStatusText(userData.status)}</div>
+                        <div class="status-badge ${userData.status}">${getStatusText(userData.status)}</div>
                     </div>
                     <div style="margin-bottom: 20px;">
                         <h3 style="margin-bottom: 15px; color: var(--text-primary);">返款明细</h3>
                         <div style="display: flex; gap: 20px; padding: 15px; background: #f7fafc; border-radius: 12px;">
                             <div style="flex: 1;">
                                 <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">总返款期数</div>
-                                <div style="font-size: 24px; font-weight: 700; color: var(--text-primary);">\${userData.periods.length}</div>
+                                <div style="font-size: 24px; font-weight: 700; color: var(--text-primary);">${userData.periods.length}</div>
                             </div>
                             <div style="flex: 1;">
                                 <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">累计返款金额</div>
-                                <div style="font-size: 24px; font-weight: 700; color: #48bb78;">¥\${totalAmount.toFixed(2)}</div>
+                                <div style="font-size: 24px; font-weight: 700; color: #48bb78;">¥${totalAmount.toFixed(2)}</div>
                             </div>
                         </div>
                     </div>
                     <div class="periods-list">
-                        \${userData.periods.map(period => \`
+                        ${userData.periods.map(period => `
                             <div class="period-card">
-                                <div class="period-number">#\${period.number}</div>
+                                <div class="period-number">#${period.number}</div>
                                 <div class="period-info">
-                                    <div class="period-date">📅 \${period.date}</div>
-                                    <div class="period-amount">¥\${period.amount.toFixed(2)}</div>
+                                    <div class="period-date">📅 ${period.date}</div>
+                                    <div class="period-amount">¥${period.amount.toFixed(2)}</div>
                                 </div>
-                                <div class="period-status \${period.status}">\${getPeriodStatusText(period.status)}</div>
+                                <div class="period-status ${period.status}">${getPeriodStatusText(period.status)}</div>
                             </div>
-                        \`).join('')}
+                        `).join('')}
                     </div>
                 </div>
-            \`;
+            `;
         }
 
         function displayEmptyState(message) {
-            document.getElementById('results').innerHTML = \`
+            document.getElementById('results').innerHTML = `
                 <div class="empty-state">
                     <div class="empty-icon">😔</div>
-                    <div class="empty-title">\${message}</div>
+                    <div class="empty-title">${message}</div>
                     <div class="empty-description">请检查地址是否正确或稍后再试</div>
                 </div>
-            \`;
+            `;
+        }
+
+        function copyAddress(address) {
+            navigator.clipboard.writeText(address).then(() => {
+                showToast('success', '地址已复制到剪贴板');
+            }).catch(() => {
+                showToast('error', '复制失败，请手动复制');
+            });
+        }
+
+        function showToast(type, message) {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toastIcon');
+            const msg = document.getElementById('toastMessage');
+            toast.className = `toast ${type} show`;
+            icon.textContent = type === 'success' ? '✅' : '❌';
+            msg.textContent = message;
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+
+        function filterStatus(status) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            showToast('success', `筛选条件已更新: ${getFilterText(status)}`);
+        }
+
+        function getStatusText(status) {
+            const map = { 'active': '活跃', 'pending': '待审核', 'completed': '已完成' };
+            return map[status] || status;
+        }
+
+        function getPeriodStatusText(status) {
+            const map = { 'paid': '✅ 已发放', 'unpaid': '⏳ 待发放' };
+            return map[status] || status;
+        }
+
+        function getFilterText(status) {
+            const map = { 'all': '全部', 'paid': '已发放', 'unpaid': '待发放', 'pending': '处理中' };
+            return map[status] || status;
+        }
+
+        function hasValidAddress(address) {
+            return address && address !== "地址未提供" && address !== "TRON";
+        }
+
+        function calculateSystemSummary() {
+            const dataToShow = Object.values(mockData);
+            dataToShow.forEach(record => {
+                const validAddresses = hasValidAddress(record.address);
+                if (validAddresses) { /* existing logic */ }
+            });
+        }
+
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') searchUser();
+        });
+
+        window.addEventListener('load', () => { initializeStats(); });
+    </script>
+</body>
+</html>
