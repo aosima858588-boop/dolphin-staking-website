@@ -2,477 +2,918 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>海豚链上赚币 - 用户查询系统</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Web3游乐场 - 社区辅助工具</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
     <style>
+        :root {
+            --primary: #FF6B35;
+            --primary-light: #FF9B70;
+            --secondary: #9D4EDD;
+            --secondary-light: #C77DFF;
+            --accent: #00F5D4;
+            --accent-light: #80F9EA;
+            --dark: #0A0A0A;
+            --dark-light: #1A1A1A;
+            --gray: #2D2D2D;
+            --light: #F8F9FA;
+            --success: #0FCEBB;
+            --warning: #FFEA00;
+            --danger: #FF4757;
+            --pink: #FF6AC6;
+            
+            --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 10px 20px rgba(0, 0, 0, 0.2);
+            --shadow-sm: 0 5px 10px rgba(0, 0, 0, 0.1);
+            
+            --border-radius-lg: 20px;
+            --border-radius-md: 16px;
+            --border-radius-sm: 12px;
+        }
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
-
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0A0A0A 0%, #1A0F2E 50%, #0A1A2A 100%);
+            color: var(--light);
             min-height: 100vh;
-            padding: 20px;
+            overflow-x: hidden;
+            background-attachment: fixed;
+        }
+        
+        /* 粒子背景 */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        /* 主容器 */
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px 16px 100px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        /* 顶部栏 */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding: 12px 0;
+        }
+        
+        .user-greeting {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 24px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            position: relative;
+        }
+        
+        .user-greeting::after {
+            content: '🎮';
+            position: absolute;
+            right: -35px;
+            top: 0;
+            font-size: 20px;
+        }
+        
+        .top-actions {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .icon-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        .main-container {
-            max-width: 1200px;
-            width: 100%;
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 40px;
-            animation: fadeInDown 0.6s ease-out;
-        }
-
-        .header h1 {
-            font-size: 42px;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .header p {
+            color: var(--light);
             font-size: 18px;
-            opacity: 0.95;
-        }
-
-        .modules-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
-        .module-card {
-            background: white;
-            border-radius: 15px;
-            padding: 35px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            transition: all 0.3s ease;
-            animation: fadeInUp 0.6s ease-out;
-            animation-fill-mode: both;
-        }
-
-        .module-card:nth-child(1) { animation-delay: 0.1s; }
-        .module-card:nth-child(2) { animation-delay: 0.2s; }
-        .module-card:nth-child(3) { animation-delay: 0.3s; }
-
-        .module-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
-        }
-
-        .module-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-            display: block;
-        }
-
-        .module-card h2 {
-            color: #764ba2;
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        .module-card .subtitle {
-            color: #999;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-
-        .module-card .description {
-            color: #666;
-            font-size: 14px;
-            line-height: 1.6;
-            margin-bottom: 25px;
-            min-height: 60px;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        .input-group label {
-            display: block;
-            color: #333;
-            font-size: 14px;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: all 0.3s;
-            outline: none;
-        }
-
-        .input-group input:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
-        }
-
-        .input-group input.error {
-            border-color: #dc3545;
-            animation: shake 0.4s;
-        }
-
-        .input-group .error-message {
-            color: #dc3545;
-            font-size: 12px;
-            margin-top: 5px;
-            display: none;
-        }
-
-        .input-group .error-message.show {
-            display: block;
-        }
-
-        .query-button {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 18px;
+            height: 18px;
+            background: var(--danger);
+            border-radius: 50%;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--dark);
+        }
+        
+        /* 状态卡片 */
+        .status-card {
+            background: linear-gradient(145deg, rgba(255, 107, 53, 0.1), rgba(157, 78, 221, 0.1));
+            border-radius: var(--border-radius-lg);
+            padding: 20px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--shadow-md);
             position: relative;
             overflow: hidden;
         }
-
-        .query-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
-        }
-
-        .query-button:active {
-            transform: translateY(0);
-        }
-
-        .query-button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .query-button.loading::after {
+        
+        .status-card::before {
             content: '';
             position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 20px;
-            height: 20px;
-            margin: -10px 0 0 -10px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
         }
-
-        .query-button.loading span {
-            opacity: 0;
-        }
-
-        .footer {
-            text-align: center;
-            color: white;
-            margin-top: 40px;
-            opacity: 0.9;
-            animation: fadeIn 1s ease-out 0.5s both;
-        }
-
-        .footer p {
-            margin: 5px 0;
-            font-size: 14px;
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-            20%, 40%, 60%, 80% { transform: translateX(5px); }
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 32px;
-            }
-
-            .header p {
-                font-size: 16px;
-            }
-
-            .modules-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .module-card {
-                padding: 25px;
-            }
-        }
-
-        .features-info {
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 25px;
-            color: white;
-            margin-top: 30px;
-            animation: fadeIn 1s ease-out 0.4s both;
-        }
-
-        .features-info h3 {
-            font-size: 20px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .features-list {
+        
+        .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
         }
-
-        .feature-item {
+        
+        .stat-item {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 10px;
-            font-size: 14px;
+            text-align: center;
         }
-
-        .feature-item::before {
-            content: '✓';
+        
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 24px;
-            height: 24px;
-            background: rgba(255,255,255,0.2);
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+        
+        .stat-value {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        /* 横幅 */
+        .banner {
+            background: linear-gradient(90deg, var(--secondary), var(--pink));
+            border-radius: var(--border-radius-md);
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-md);
+            animation: pulse 2s infinite;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .banner::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(30deg);
+            animation: shine 3s infinite;
+        }
+        
+        .banner-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .banner-icon {
+            font-size: 24px;
+        }
+        
+        .banner-text h4 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+        
+        .banner-text p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .banner-cta {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        /* 功能卡片网格 */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius-lg);
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 180px;
+        }
+        
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .card:nth-child(1) { background: linear-gradient(145deg, rgba(255, 107, 53, 0.15), rgba(255, 155, 112, 0.05)); }
+        .card:nth-child(2) { background: linear-gradient(145deg, rgba(157, 78, 221, 0.15), rgba(199, 125, 255, 0.05)); }
+        .card:nth-child(3) { background: linear-gradient(145deg, rgba(0, 245, 212, 0.15), rgba(128, 249, 234, 0.05)); }
+        .card:nth-child(4) { background: linear-gradient(145deg, rgba(255, 106, 198, 0.15), rgba(255, 155, 112, 0.05)); }
+        .card:nth-child(5) { background: linear-gradient(145deg, rgba(15, 206, 187, 0.15), rgba(0, 245, 212, 0.05)); }
+        .card:nth-child(6) { background: linear-gradient(145deg, rgba(255, 234, 0, 0.15), rgba(255, 107, 53, 0.05)); }
+        
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+        
+        .card-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+        
+        .card-desc {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 12px;
+            flex-grow: 1;
+        }
+        
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+        
+        .card-badge {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 3px;
+            width: 70%;
+        }
+        
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(26, 26, 26, 0.9);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+        
+        .nav-item.active {
+            color: var(--accent);
+        }
+        
+        .nav-item:hover {
+            color: var(--primary);
+        }
+        
+        .nav-icon {
+            font-size: 20px;
+        }
+        
+        .nav-label {
+            font-size: 10px;
+            font-weight: 500;
+        }
+        
+        /* AI助手悬浮按钮 */
+        .ai-assistant {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             border-radius: 50%;
-            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 10px 30px rgba(157, 78, 221, 0.5);
+            cursor: pointer;
+            z-index: 90;
+            transition: all 0.3s ease;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .ai-assistant:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(157, 78, 221, 0.7);
+        }
+        
+        /* 动画 */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(30deg); }
+            100% { transform: translateX(100%) rotate(30deg); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 响应式 */
+        @media (max-width: 400px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .card {
+                min-height: 160px;
+            }
+        }
+        
+        /* 卡片进入动画 */
+        .card {
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+        
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+        .card:nth-child(4) { animation-delay: 0.4s; }
+        .card:nth-child(5) { animation-delay: 0.5s; }
+        .card:nth-child(6) { animation-delay: 0.6s; }
+        
+        /* 签到特效 */
+        .checkin-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        
+        .checkin-effect.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .nft-box {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            border-radius: var(--border-radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            margin-bottom: 30px;
+            transform: scale(0);
+            animation: boxOpen 1s ease-out 0.5s forwards;
+            box-shadow: 0 0 80px rgba(0, 245, 212, 0.5);
+        }
+        
+        @keyframes boxOpen {
+            0% { transform: scale(0) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(180deg); }
+            100% { transform: scale(1) rotate(360deg); }
+        }
+        
+        .reward-text {
+            font-family: 'Poppins', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out 1.5s forwards;
+        }
+        
+        .reward-desc {
+            font-size: 16px;
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out 1.7s forwards;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 状态指示器 */
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--success);
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            animation: statusPulse 2s infinite;
+        }
+        
+        @keyframes statusPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(15, 206, 187, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(15, 206, 187, 0); }
+        }
+        
+        /* 金币雨效果 */
+        .coin {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle at 30% 30%, #FFD700, #FFA500);
+            border-radius: 50%;
+            z-index: 5;
+            animation: coinFall linear forwards;
+        }
+        
+        @keyframes coinFall {
+            to { transform: translateY(100vh) rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <div class="main-container">
-        <div class="header">
-            <h1>🐬 海豚链上赚币</h1>
-            <p>Dolphin Staking - 用户查询系统</p>
-        </div>
-
-        <div class="modules-grid">
-            <!-- 返款查询模块 -->
-            <div class="module-card">
-                <span class="module-icon">💰</span>
-                <h2>返款查询系统</h2>
-                <p class="subtitle">Rebate Query System</p>
-                <p class="description">查询您的质押返款记录、返款金额统计、以及待返款信息。实时了解您的收益情况。</p>
-                
-                <form id="rebateForm" onsubmit="handleQuery(event, 'rebate')">
-                    <div class="input-group">
-                        <label for="rebateId">请输入您的号码</label>
-                        <input 
-                            type="text" 
-                            id="rebateId" 
-                            name="userId" 
-                            placeholder="6-10位数字" 
-                            pattern="[0-9]{6,10}"
-                            required
-                        >
-                        <div class="error-message" id="rebateError">请输入6-10位数字号码</div>
-                    </div>
-                    <button type="submit" class="query-button">
-                        <span>立即查询</span>
-                    </button>
-                </form>
-            </div>
-
-            <!-- VIP会员模块 -->
-            <div class="module-card">
-                <span class="module-icon">👑</span>
-                <h2>VIP会员中心</h2>
-                <p class="subtitle">VIP Membership Center</p>
-                <p class="description">查看您的VIP等级、专属权益、升级进度以及积分使用情况。享受尊贵会员服务。</p>
-                
-                <form id="vipForm" onsubmit="handleQuery(event, 'vip')">
-                    <div class="input-group">
-                        <label for="vipId">请输入您的号码</label>
-                        <input 
-                            type="text" 
-                            id="vipId" 
-                            name="userId" 
-                            placeholder="6-12位字母或数字" 
-                            pattern="[A-Za-z0-9]{6,12}"
-                            required
-                        >
-                        <div class="error-message" id="vipError">请输入6-12位字母或数字</div>
-                    </div>
-                    <button type="submit" class="query-button">
-                        <span>立即查询</span>
-                    </button>
-                </form>
-            </div>
-
-            <!-- 待办事项模块 -->
-            <div class="module-card">
-                <span class="module-icon">📝</span>
-                <h2>待办事项</h2>
-                <p class="subtitle">Todo List</p>
-                <p class="description">管理您的任务列表，记录重要事项，设置优先级。高效管理您的日常工作和计划。</p>
-                
-                <form id="todoForm" onsubmit="handleQuery(event, 'todo')">
-                    <div class="input-group">
-                        <label for="todoId">请输入您的号码</label>
-                        <input 
-                            type="text" 
-                            id="todoId" 
-                            name="userId" 
-                            placeholder="6-12位字母或数字" 
-                            pattern="[A-Za-z0-9]{6,12}"
-                            required
-                        >
-                        <div class="error-message" id="todoError">请输入6-12位字母或数字</div>
-                    </div>
-                    <button type="submit" class="query-button">
-                        <span>立即查询</span>
-                    </button>
-                </form>
+    <!-- 粒子背景 -->
+    <div id="particles-js"></div>
+    
+    <!-- 签到特效 -->
+    <div class="checkin-effect" id="checkinEffect">
+        <div class="nft-box">🎁</div>
+        <div class="reward-text">+150 代币</div>
+        <div class="reward-desc">稀有NFT徽章已解锁！</div>
+    </div>
+    
+    <!-- 主容器 -->
+    <div class="container">
+        <!-- 顶部栏 -->
+        <div class="top-bar">
+            <div class="user-greeting">Web3探险家</div>
+            <div class="top-actions">
+                <div class="icon-btn">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="icon-btn">
+                    <i class="fas fa-bell"></i>
+                    <div class="notification-badge">3</div>
+                </div>
             </div>
         </div>
-
-        <div class="features-info">
-            <h3>💡 系统特色</h3>
-            <div class="features-list">
-                <div class="feature-item">实时查询您的账户信息</div>
-                <div class="feature-item">安全的数据加密传输</div>
-                <div class="feature-item">便捷的移动端访问</div>
-                <div class="feature-item">7x24小时在线服务</div>
-                <div class="feature-item">详细的数据统计分析</div>
-                <div class="feature-item">个性化的用户体验</div>
+        
+        <!-- 状态卡片 -->
+        <div class="status-card">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-icon">🪙</div>
+                    <div class="stat-value">85%</div>
+                    <div class="stat-label">活跃度</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-value">#156</div>
+                    <div class="stat-label">社区排名</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">🔔</div>
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">新活动</div>
+                </div>
             </div>
         </div>
-
-        <div class="footer">
-            <p>© 2026 Dolphin Staking. All rights reserved.</p>
-            <p>为了更好的体验，请使用现代浏览器访问</p>
+        
+        <!-- 活动横幅 -->
+        <div class="banner" id="eventBanner">
+            <div class="banner-content">
+                <div class="banner-icon">🚀</div>
+                <div class="banner-text">
+                    <h4>今晚8点 AMA直播!</h4>
+                    <p>与项目方直接对话</p>
+                </div>
+            </div>
+            <div class="banner-cta">点击预约</div>
+        </div>
+        
+        <!-- 功能卡片网格 -->
+        <div class="cards-grid">
+            <!-- 签到打卡 -->
+            <div class="card" id="checkinCard">
+                <div class="status-indicator"></div>
+                <div class="card-icon">🎮</div>
+                <h3 class="card-title">每日签到</h3>
+                <p class="card-desc">打卡赢取NFT徽章和代币奖励</p>
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <div class="card-footer">
+                    <div class="card-badge">+15 代币</div>
+                    <div>连续7天</div>
+                </div>
+            </div>
+            
+            <!-- 社区论坛 -->
+            <div class="card">
+                <div class="card-icon">💬</div>
+                <h3 class="card-title">社区派对</h3>
+                <p class="card-desc">热聊广场，畅聊Web3话题</p>
+                <div class="card-footer">
+                    <div class="card-badge">32条新</div>
+                    <div>🔥 热门</div>
+                </div>
+            </div>
+            
+            <!-- 搜索中心 -->
+            <div class="card">
+                <div class="card-icon">🔍</div>
+                <h3 class="card-title">寻宝搜索</h3>
+                <p class="card-desc">探索全网空投机会与行情</p>
+                <div class="card-footer">
+                    <div class="card-badge">3个新</div>
+                    <div>📈 趋势</div>
+                </div>
+            </div>
+            
+            <!-- 活动介绍 -->
+            <div class="card">
+                <div class="card-icon">🎉</div>
+                <h3 class="card-title">活动盛宴</h3>
+                <p class="card-desc">AMA、派对、线上线下活动</p>
+                <div class="card-footer">
+                    <div class="card-badge">3场进行中</div>
+                    <div>🎤 AMA</div>
+                </div>
+            </div>
+            
+            <!-- AI助手 -->
+            <div class="card">
+                <div class="card-icon">🤖</div>
+                <h3 class="card-title">AI助手</h3>
+                <p class="card-desc">智慧伙伴，随时解答Web3疑问</p>
+                <div class="card-footer">
+                    <div class="card-badge">在线</div>
+                    <div>💬 问答</div>
+                </div>
+            </div>
+            
+            <!-- 个人中心 -->
+            <div class="card">
+                <div class="card-icon">👤</div>
+                <h3 class="card-title">我的世界</h3>
+                <p class="card-desc">身份、资产、成就与NFT收藏</p>
+                <div class="card-footer">
+                    <div class="card-badge">45 NFT</div>
+                    <div>🏆 12成就</div>
+                </div>
+            </div>
         </div>
     </div>
-
+    
+    <!-- AI助手悬浮按钮 -->
+    <div class="ai-assistant" id="aiAssistant">
+        <i class="fas fa-robot"></i>
+    </div>
+    
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <div class="nav-item active">
+            <div class="nav-icon"><i class="fas fa-home"></i></div>
+            <div class="nav-label">首页</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"><i class="fas fa-comments"></i></div>
+            <div class="nav-label">论坛</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"><i class="fas fa-search"></i></div>
+            <div class="nav-label">探索</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon"><i class="fas fa-user"></i></div>
+            <div class="nav-label">我的</div>
+        </div>
+    </div>
+    
+    <!-- 粒子效果库 -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    
     <script>
-        // Module routes configuration
-        const moduleRoutes = {
-            rebate: 'staking/index.html',
-            vip: 'vip-membership/vip.html',
-            todo: 'apps/todo.html'
-        };
-
-        // Validation patterns
-        const validationPatterns = {
-            rebate: /^[0-9]{6,10}$/,
-            vip: /^[A-Za-z0-9]{6,12}$/,
-            todo: /^[A-Za-z0-9]{6,12}$/
-        };
-
-        // Handle query form submission
-        function handleQuery(event, module) {
-            event.preventDefault();
-            
-            const form = event.target;
-            const input = form.querySelector('input[name="userId"]');
-            const button = form.querySelector('.query-button');
-            const errorMsg = form.querySelector('.error-message');
-            const userId = input.value.trim();
-
-            // Validate input
-            if (!validationPatterns[module].test(userId)) {
-                input.classList.add('error');
-                errorMsg.classList.add('show');
-                
-                // Remove error after 3 seconds
-                setTimeout(() => {
-                    input.classList.remove('error');
-                    errorMsg.classList.remove('show');
-                }, 3000);
-                return false;
-            }
-
-            // Clear any previous errors
-            input.classList.remove('error');
-            errorMsg.classList.remove('show');
-
-            // Show loading state
-            button.classList.add('loading');
-            button.disabled = true;
-
-            // Simulate loading time for better UX
-            setTimeout(() => {
-                // Navigate to the module page with user ID
-                const targetUrl = `${moduleRoutes[module]}?id=${encodeURIComponent(userId)}`;
-                window.location.href = targetUrl;
-            }, 800);
-
-            return false;
-        }
-
-        // Add input validation on blur
-        document.querySelectorAll('input[name="userId"]').forEach(input => {
-            input.addEventListener('input', function() {
-                // Remove error state when user starts typing
-                this.classList.remove('error');
-                const errorMsg = this.parentElement.querySelector('.error-message');
-                if (errorMsg) {
-                    errorMsg.classList.remove('show');
+        // 初始化粒子背景
+        document.addEventListener('DOMContentLoaded', function() {
+            particlesJS('particles-js', {
+                particles: {
+                    number: { value: 80, density: { enable: true, value_area: 800 } },
+                    color: { value: ["#FF6B35", "#9D4EDD", "#00F5D4", "#FF6AC6"] },
+                    shape: { type: "circle" },
+                    opacity: { value: 0.5, random: true },
+                    size: { value: 3, random: true },
+                    line_linked: {
+                        enable: true,
+                        distance: 150,
+                        color: "#9D4EDD",
+                        opacity: 0.2,
+                        width: 1
+                    },
+                    move: {
+                        enable: true,
+                        speed: 2,
+                        direction: "none",
+                        random: true,
+                        straight: false,
+                        out_mode: "out",
+                        bounce: false
+                    }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: {
+                        onhover: { enable: true, mode: "repulse" },
+                        onclick: { enable: true, mode: "push" }
+                    }
                 }
+            });
+            
+            // 签到卡片点击事件
+            const checkinCard = document.getElementById('checkinCard');
+            const checkinEffect = document.getElementById('checkinEffect');
+            
+            checkinCard.addEventListener('click', function() {
+                // 显示签到特效
+                checkinEffect.classList.add('active');
+                
+                // 创建金币雨效果
+                createCoinRain();
+                
+                // 5秒后隐藏特效
+                setTimeout(() => {
+                    checkinEffect.classList.remove('active');
+                    
+                    // 更新签到状态
+                    const badge = checkinCard.querySelector('.card-badge');
+                    badge.textContent = '已签到';
+                    badge.style.background = 'linear-gradient(90deg, #0FCEBB, #00F5D4)';
+                    
+                    const progressFill = checkinCard.querySelector('.progress-fill');
+                    progressFill.style.width = '85%';
+                    
+                    const statusIndicator = checkinCard.querySelector('.status-indicator');
+                    statusIndicator.style.background = '#FFEA00';
+                }, 3000);
+            });
+            
+            // 创建金币雨效果
+            function createCoinRain() {
+                for (let i = 0; i < 30; i++) {
+                    setTimeout(() => {
+                        const coin = document.createElement('div');
+                        coin.classList.add('coin');
+                        coin.style.left = Math.random() * 100 + 'vw';
+                        coin.style.top = '-20px';
+                        coin.style.animationDuration = Math.random() * 2 + 1 + 's';
+                        
+                        document.body.appendChild(coin);
+                        
+                        // 动画结束后移除金币
+                        setTimeout(() => {
+                            coin.remove();
+                        }, 2000);
+                    }, i * 100);
+                }
+            }
+            
+            // 横幅点击事件
+            const eventBanner = document.getElementById('eventBanner');
+            eventBanner.addEventListener('click', function() {
+                const cta = eventBanner.querySelector('.banner-cta');
+                cta.textContent = '已预约 ✓';
+                cta.style.background = 'rgba(15, 206, 187, 0.3)';
+                
+                // 添加轻微动画
+                eventBanner.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    eventBanner.style.transform = 'scale(1)';
+                }, 150);
+            });
+            
+            // AI助手点击事件
+            const aiAssistant = document.getElementById('aiAssistant');
+            aiAssistant.addEventListener('click', function() {
+                // 模拟AI助手激活
+                aiAssistant.innerHTML = '<i class="fas fa-comment-dots"></i>';
+                aiAssistant.style.background = 'linear-gradient(135deg, #00F5D4, #0FCEBB)';
+                
+                // 显示模拟消息
+                setTimeout(() => {
+                    alert('🤖 AI助手：你好！我是你的Web3助手。\n\n今天有3个新的空投机会和1场重要的AMA活动。需要我为你详细介绍吗？');
+                    aiAssistant.innerHTML = '<i class="fas fa-robot"></i>';
+                    aiAssistant.style.background = 'linear-gradient(135deg, var(--primary), var(--secondary))';
+                }, 300);
+            });
+            
+            // 卡片悬停效果增强
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    const icon = this.querySelector('.card-icon');
+                    icon.style.transform = 'scale(1.1) rotate(5deg)';
+                    icon.style.transition = 'transform 0.3s ease';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    const icon = this.querySelector('.card-icon');
+                    icon.style.transform = 'scale(1) rotate(0deg)';
+                });
+                
+                // 为每张卡片添加点击反馈（除了签到卡片）
+                if (card.id !== 'checkinCard') {
+                    card.addEventListener('click', function() {
+                        this.style.transform = 'translateY(-8px) scale(0.98)';
+                        setTimeout(() => {
+                            this.style.transform = 'translateY(-8px) scale(1)';
+                        }, 150);
+                        
+                        // 根据卡片类型显示不同提示
+                        const title = this.querySelector('.card-title').textContent;
+                        let message = `正在进入${title}功能...`;
+                        
+                        if (title === '社区派对') {
+                            message = '进入热聊广场，与156位Web3爱好者实时聊天！';
+                        } else if (title === '寻宝搜索') {
+                            message = '开启寻宝之旅，发现3个新的空投机会！';
+                        } else if (title === '活动盛宴') {
+                            message = '查看3场进行中的AMA和社区活动！';
+                        } else if (title === 'AI助手') {
+                            message = '与AI助手对话，获取个性化Web3建议！';
+                        } else if (title === '我的世界') {
+                            message = '查看您的45个NFT藏品和12项成就！';
+                        }
+                        
+                        setTimeout(() => {
+                            alert(message);
+                        }, 300);
+                    });
+                }
+            });
+            
+            // 导航栏交互
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // 导航切换效果
+                    const icon = this.querySelector('.nav-icon');
+                    icon.style.transform = 'scale(1.2)';
+                    setTimeout(() => {
+                        icon.style.transform = 'scale(1)';
+                    }, 200);
+                });
+            });
+            
+            // 顶部搜索按钮
+            const searchBtn = document.querySelector('.icon-btn:nth-child(1)');
+            searchBtn.addEventListener('click', function() {
+                const searchTerm = prompt('🔍 输入您要搜索的内容（项目、地址、话题）：');
+                if (searchTerm) {
+                    alert(`正在搜索: "${searchTerm}"\n\n找到12条相关结果，包括：\n• 3个相关项目\n• 5个社区讨论\n• 2个教程\n• 2个市场数据`);
+                }
+            });
+            
+            // 顶部通知按钮
+            const notificationBtn = document.querySelector('.icon-btn:nth-child(2)');
+            notificationBtn.addEventListener('click', function() {
+                const badge = this.querySelector('.notification-badge');
+                badge.textContent = '0';
+                badge.style.opacity = '0.5';
+                
+                alert('📢 您有3条新通知：\n\n1. 您获得了"活跃用户"徽章\n2. 您关注的AMA将在1小时后开始\n3. 您的朋友@CryptoMax加入了社区');
             });
         });
     </script>
