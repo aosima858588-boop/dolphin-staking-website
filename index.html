@@ -1542,7 +1542,7 @@
                 // 批量计算，优化性能 - 只统计有有效地址的数据
                 dataToShow.forEach(record => {
                     // 添加地址验证条件
-                    if (!record.地址 || record.地址.trim() === "" || record.地址 === "TRON" || record.地址 === "地址未提供") {
+                    if (!hasValidAddress(record)) {
                         return; // 跳过这条记录
                     }
                     
