@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIP幸运抽奖</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; }
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #ffa500;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --gold: #ffd700;
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+        }
+        header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+        header p { font-size: 0.95rem; opacity: 0.95; }
+        .back-btn {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .content { padding: 25px; }
+        .lottery-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .wheel-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            margin: 30px auto;
+        }
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 0deg,
+                #ff6b6b 0deg 45deg,
+                #4ecdc4 45deg 90deg,
+                #ffd93d 90deg 135deg,
+                #6c5ce7 135deg 180deg,
+                #a29bfe 180deg 225deg,
+                #fd79a8 225deg 270deg,
+                #74b9ff 270deg 315deg,
+                #fab1a0 315deg 360deg
+            );
+            border: 10px solid white;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transition: transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .wheel-center {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        .wheel-pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 40px solid var(--danger);
+            z-index: 20;
+        }
+        .prizes-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+            font-size: 0.85rem;
+        }
+        .prize-item {
+            background: var(--light);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .spin-btn {
+            padding: 18px 48px;
+            background: linear-gradient(135deg, var(--danger), var(--warning));
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 5px 20px rgba(247, 37, 133, 0.4);
+            margin: 20px 0;
+        }
+        .spin-btn:hover { transform: scale(1.05); }
+        .spin-btn:disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .lottery-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .info-card {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .info-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 8px;
+        }
+        .info-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .history-section {
+            margin-top: 30px;
+        }
+        .history-section h3 {
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        th {
+            background: var(--light);
+            font-weight: 600;
+        }
+        .prize-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .prize-high { background: var(--gold); color: var(--dark); }
+        .prize-medium { background: var(--success); color: white; }
+        .prize-low { background: var(--primary); color: white; }
+        
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .celebrating {
+            animation: celebrate 0.5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <button class="back-btn" onclick="location.href='vip.html'">← 返回</button>
+            <h1>🎁 VIP幸运抽奖</h1>
+            <p>每日免费抽奖，赢取丰厚奖励</p>
+        </header>
+        
+        <div class="content">
+            <div class="lottery-info">
+                <div class="info-card">
+                    <div class="info-label">剩余抽奖次数</div>
+                    <div class="info-value" id="remainingSpins">3</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">今日已中奖</div>
+                    <div class="info-value" id="todayWins">0</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">累计奖品价值</div>
+                    <div class="info-value" id="totalValue">0 USDT</div>
+                </div>
+            </div>
+            
+            <div class="lottery-section">
+                <div class="wheel-container">
+                    <div class="wheel-pointer"></div>
+                    <div class="wheel" id="wheel">
+                        <div class="wheel-center">🎁</div>
+                    </div>
+                </div>
+                
+                <button class="spin-btn" id="spinBtn" onclick="spin()">🎲 开始抽奖</button>
+                
+                <div class="prizes-grid">
+                    <div class="prize-item">🏆 100 USDT</div>
+                    <div class="prize-item">💎 50 USDT</div>
+                    <div class="prize-item">⭐ 20 USDT</div>
+                    <div class="prize-item">🎯 10 USDT</div>
+                    <div class="prize-item">🎁 积分+100</div>
+                    <div class="prize-item">✨ 积分+50</div>
+                    <div class="prize-item">🌟 积分+20</div>
+                    <div class="prize-item">💫 谢谢参与</div>
+                </div>
+            </div>
+            
+            <div class="history-section">
+                <h3>🎊 中奖记录</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>时间</th>
+                            <th>奖品</th>
+                            <th>等级</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTable">
+                        <tr>
+                            <td>2026-02-06 14:30</td>
+                            <td>20 USDT</td>
+                            <td><span class="prize-badge prize-high">高级奖</span></td>
+                        </tr>
+                        <tr>
+                            <td>2026-02-05 10:15</td>
+                            <td>积分+100</td>
+                            <td><span class="prize-badge prize-medium">中级奖</span></td>
+                        </tr>
+                        <tr>
+                            <td>2026-02-04 16:45</td>
+                            <td>积分+50</td>
+                            <td><span class="prize-badge prize-low">普通奖</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const prizes = [
+            { name: '100 USDT', icon: '🏆', value: 100, probability: 0.01, grade: 'high' },
+            { name: '50 USDT', icon: '💎', value: 50, probability: 0.05, grade: 'high' },
+            { name: '20 USDT', icon: '⭐', value: 20, probability: 0.1, grade: 'high' },
+            { name: '10 USDT', icon: '🎯', value: 10, probability: 0.15, grade: 'medium' },
+            { name: '积分+100', icon: '🎁', value: 0, probability: 0.2, grade: 'medium' },
+            { name: '积分+50', icon: '✨', value: 0, probability: 0.25, grade: 'low' },
+            { name: '积分+20', icon: '🌟', value: 0, probability: 0.2, grade: 'low' },
+            { name: '谢谢参与', icon: '💫', value: 0, probability: 0.04, grade: 'none' }
+        ];
+        
+        let remainingSpins = parseInt(localStorage.getItem('remainingSpins') || '3');
+        let todayWins = parseInt(localStorage.getItem('todayWins') || '0');
+        let totalValue = parseInt(localStorage.getItem('totalValue') || '0');
+        let spinning = false;
+        
+        function updateDisplay() {
+            document.getElementById('remainingSpins').textContent = remainingSpins;
+            document.getElementById('todayWins').textContent = todayWins;
+            document.getElementById('totalValue').textContent = totalValue + ' USDT';
+            
+            if (remainingSpins <= 0) {
+                document.getElementById('spinBtn').disabled = true;
+                document.getElementById('spinBtn').textContent = '明日再来';
+            }
+        }
+        
+        function spin() {
+            if (spinning || remainingSpins <= 0) return;
+            
+            spinning = true;
+            document.getElementById('spinBtn').disabled = true;
+            
+            // Random prize selection
+            const random = Math.random();
+            let cumulative = 0;
+            let selectedPrize = prizes[prizes.length - 1];
+            
+            for (let prize of prizes) {
+                cumulative += prize.probability;
+                if (random < cumulative) {
+                    selectedPrize = prize;
+                    break;
+                }
+            }
+            
+            // Spin animation
+            const wheel = document.getElementById('wheel');
+            const randomRotation = 360 * 5 + Math.floor(Math.random() * 360);
+            wheel.style.transform = `rotate(${randomRotation}deg)`;
+            
+            setTimeout(() => {
+                remainingSpins--;
+                if (selectedPrize.value > 0) {
+                    todayWins++;
+                    totalValue += selectedPrize.value;
+                }
+                
+                localStorage.setItem('remainingSpins', remainingSpins);
+                localStorage.setItem('todayWins', todayWins);
+                localStorage.setItem('totalValue', totalValue);
+                
+                updateDisplay();
+                
+                alert(`🎉 恭喜获得：${selectedPrize.icon} ${selectedPrize.name}`);
+                
+                // Add to history
+                const now = new Date();
+                const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+                
+                const historyTable = document.getElementById('historyTable');
+                const newRow = historyTable.insertRow(0);
+                newRow.innerHTML = `
+                    <td>${timeStr}</td>
+                    <td>${selectedPrize.name}</td>
+                    <td><span class="prize-badge prize-${selectedPrize.grade}">${
+                        selectedPrize.grade === 'high' ? '高级奖' : 
+                        selectedPrize.grade === 'medium' ? '中级奖' : 
+                        selectedPrize.grade === 'low' ? '普通奖' : '参与奖'
+                    }</span></td>
+                `;
+                
+                spinning = false;
+                document.getElementById('spinBtn').disabled = remainingSpins <= 0;
+            }, 3000);
+        }
+        
+        updateDisplay();
+    </script>
+</body>
+</html>
