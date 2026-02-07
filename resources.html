@@ -145,11 +145,11 @@
         
         <div class="content">
             <div class="categories">
-                <button class="category-btn active" onclick="filterCategory('all')">全部资料</button>
-                <button class="category-btn" onclick="filterCategory('market')">市场分析</button>
-                <button class="category-btn" onclick="filterCategory('tutorial')">投资教程</button>
-                <button class="category-btn" onclick="filterCategory('report')">研究报告</button>
-                <button class="category-btn" onclick="filterCategory('strategy')">策略分享</button>
+                <button class="category-btn active" onclick="filterCategory('all', event)">全部资料</button>
+                <button class="category-btn" onclick="filterCategory('market', event)">市场分析</button>
+                <button class="category-btn" onclick="filterCategory('tutorial', event)">投资教程</button>
+                <button class="category-btn" onclick="filterCategory('report', event)">研究报告</button>
+                <button class="category-btn" onclick="filterCategory('strategy', event)">策略分享</button>
             </div>
             
             <div class="resources-grid" id="resourcesGrid">
@@ -261,7 +261,7 @@
             `).join('');
         }
         
-        function filterCategory(category) {
+        function filterCategory(category, event) {
             currentCategory = category;
             
             document.querySelectorAll('.category-btn').forEach(btn => {

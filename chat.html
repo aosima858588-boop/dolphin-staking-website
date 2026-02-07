@@ -241,10 +241,11 @@
                 const randomResponse = responses[Math.floor(Math.random() * responses.length)];
                 const randomMember = '会员' + String(Math.floor(Math.random() * 999)).padStart(3, '0');
                 
+                const responseTime = new Date(now.getTime() + 60000); // Add 1 minute
                 messages.push({
                     sender: randomMember,
                     content: randomResponse,
-                    time: `${now.getHours()}:${String(now.getMinutes() + 1).padStart(2, '0')}`,
+                    time: `${responseTime.getHours()}:${String(responseTime.getMinutes()).padStart(2, '0')}`,
                     own: false
                 });
                 

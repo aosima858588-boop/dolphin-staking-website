@@ -323,7 +323,7 @@
             
             for (let prize of prizes) {
                 cumulative += prize.probability;
-                if (random <= cumulative) {
+                if (random < cumulative) {
                     selectedPrize = prize;
                     break;
                 }
