@@ -2,787 +2,1383 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>海豚动态经济模型 - 解析</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>海豚社区 | 紧凑型用户面板</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #0a192f 0%, #1e3a8a 100%);
-            color: #e0e7ff;
+        :root {
+            --primary: #2563eb;
+            --primary-light: #dbeafe;
+            --primary-dark: #1d4ed8;
+            --secondary: #7c3aed;
+            --accent: #0ea5e9;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gold: #fbbf24;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --background: #ffffff;
+            --background-alt: #f9fafb;
+            --border: #e5e7eb;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 25px -5px rgba(37, 99, 235, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
             margin: 0;
             padding: 0;
-            line-height: 1.7;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
+            box-sizing: border-box;
         }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
         .container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 40px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            flex: 1;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* ===== 用户信息面板 ===== */
+        .user-panel {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(124, 58, 237, 0.1));
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            padding: 20px;
+            margin-bottom: 24px;
+            cursor: pointer;
+            transition: var(--transition);
             position: relative;
             overflow: hidden;
         }
-        .container::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
-            animation: rotateBg 30s linear infinite;
+
+        .user-panel:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary);
+            transform: translateY(-2px);
         }
-        @keyframes rotateBg {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+
+        .user-panel.active {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(124, 58, 237, 0.15));
+            box-shadow: var(--shadow-lg);
         }
-        h1 {
-            text-align: center;
-            color: #93c5fd;
-            margin-bottom: 40px;
-            font-size: 2.5rem;
-            font-weight: 700;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            letter-spacing: 1px;
-            position: relative;
-            z-index: 1;
-        }
-        h2 {
-            color: #bfdbfe;
-            border-left: 5px solid #3b82f6;
-            padding-left: 15px;
-            margin-top: 50px;
-            font-size: 1.8rem;
-            font-weight: 600;
+
+        .user-panel-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            position: relative;
-            z-index: 1;
+            justify-content: space-between;
         }
-        h3 {
-            color: #dbeafe;
-            margin-top: 30px;
-            font-size: 1.4rem;
-            font-weight: 500;
+
+        .user-identity {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .dolphin-avatar {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            position: relative;
+        }
+
+        .dolphin-avatar::after {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .user-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-details {
+            display: flex;
+            gap: 20px;
+        }
+
+        .user-detail {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .user-detail i {
+            color: var(--primary);
+            font-size: 0.8rem;
+        }
+
+        .expand-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--background);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            transition: var(--transition);
+        }
+
+        .user-panel.active .expand-icon {
+            transform: rotate(180deg);
+            background: var(--primary);
+            color: white;
+        }
+
+        /* 用户面板扩展内容 */
+        .user-panel-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .user-panel-content-inner {
+            padding-top: 24px;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            border-top: 1px solid rgba(37, 99, 235, 0.1);
+            margin-top: 16px;
+        }
+
+        .user-panel.active .user-panel-content-inner {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.1s;
+        }
+
+        /* 金牌会员闪光效果 */
+        .gold-member {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b, #fbbf24);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            font-size: 1.2rem;
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            animation: shine 2s infinite, pulse 2s infinite;
+            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+        }
+
+        @keyframes shine {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .member-badge {
+            background: linear-gradient(135deg, var(--gold), #f59e0b);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+
+        .member-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: 16px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        .stat-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* ===== 导航按钮 ===== */
+        .nav-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .nav-btn {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .nav-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(135deg, var(--primary-light), white);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-btn-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .nav-btn:nth-child(2) .nav-btn-icon {
+            background: linear-gradient(135deg, var(--success), var(--accent));
+        }
+
+        .nav-btn:nth-child(3) .nav-btn-icon {
+            background: linear-gradient(135deg, var(--warning), var(--danger));
+        }
+
+        .nav-btn-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+        }
+
+        /* ===== 卡片区域标题 ===== */
+        .section-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* ===== 核心：可展开卡片 ===== */
+        .expandable-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .expandable-card {
+            background: var(--background);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .expandable-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .expandable-card.active {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* 卡片头部 - 始终可见 */
+        .card-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .card-main {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .card-icon.success {
+            background: linear-gradient(135deg, var(--success), var(--accent));
+        }
+
+        .card-icon.warning {
+            background: linear-gradient(135deg, var(--warning), var(--danger));
+        }
+
+        .card-icon.purple {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+
+        .card-title-group h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+        }
+
+        .card-preview {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            max-width: 500px;
+        }
+
+        /* 状态指示器 */
+        .card-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: 20px;
+        }
+
+        .status-badge {
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-badge.success {
+            background: #d1fae5;
+            color: var(--success);
+        }
+
+        .status-badge.warning {
+            background: #fef3c7;
+            color: var(--warning);
+        }
+
+        .status-badge.purple {
+            background: #ede9fe;
+            color: #7c3aed;
+        }
+
+        .expand-card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--background-alt);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            transition: var(--transition);
+        }
+
+        .expandable-card.active .expand-card-icon {
+            background: var(--primary);
+            color: white;
+            transform: rotate(180deg);
+        }
+
+        /* 卡片内容 - 默认隐藏，展开时显示 */
+        .card-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card-content-inner {
+            padding: 0 20px 20px 20px;
+            border-top: 1px solid var(--border);
+            margin-top: 0;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .expandable-card.active .card-content-inner {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.1s;
+        }
+
+        /* 展开后的内容布局 */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-top: 16px;
+        }
+
+        .content-section h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 8px;
-            position: relative;
-            z-index: 1;
         }
-        p {
-            margin: 15px 0;
-            font-size: 1.1rem;
-            color: #cbd5e1;
-            text-align: justify;
-            position: relative;
-            z-index: 1;
+
+        .content-section h4 i {
+            font-size: 1rem;
         }
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            margin: 25px 0;
-            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
-            border-radius: 12px;
-            overflow: hidden;
-            position: relative;
-            z-index: 1;
+
+        .description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 16px;
         }
-        th, td {
-            padding: 15px 20px;
-            text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+        .rules-list {
+            list-style: none;
+            margin-bottom: 20px;
         }
-        th {
-            background: linear-gradient(90deg, #1e40af 0%, #1d4ed8 100%);
-            color: #fff;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        tr:nth-child(even) {
-            background-color: rgba(30, 64, 175, 0.2);
-        }
-        tr:hover {
-            background-color: rgba(59, 130, 246, 0.3);
-            transition: background 0.3s ease;
-        }
-        ul {
-            list-style-type: none;
-            margin-left: 0;
-            padding-left: 0;
-            position: relative;
-            z-index: 1;
-        }
-        ul li {
-            margin: 12px 0;
-            padding: 12px;
-            background: rgba(30, 58, 138, 0.3);
-            border-radius: 8px;
+
+        .rules-list li {
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border);
             display: flex;
             align-items: center;
             gap: 10px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        ul li:hover {
-            transform: translateX(5px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+
+        .rules-list li:last-child {
+            border-bottom: none;
         }
-        .section {
-            margin-bottom: 60px;
-            animation: fadeIn 1s ease-in-out;
-            position: relative;
-            z-index: 1;
+
+        .rules-list li i {
+            color: var(--primary);
         }
+
+        .rewards {
+            background: var(--background-alt);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .reward-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .reward-item:last-child {
+            border-bottom: none;
+        }
+
+        .reward-value {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .action-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .countdown {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 16px;
+            border-radius: var(--radius-md);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .countdown.success {
+            background: linear-gradient(135deg, var(--success), var(--accent));
+        }
+
+        .countdown-title {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-bottom: 6px;
+        }
+
+        .countdown-timer {
+            font-size: 1.6rem;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 14px 20px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary.success {
+            background: linear-gradient(135deg, var(--success), var(--accent));
+        }
+
+        .btn-primary.warning {
+            background: linear-gradient(135deg, var(--warning), var(--danger));
+        }
+
+        .btn-primary.purple {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+
+        .btn-secondary {
+            background: var(--background-alt);
+            color: var(--primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            
+            .card-status {
+                width: 100%;
+                justify-content: space-between;
+                margin-left: 0;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .nav-buttons {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .member-stats {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .user-details {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card-main {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .card-title-group {
+                width: 100%;
+            }
+            
+            .card-preview {
+                max-width: 100%;
+            }
+            
+            .user-identity {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .user-panel-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            
+            .expand-icon {
+                align-self: flex-end;
+            }
+        }
+
+        /* 添加一些动画效果 */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .highlight {
-            background: rgba(59, 130, 246, 0.1);
-            padding: 20px;
-            border-left: 8px solid #3b82f6;
-            border-radius: 12px;
-            margin: 20px 0;
-            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
-            color: #e0f2fe;
-            position: relative;
-            z-index: 1;
+
+        .expandable-card {
+            animation: fadeIn 0.5s ease forwards;
         }
-        .flowchart {
-            margin: 25px 0;
-            padding: 25px;
-            background: rgba(17, 24, 39, 0.5);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-            position: relative;
-            z-index: 1;
+
+        .expandable-card:nth-child(2) {
+            animation-delay: 0.1s;
         }
-        .flowchart ul li {
-            background: rgba(30, 64, 175, 0.4);
-            border-left: 4px solid #93c5fd;
+
+        .expandable-card:nth-child(3) {
+            animation-delay: 0.2s;
         }
-        .flowchart li::after {
-            color: #93c5fd;
-            font-size: 28px;
-        }
-        /* 移动端优化 */
-        @media (max-width: 768px) {
-            .container {
-                margin: 20px 10px;
-                padding: 20px;
-            }
-            h1 {
-                font-size: 2rem;
-            }
-            h2 {
-                font-size: 1.5rem;
-            }
-            h3 {
-                font-size: 1.2rem;
-            }
-            table {
-                font-size: 0.9rem;
-            }
-            th, td {
-                padding: 10px 12px;
-            }
-        }
-        .icon {
-            color: #93c5fd;
-            font-size: 1.2em;
-        }
-        .download-btn {
-            display: block;
-            margin: 30px auto;
-            padding: 14px 28px;
-            background: linear-gradient(90deg, #10b981 0%, #059669 100%);
-            color: #fff;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            text-align: center;
-            max-width: 250px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
-            position: relative;
-            z-index: 1;
-        }
-        .download-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
-        }
-        .illustration {
-            margin: 20px 0;
-            text-align: center;
-            position: relative;
-            z-index: 1;
-            animation: fadeIn 1s ease-in-out;
-        }
-        .illustration svg {
-            max-width: 100%;
-            height: auto;
-            border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
-            transition: transform 0.3s ease;
-        }
-        .illustration:hover svg {
-            transform: scale(1.05);
-        }
-        .illustration-caption {
-            margin-top: 10px;
-            font-style: italic;
-            color: #94a3b8;
-            font-size: 0.9rem;
+
+        .expandable-card:nth-child(4) {
+            animation-delay: 0.3s;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1><i class="fas fa-water icon"></i>海豚动态经济模型-解析 </h1>
-        
-        <a href="javascript:window.print();" class="download-btn"><i class="fas fa-download"></i> 下载 PDF / 打印展示</a>
-        
-        <div class="section">
-            <h2><i class="fas fa-chart-line icon"></i> 1. 模型概述</h2>
-            <p>本模型旨在构建一个高效、可持续的链上激励体系，通过正向飞轮机制驱动生态增长：用户质押 USDT 生成 H 代币，继而参与交易积累流水，达标后解锁奖励，进一步吸引质押，提升系统 TVL。</p>
-            <div class="illustration">
-                <svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="400" height="200" rx="10" fill="rgba(30, 64, 175, 0.3)"/>
-                    <circle cx="100" cy="100" r="40" fill="#93c5fd"/>
-                    <circle cx="200" cy="100" r="40" fill="#3b82f6"/>
-                    <circle cx="300" cy="100" r="40" fill="#1d4ed8"/>
-                    <path d="M140 100 L160 100" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-                    <path d="M240 100 L260 100" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-                    <text x="100" y="105" font-size="16" fill="#0a192f" text-anchor="middle">质押</text>
-                    <text x="200" y="105" font-size="16" fill="#0a192f" text-anchor="middle">交易</text>
-                    <text x="300" y="105" font-size="16" fill="#0a192f" text-anchor="middle">奖励</text>
-                </svg>
-                <div class="illustration-caption">图解1: 模型核心飞轮机制示意</div>
-            </div>
-            <ul>
-                <li><i class="fas fa-bullseye icon"></i> <strong>目的</strong>: 激励用户质押 USDT 获取 H 代币，并通过交易参与 OKX Boost 机制，获得新币空投奖励。</li>
-                <li><i class="fas fa-check-circle icon"></i> <strong>核心假设</strong>: USDT 作为稳定币价值锚定 1 USD；H 代币初始供应有限；TVL 年增长率控制在 50-100%。</li>
-                <li><i class="fas fa-sync-alt icon"></i> <strong>飞轮机制</strong>: 质押 → 交易 → 奖励 → 复投，形成闭环生态。</li>
-                <li><i class="fas fa-cogs icon"></i> <strong>模型类型</strong>: 动态激励模型，借鉴 Compound 与 Curve 协议的设计精髓。</li>
-            </ul>
-            
-            <h3><i class="fas fa-stream icon"></i> 1.1 机制细节：正向飞轮流程</h3>
-            <div class="illustration">
-                <svg width="400" height="250" viewBox="0 0 400 250" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="400" height="250" rx="10" fill="rgba(30, 64, 175, 0.3)"/>
-                    <rect x="50" y="20" width="300" height="40" rx="5" fill="#93c5fd"/>
-                    <text x="200" y="45" font-size="16" fill="#0a192f" text-anchor="middle">步骤1: 质押 USDT</text>
-                    <path d="M200 60 L200 80" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-                    <rect x="50" y="80" width="300" height="40" rx="5" fill="#3b82f6"/>
-                    <text x="200" y="105" font-size="16" fill="#0a192f" text-anchor="middle">步骤2: H 交易积累流水</text>
-                    <path d="M200 120 L200 140" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-                    <rect x="50" y="140" width="300" height="40" rx="5" fill="#1d4ed8"/>
-                    <text x="200" y="165" font-size="16" fill="#0a192f" text-anchor="middle">步骤3: 解锁 Boost 奖励</text>
-                    <path d="M200 180 L200 200" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-                    <rect x="50" y="200" width="300" height="40" rx="5" fill="#93c5fd"/>
-                    <text x="200" y="225" font-size="16" fill="#0a192f" text-anchor="middle">步骤4: 奖励复投</text>
-                </svg>
-                <div class="illustration-caption">图解2: 正向飞轮流程图解</div>
-            </div>
-            <div class="flowchart">
-                <ul>
-                    <li><i class="fas fa-lock icon"></i> 步骤1: 用户质押 USDT（无锁仓，随时存取），根据阶梯日利率获得 H 代币收益（每日20:00发放）。</li>
-                    <li><i class="fas fa-exchange-alt icon"></i> 步骤2: 用户使用获得的 H 在 DEX/OKX Wallet 进行交易（建议每日2-5笔），积累有效流水（85%有效率，每10天至少500 USDT等值）。</li>
-                    <li><i class="fas fa-trophy icon"></i> 步骤3: 流水达标且 Boost 余额≥200 USDT等值 H 时，解锁 OKX 新币空投奖励（平均10-50% APY）。</li>
-                    <li><i class="fas fa-redo-alt icon"></i> 步骤4: 奖励可转换为 USDT 或 H，复投质押或继续交易，形成闭环。</li>
-                    <li><i class="fas fa-hand-holding-usd icon"></i> 步骤5: H 交易收取5%税费，回流运营者地址，用于流动性注入、H回购/销毁，稳定系统。</li>
-                </ul>
+        <!-- 用户信息面板 -->
+        <div class="user-panel" id="userPanel">
+            <div class="user-panel-header">
+                <div class="user-identity">
+                    <div class="dolphin-avatar">
+                        <i class="fas fa-dolphin"></i>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">小丁丁</div>
+                        <div class="user-details">
+                            <div class="user-detail">
+                                <i class="fas fa-id-card"></i>
+                                <span>ID: 12312</span>
+                            </div>
+                            <div class="user-detail">
+                                <i class="fas fa-coins"></i>
+                                <span>DPH: 192</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="expand-icon">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
             </div>
             
-            <h3><i class="fas fa-mouse-pointer icon"></i> 1.2 交互细节：用户与系统交互点</h3>
-            <div class="illustration">
-                <svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="400" height="200" rx="10" fill="rgba(30, 64, 175, 0.3)"/>
-                    <path d="M50 100 L350 100" stroke="#93c5fd" stroke-width="4" stroke-dasharray="10 5"/>
-                    <circle cx="100" cy="100" r="30" fill="#3b82f6"/>
-                    <text x="100" y="105" font-size="12" fill="#fff" text-anchor="middle">质押</text>
-                    <circle cx="200" cy="100" r="30" fill="#1d4ed8"/>
-                    <text x="200" y="105" font-size="12" fill="#fff" text-anchor="middle">交易</text>
-                    <circle cx="300" cy="100" r="30" fill="#93c5fd"/>
-                    <text x="300" y="105" font-size="12" fill="#fff" text-anchor="middle">奖励</text>
-                </svg>
-                <div class="illustration-caption">图解3: 用户交互点示意</div>
+            <div class="user-panel-content" id="userPanelContent">
+                <div class="user-panel-content-inner">
+                    <div class="gold-member">
+                        <span class="member-badge">
+                            <i class="fas fa-crown"></i>
+                        </span>
+                        当前等级：金牌会员
+                    </div>
+                    
+                    <div class="member-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">87</div>
+                            <div class="stat-label">社区活跃度</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">15</div>
+                            <div class="stat-label">参与活动数</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">第38名</div>
+                            <div class="stat-label">社区排名</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <ul>
-                <li><i class="fas fa-sign-in-alt icon"></i> <strong>质押交互</strong>: 通过DApp界面输入USDT金额，确认交易；系统实时显示阶梯阶段和预计收益。</li>
-                <li><i class="fas fa-sign-out-alt icon"></i> <strong>赎回交互</strong>: 一键赎回，本金+未领收益（折算H）自动到账；若<7天，弹出反作弊费警告。</li>
-                <li><i class="fas fa-sync icon"></i> <strong>交易交互</strong>: 在OKX Wallet“兑换”功能买卖H；系统监控流水，达标后推送Boost资格通知。</li>
-                <li><i class="fas fa-gift icon"></i> <strong>奖励交互</strong>: 每10天结算，DApp显示奖励详情，一键领取新币空投。</li>
-                <li><i class="fas fa-file-invoice-dollar icon"></i> <strong>税费交互</strong>: 交易时实时显示5%税费扣除；运营者仪表盘公开税费使用报告。</li>
-            </ul>
         </div>
         
-        <div class="section">
-            <h2><i class="fas fa-cog icon"></i> 2. 核心组件与参数设定</h2>
-            
-            <h3><i class="fas fa-shield-alt icon"></i> 2.1 质押机制</h3>
-            <div class="illustration">
-                <svg width="400" height="150" viewBox="0 0 400 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="400" height="150" rx="10" fill="rgba(30, 64, 175, 0.3)"/>
-                    <rect x="50" y="50" width="100" height="50" rx="5" fill="#93c5fd"/>
-                    <text x="100" y="75" font-size="12" fill="#0a192f" text-anchor="middle">USDT 质押</text>
-                    <path d="M150 75 L250 75" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-                    <rect x="250" y="50" width="100" height="50" rx="5" fill="#3b82f6"/>
-                    <text x="300" y="75" font-size="12" fill="#0a192f" text-anchor="middle">H 收益发放</text>
-                </svg>
-                <div class="illustration-caption">图解4: 质押机制流程</div>
+        <!-- 导航按钮 -->
+        <div class="nav-buttons">
+            <div class="nav-btn active" id="navActivity">
+                <div class="nav-btn-icon">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <div class="nav-btn-label">活动</div>
             </div>
-            <p>设计为无锁仓、无固定周期的灵活模式，支持随时存取；收益以等值 USDT 的 H 代币形式，每日 20:00 (UTC+8) 精准发放。</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>参数</th>
-                        <th>值/描述</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>最小质押额</td>
-                        <td>100 USDT</td>
-                    </tr>
-                    <tr>
-                        <td>最大质押额</td>
-                        <td>无上限（系统 TVL 上限初始 10M USDT）</td>
-                    </tr>
-                    <tr>
-                        <td>平台费</td>
-                        <td>1%（从收益扣除）</td>
-                    </tr>
-                    <tr>
-                        <td>收益计算公式</td>
-                        <td>每日收益 = 本金 × 日利率 × (1 - 平台费)</td>
-                    </tr>
-                    <tr>
-                        <td>H 发放价格</td>
-                        <td>Oracle 喂价 (e.g., Chainlink H/USDT)</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <h3><i class="fas fa-stairs icon"></i> 质押收益阶梯规则</h3>
-            <div class="illustration">
-                <svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="400" height="200" rx="10" fill="rgba(30, 64, 175, 0.3)"/>
-                    <path d="M50 150 L100 150 L100 120 L150 120 L150 90 L200 90 L200 60 L250 60 L250 30 L350 30" fill="none" stroke="#93c5fd" stroke-width="4"/>
-                    <text x="75" y="170" font-size="12" fill="#fff">阶段1: 0.5%</text>
-                    <text x="125" y="140" font-size="12" fill="#fff">阶段2: 0.6%</text>
-                    <text x="175" y="110" font-size="12" fill="#fff">阶段3: 0.8%</text>
-                    <text x="225" y="80" font-size="12" fill="#fff">阶段4: 1%</text>
-                    <text x="300" y="50" font-size="12" fill="#fff">阶段5: 1.2%</text>
-                </svg>
-                <div class="illustration-caption">图解5: 收益阶梯增长示意</div>
+            <div class="nav-btn" id="navModel">
+                <div class="nav-btn-icon">
+                    <i class="fas fa-cube"></i>
+                </div>
+                <div class="nav-btn-label">模型</div>
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>阶段</th>
-                        <th>天数</th>
-                        <th>日利率</th>
-                        <th>年化 APY (约)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>1-7 天</td>
-                        <td>0.5%</td>
-                        <td>182.5%</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>8-15 天</td>
-                        <td>0.6%</td>
-                        <td>219%</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>16-30 天</td>
-                        <td>0.8%</td>
-                        <td>292%</td>
-                    </tr>
-                    <tr>
-                        <td>4</td>
-                        <td>31-60 天</td>
-                        <td>1%</td>
-                        <td>365%</td>
-                    </tr>
-                    <tr>
-                        <td>5</td>
-                        <td>61+ 天</td>
-                        <td>1.2%</td>
-                        <td>438%</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <h3><i class="fas fa-unlock icon"></i> 2.2 赎回机制</h3>
-            <div class="illustration">
-                <svg width="400" height="150" viewBox="0 0 400 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="400" height="150" rx="10" fill="rgba(30, 64, 175, 0.3)"/>
-                    <rect x="50" y="50" width="100" height="50" rx="5" fill="#3b82f6"/>
-                    <text x="100" y="75" font-size="12" fill="#fff" text-anchor="middle">赎回请求</text>
-                    <path d="M150 75 L250 75" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-                    <rect x="250" y="50" width="100" height="50" rx="5" fill="#93c5fd"/>
-                    <text x="300" y="75" font-size="12" fill="#0a192f" text-anchor="middle">本金 + H 收益</text>
-                </svg>
-                <div class="illustration-caption">图解6: 赎回流程图解</div>
+            <div class="nav-btn" id="navWallet">
+                <div class="nav-btn-icon">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <div class="nav-btn-label">钱包</div>
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>参数</th>
-                        <th>值/描述</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>赎回手续费</td>
-                        <td>0%（质押 <7 天扣 0.1% 反作弊费）</td>
-                    </tr>
-                    <tr>
-                        <td>赎回公式</td>
-                        <td>总赎回 = 本金 + (累计收益 USDT 等值 × 当前 H 价格)^{-1} 的 H 数量</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <h3><i class="fas fa-coins icon"></i> 2.3 H 代币经济</h3>
-            <div class="illustration">
-                <svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="400" height="200" rx="10" fill="rgba(30, 64, 175, 0.3)"/>
-                    <circle cx="200" cy="100" r="80" fill="#3b82f6" />
-                    <text x="200" y="95" font-size="16" fill="#fff" text-anchor="middle">H 总供应</text>
-                    <text x="200" y="115" font-size="12" fill="#e0e7ff" text-anchor="middle">1B (初始)</text>
-                    <line x1="200" y1="20" x2="200" y2="60" stroke="#93c5fd" stroke-width="4"/>
-                    <text x="200" y="15" font-size="12" fill="#bfdbfe" text-anchor="middle">奖励池 60%</text>
-                    <line x1="120" y1="100" x2="80" y2="100" stroke="#93c5fd" stroke-width="4"/>
-                    <text x="60" y="105" font-size="12" fill="#bfdbfe" text-anchor="middle">流动性 20%</text>
-                    <line x1="280" y1="100" x2="320" y2="100" stroke="#93c5fd" stroke-width="4"/>
-                    <text x="340" y="105" font-size="12" fill="#bfdbfe" text-anchor="middle">团队 10%</text>
-                    <line x1="200" y1="140" x2="200" y2="180" stroke="#93c5fd" stroke-width="4"/>
-                    <text x="200" y="195" font-size="12" fill="#bfdbfe" text-anchor="middle">社区 10%</text>
-                </svg>
-                <div class="illustration-caption">图解7: H 代币分配饼图</div>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>参数</th>
-                        <th>值/描述</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>总供应</td>
-                        <td>初始 1B H (10亿)</td>
-                    </tr>
-                    <tr>
-                        <td>分配比例</td>
-                        <td>质押奖励池: 60%；流动性池: 20%；运营者/团队: 10% (锁定1年)；社区/营销: 10%</td>
-                    </tr>
-                    <tr>
-                        <td>年度通胀上限</td>
-                        <td>20% (基于 TVL 调整)</td>
-                    </tr>
-                    <tr>
-                        <td>交易税</td>
-                        <td>5% (100% 进入运营者地址)</td>
-                    </tr>
-                    <tr>
-                        <td>税费分配</td>
-                        <td>20% 用于销毁 H</td>
-                    </tr>
-                    <tr>
-                        <td>初始价格</td>
-                        <td>0.01 USDT</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <h3><i class="fas fa-handshake icon"></i> 2.4 交易与 Boost 奖励</h3>
-            <div class="illustration">
-                <svg width="400" height="150" viewBox="0 0 400 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="400" height="150" rx="10" fill="rgba(30, 64, 175, 0.3)"/>
-                    <circle cx="100" cy="75" r="30" fill="#93c5fd"/>
-                    <text x="100" y="80" font-size="12" fill="#0a192f" text-anchor="middle">交易 H</text>
-                    <path d="M130 75 L270 75" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-                    <circle cx="300" cy="75" r="30" fill="#3b82f6"/>
-                    <text x="300" y="80" font-size="12" fill="#fff" text-anchor="middle">Boost 奖励</text>
-                </svg>
-                <div class="illustration-caption">图解8: 交易到奖励流程</div>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>参数</th>
-                        <th>值/描述</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>最小流水</td>
-                        <td>每 10 天 500 USDT 等值 (有效率 85%)</td>
-                    </tr>
-                    <tr>
-                        <td>交易频率建议</td>
-                        <td>每日 2-5 笔</td>
-                    </tr>
-                    <tr>
-                        <td>Boost 额外要求</td>
-                        <td>余额 ≥ 200 USDT 等值 H</td>
-                    </tr>
-                    <tr>
-                        <td>奖励池分配</td>
-                        <td>运营税费 30% 作为社区奖励</td>
-                    </tr>
-                    <tr>
-                        <td>解锁周期</td>
-                        <td>每 10 天结算</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <h3><i class="fas fa-tools icon"></i> 2.5 其他参数</h3>
-            <div class="illustration">
-                <svg width="400" height="150" viewBox="0 0 400 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="400" height="150" rx="10" fill="rgba(30, 64, 175, 0.3)"/>
-                    <rect x="50" y="30" width="300" height="30" rx="5" fill="#93c5fd"/>
-                    <text x="200" y="50" font-size="12" fill="#0a192f" text-anchor="middle">TVL 目标: 10M</text>
-                    <rect x="50" y="70" width="300" height="30" rx="5" fill="#3b82f6"/>
-                    <text x="200" y="90" font-size="12" fill="#fff" text-anchor="middle">增长率: 20%/月</text>
-                    <rect x="50" y="110" width="300" height="30" rx="5" fill="#1d4ed8"/>
-                    <text x="200" y="130" font-size="12" fill="#fff" text-anchor="middle">安全: Oracle + 审计</text>
-                </svg>
-                <div class="illustration-caption">图解9: 其他参数概述</div>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>参数</th>
-                        <th>值/描述</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>TVL 目标</td>
-                        <td>初始 1M USDT；1年内 10M</td>
-                    </tr>
-                    <tr>
-                        <td>用户增长率</td>
-                        <td>月增长 20%</td>
-                    </tr>
-                    <tr>
-                        <td>退出率</td>
-                        <td>短期 30%；长期 10%</td>
-                    </tr>
-                    <tr>
-                        <td>安全措施</td>
-                        <td>Chainlink Oracle；合约审计</td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
         
-        <div class="section">
-            <h2><i class="fas fa-analytics icon"></i> 3. 模型分析</h2>
-            
-            <h3><i class="fas fa-lightbulb icon"></i> 3.1 激励结构</h3>
-            <div class="illustration">
-                <svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="400" height="200" rx="10" fill="rgba(30, 64, 175, 0.3)"/>
-                    <path d="M200 50 Q150 100 200 150 Q250 100 200 50" fill="#93c5fd"/>
-                    <text x="200" y="100" font-size="16" fill="#0a192f" text-anchor="middle">激励闭环</text>
-                    <text x="100" y="30" font-size="12" fill="#bfdbfe">用户收益</text>
-                    <text x="300" y="30" font-size="12" fill="#bfdbfe">运营收入</text>
-                    <text x="100" y="170" font-size="12" fill="#bfdbfe">网络效应</text>
-                    <text x="300" y="170" font-size="12" fill="#bfdbfe">博弈均衡</text>
-                </svg>
-                <div class="illustration-caption">图解10: 激励结构示意</div>
+        <!-- 卡片区域标题 -->
+        <div class="section-header">
+            <h1>社区专属活动</h1>
+            <p class="subtitle">点击卡片查看详情并参与活动</p>
+        </div>
+        
+        <!-- 可展开卡片 -->
+        <div class="expandable-cards">
+            <!-- 第一个卡片：OKX Boost活动 -->
+            <div class="expandable-card active" id="card-okx">
+                <div class="card-header">
+                    <div class="card-main">
+                        <div class="card-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <div class="card-title-group">
+                            <h3>OKX Boost 加速计划</h3>
+                            <p class="card-preview">社区专属交易加速活动，参与即享多重奖励，最高可获得 500 USDT 等值赠金...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card-status">
+                        <span class="status-badge">🔥 火热进行中</span>
+                        <div class="expand-card-icon">
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-content" style="max-height: 800px;">
+                    <div class="card-content-inner">
+                        <div class="content-grid">
+                            <div class="content-section">
+                                <h4><i class="fas fa-info-circle"></i> 活动介绍</h4>
+                                <p class="description">
+                                    这是海豚社区与OKX交易所合作的专属加速计划。活动期间，社区成员通过专属链接参与交易，即可获得额外加速奖励。活动旨在为社区成员提供更多交易优势和学习机会。
+                                </p>
+                                
+                                <h4><i class="fas fa-list-check"></i> 参与规则</h4>
+                                <ul class="rules-list">
+                                    <li><i class="fas fa-check-circle"></i> 需通过社区专属链接注册OKX账户</li>
+                                    <li><i class="fas fa-check-circle"></i> 活动期间累计交易额需达到 1,000 USDT</li>
+                                    <li><i class="fas fa-check-circle"></i> 至少完成 10 笔有效交易</li>
+                                    <li><i class="fas fa-check-circle"></i> 需加入OKX官方海豚社区群组</li>
+                                    <li><i class="fas fa-check-circle"></i> 奖励将在活动结束后7个工作日内发放</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4><i class="fas fa-gift"></i> 奖励详情</h4>
+                                <div class="rewards">
+                                    <div class="reward-item">
+                                        <span>基础奖励</span>
+                                        <span class="reward-value">50 USDT</span>
+                                    </div>
+                                    <div class="reward-item">
+                                        <span>交易额达标奖</span>
+                                        <span class="reward-value">100-500 USDT</span>
+                                    </div>
+                                    <div class="reward-item">
+                                        <span>邀请好友奖励</span>
+                                        <span class="reward-value">20 USDT/人</span>
+                                    </div>
+                                    <div class="reward-item">
+                                        <span>社区贡献奖</span>
+                                        <span class="reward-value">特殊NFT勋章</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="action-section">
+                                    <div class="countdown">
+                                        <div class="countdown-title">活动剩余时间</div>
+                                        <div class="countdown-timer" id="countdown-okx">19:49:03</div>
+                                    </div>
+                                    
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary">
+                                            <i class="fas fa-play-circle"></i>
+                                            立即参加活动
+                                        </button>
+                                        <button class="btn btn-secondary">
+                                            <i class="fas fa-share-alt"></i>
+                                            分享给好友
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <ul>
-                <li><i class="fas fa-user-check icon"></i> 用户: 阶梯收益鼓励长期持有；Boost 放大回报。</li>
-                <li><i class="fas fa-business-time icon"></i> 运营者: 税费收入 (e.g., 日交易 1M USDT → 50K 税费)。</li>
-                <li><i class="fas fa-balance-scale icon"></i> 博弈论: Nash 均衡下倾向长期持有。</li>
-                <li><i class="fas fa-network-wired icon"></i> 网络效应: 更多用户 → 更高 TVL → 更稳定价格。</li>
-            </ul>
             
-            <h3><i class="fas fa-leaf icon"></i> 3.2 可持续性</h3>
-            <div class="illustration">
-                <svg width="400" height="150" viewBox="0 0 400 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="400" height="150" rx="10" fill="rgba(30, 64, 175, 0.3)"/>
-                    <path d="M50 100 Q200 20 350 100" fill="none" stroke="#93c5fd" stroke-width="4"/>
-                    <text x="200" y="50" font-size="16" fill="#bfdbfe" text-anchor="middle">可持续增长曲线</text>
-                    <text x="50" y="120" font-size="12" fill="#e0e7ff">TVL 5M</text>
-                    <text x="350" y="120" font-size="12" fill="#e0e7ff">TVL 15M</text>
-                </svg>
-                <div class="illustration-caption">图解11: 可持续性增长曲线</div>
+            <!-- 第二个卡片：Web3资源宝库 -->
+            <div class="expandable-card" id="card-resource">
+                <div class="card-header">
+                    <div class="card-main">
+                        <div class="card-icon success">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="card-title-group">
+                            <h3>Web3 资源宝库</h3>
+                            <p class="card-preview">汇集全网优质区块链学习资源、开发工具和实战案例，从入门到精通一站式解决方案...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card-status">
+                        <span class="status-badge success">📚 持续更新</span>
+                        <div class="expand-card-icon">
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-content" style="max-height: 0px;">
+                    <div class="card-content-inner">
+                        <div class="content-grid">
+                            <div class="content-section">
+                                <h4><i class="fas fa-info-circle"></i> 资源介绍</h4>
+                                <p class="description">
+                                    海豚社区资源中心收录了经过筛选的优质Web3学习材料，涵盖区块链基础、智能合约开发、DeFi、NFT等多个领域。所有资源均由社区专家审核推荐，定期更新最新内容。
+                                </p>
+                                
+                                <h4><i class="fas fa-list-check"></i> 热门资源</h4>
+                                <ul class="rules-list">
+                                    <li><i class="fas fa-book"></i> Solidity智能合约开发指南</li>
+                                    <li><i class="fas fa-video"></i> DeFi原理与实践视频课程</li>
+                                    <li><i class="fas fa-file-code"></i> Web3.js/Ethers.js开发手册</li>
+                                    <li><i class="fas fa-chart-line"></i> 2023年NFT市场趋势分析报告</li>
+                                    <li><i class="fas fa-tools"></i> 区块链开发工具包合集</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4><i class="fas fa-gift"></i> 会员特权</h4>
+                                <div class="rewards">
+                                    <div class="reward-item">
+                                        <span>免费会员</span>
+                                        <span class="reward-value">基础资源</span>
+                                    </div>
+                                    <div class="reward-item">
+                                        <span>高级会员</span>
+                                        <span class="reward-value">全部资源+更新</span>
+                                    </div>
+                                    <div class="reward-item">
+                                        <span>专家会员</span>
+                                        <span class="reward-value">专属资料+1对1指导</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="action-section">
+                                    <div class="countdown success">
+                                        <div class="countdown-title">最近更新</div>
+                                        <div class="countdown-timer" id="countdown-resource">24小时前</div>
+                                    </div>
+                                    
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary success">
+                                            <i class="fas fa-key"></i>
+                                            解锁全部资源
+                                        </button>
+                                        <button class="btn btn-secondary">
+                                            <i class="fas fa-search"></i>
+                                            浏览资源
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <ul>
-                <li><i class="fas fa-chart-area icon"></i> 通胀控制: 与 TVL 挂钩。</li>
-                <li><i class="fas fa-money-bill-wave icon"></i> 资金流: 正现金流 (税费 > 成本)。</li>
-                <li><i class="fas fa-clock icon"></i> 长期模拟 (1年):</li>
-            </ul>
-            <table>
-                <thead>
-                    <tr>
-                        <th>年份</th>
-                        <th>TVL (USDT)</th>
-                        <th>H 供应</th>
-                        <th>用户数</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>年1</td>
-                        <td>5M</td>
-                        <td>增加15%</td>
-                        <td>10K</td>
-                    </tr>
-                    <tr>
-                        <td>年2</td>
-                        <td>15M</td>
-                        <td>H 价格升至0.02 USDT</td>
-                        <td>-</td>
-                    </tr>
-                </tbody>
-            </table>
             
-            <h3><i class="fas fa-exclamation-triangle icon"></i> 3.3 风险分析</h3>
-            <div class="illustration">
-                <svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="400" height="200" rx="10" fill="rgba(30, 64, 175, 0.3)"/>
-                    <circle cx="100" cy="100" r="50" fill="#ef4444"/>
-                    <text x="100" y="95" font-size="12" fill="#fff" text-anchor="middle">风险</text>
-                    <text x="100" y="110" font-size="12" fill="#fff" text-anchor="middle">识别</text>
-                    <path d="M150 100 L250 100" stroke="#fff" stroke-width="4"/>
-                    <circle cx="300" cy="100" r="50" fill="#22c55e"/>
-                    <text x="300" y="95" font-size="12" fill="#fff" text-anchor="middle">缓解</text>
-                    <text x="300" y="110" font-size="12" fill="#fff" text-anchor="middle">措施</text>
-                </svg>
-                <div class="illustration-caption">图解12: 风险管理框架</div>
+            <!-- 第三个卡片：AI模型市场 -->
+            <div class="expandable-card" id="card-model">
+                <div class="card-header">
+                    <div class="card-main">
+                        <div class="card-icon purple">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="card-title-group">
+                            <h3>AI 模型市场</h3>
+                            <p class="card-preview">探索、交易和使用海豚社区精选的AI模型，涵盖图像生成、文本分析、预测模型等...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card-status">
+                        <span class="status-badge purple">🤖 12个模型</span>
+                        <div class="expand-card-icon">
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-content" style="max-height: 0px;">
+                    <div class="card-content-inner">
+                        <div class="content-grid">
+                            <div class="content-section">
+                                <h4><i class="fas fa-info-circle"></i> 市场介绍</h4>
+                                <p class="description">
+                                    海豚社区AI模型市场汇集了各类优质AI模型，支持模型交易、租赁和使用。所有模型都经过严格测试，确保性能稳定，为开发者和企业提供一站式AI解决方案。
+                                </p>
+                                
+                                <h4><i class="fas fa-list-check"></i> 热门模型</h4>
+                                <ul class="rules-list">
+                                    <li><i class="fas fa-palette"></i> 图像生成模型 - DALL-E 3优化版</li>
+                                    <li><i class="fas fa-language"></i> 多语言翻译模型 - 支持58种语言</li>
+                                    <li><i class="fas fa-chart-bar"></i> 市场预测模型 - 加密货币趋势分析</li>
+                                    <li><i class="fas fa-comments"></i> 智能客服模型 - 24小时自动回复</li>
+                                    <li><i class="fas fa-code"></i> 代码生成模型 - 支持15种编程语言</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4><i class="fas fa-gift"></i> 模型定价</h4>
+                                <div class="rewards">
+                                    <div class="reward-item">
+                                        <span>基础模型</span>
+                                        <span class="reward-value">免费试用</span>
+                                    </div>
+                                    <div class="reward-item">
+                                        <span>专业模型</span>
+                                        <span class="reward-value">10-50 DPH/次</span>
+                                    </div>
+                                    <div class="reward-item">
+                                        <span>企业模型</span>
+                                        <span class="reward-value">定制价格</span>
+                                    </div>
+                                    <div class="reward-item">
+                                        <span>模型交易</span>
+                                        <span class="reward-value">DPH/USDT支付</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="action-section">
+                                    <div class="countdown" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                                        <div class="countdown-title">今日使用量</div>
+                                        <div class="countdown-timer">3,842 次</div>
+                                    </div>
+                                    
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary purple">
+                                            <i class="fas fa-shopping-cart"></i>
+                                            浏览模型市场
+                                        </button>
+                                        <button class="btn btn-secondary">
+                                            <i class="fas fa-upload"></i>
+                                            上传我的模型
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>风险类型</th>
-                        <th>描述</th>
-                        <th>缓解措施</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>市场风险</td>
-                        <td>H 价格崩盘</td>
-                        <td>回购机制</td>
-                    </tr>
-                    <tr>
-                        <td>流动性风险</td>
-                        <td>赎回挤兑</td>
-                        <td>TVL 上限 + 储备金 20%</td>
-                    </tr>
-                    <tr>
-                        <td>监管风险</td>
-                        <td>DeFi 合规</td>
-                        <td>许可辖区运营</td>
-                    </tr>
-                    <tr>
-                        <td>合约风险</td>
-                        <td>漏洞</td>
-                        <td>多重审计 + 保险</td>
-                    </tr>
-                    <tr>
-                        <td>通胀风险</td>
-                        <td>H 过剩</td>
-                        <td>销毁 + 通胀上限</td>
-                    </tr>
-                </tbody>
-            </table>
             
-            <h3><i class="fas fa-chart-pie icon"></i> 3.4 敏感性分析</h3>
-            <div class="illustration">
-                <svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="400" height="200" rx="10" fill="rgba(30, 64, 175, 0.3)"/>
-                    <path d="M200 100 L200 0" fill="none" stroke="#22c55e" stroke-width="20" stroke-linecap="round"/>
-                    <text x="220" y="50" font-size="12" fill="#bfdbfe">乐观: +30%</text>
-                    <path d="M200 100 L200 120" fill="none" stroke="#eab308" stroke-width="20" stroke-linecap="round"/>
-                    <text x="220" y="130" font-size="12" fill="#bfdbfe">中性: 稳定</text>
-                    <path d="M200 100 L200 200" fill="none" stroke="#ef4444" stroke-width="20" stroke-linecap="round"/>
-                    <text x="220" y="190" font-size="12" fill="#bfdbfe">悲观: -50%</text>
-                </svg>
-                <div class="illustration-caption">图解13: 敏感性场景对比</div>
+            <!-- 第四个卡片：智能钱包 -->
+            <div class="expandable-card" id="card-wallet">
+                <div class="card-header">
+                    <div class="card-main">
+                        <div class="card-icon warning">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="card-title-group">
+                            <h3>智能钱包</h3>
+                            <p class="card-preview">一站式数字资产管理，支持多链资产查看、交易、DeFi挖矿和NFT收藏管理...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card-status">
+                        <span class="status-badge warning">💰 多链支持</span>
+                        <div class="expand-card-icon">
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-content" style="max-height: 0px;">
+                    <div class="card-content-inner">
+                        <div class="content-grid">
+                            <div class="content-section">
+                                <h4><i class="fas fa-info-circle"></i> 钱包功能</h4>
+                                <p class="description">
+                                    海豚社区智能钱包支持以太坊、BSC、Polygon等多条主流区块链，提供安全的资产存储、便捷的交易功能和丰富的DeFi生态接入。所有操作均在本地完成，私钥永不离开您的设备。
+                                </p>
+                                
+                                <h4><i class="fas fa-list-check"></i> 核心功能</h4>
+                                <ul class="rules-list">
+                                    <li><i class="fas fa-shield-alt"></i> 多重安全防护，保障资产安全</li>
+                                    <li><i class="fas fa-exchange-alt"></i> 一键跨链资产转移</li>
+                                    <li><i class="fas fa-seedling"></i> 集成主流DeFi协议，一键挖矿</li>
+                                    <li><i class="fas fa-images"></i> NFT收藏展示与管理</li>
+                                    <li><i class="fas fa-chart-pie"></i> 资产组合分析与报告</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="content-section">
+                                <h4><i class="fas fa-gift"></i> 资产概览</h4>
+                                <div class="rewards">
+                                    <div class="reward-item">
+                                        <span>总资产价值</span>
+                                        <span class="reward-value">3,842 USDT</span>
+                                    </div>
+                                    <div class="reward-item">
+                                        <span>DPH余额</span>
+                                        <span class="reward-value">192 DPH</span>
+                                    </div>
+                                    <div class="reward-item">
+                                        <span>NFT收藏</span>
+                                        <span class="reward-value">7个</span>
+                                    </div>
+                                    <div class="reward-item">
+                                        <span>DeFi收益</span>
+                                        <span class="reward-value">+12.5% APY</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="action-section">
+                                    <div class="countdown" style="background: linear-gradient(135deg, var(--warning), var(--danger));">
+                                        <div class="countdown-title">今日收益</div>
+                                        <div class="countdown-timer">+2.4 DPH</div>
+                                    </div>
+                                    
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary warning">
+                                            <i class="fas fa-exchange-alt"></i>
+                                            发起交易
+                                        </button>
+                                        <button class="btn btn-secondary">
+                                            <i class="fas fa-chart-line"></i>
+                                            查看资产报告
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <ul>
-                <li><i class="fas fa-arrow-up icon"></i> 利率上调 0.1%: TVL +15%，通胀 +10%。</li>
-                <li><i class="fas fa-scenario icon"></i> 场景:</li>
-            </ul>
-            <table>
-                <thead>
-                    <tr>
-                        <th>场景</th>
-                        <th>描述</th>
-                        <th>TVL/收益</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>乐观</td>
-                        <td>增长 30%/月</td>
-                        <td>TVL 20M；APY 500%</td>
-                    </tr>
-                    <tr>
-                        <td>悲观</td>
-                        <td>退出率 50%</td>
-                        <td>TVL 500K；利率降至 0.3%</td>
-                    </tr>
-                    <tr>
-                        <td>中性</td>
-                        <td>稳定增长</td>
-                        <td>APY 300%</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <h3><i class="fas fa-rocket icon"></i> 3.5 飞轮效应量化</h3>
-            <div class="illustration">
-                <svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="400" height="200" rx="10" fill="rgba(30, 64, 175, 0.3)"/>
-                    <circle cx="200" cy="100" r="70" stroke="#93c5fd" stroke-width="4" fill="none"/>
-                    <path d="M200 30 L200 70" stroke="#3b82f6" stroke-width="4" stroke-linecap="round"/>
-                    <text x="220" y="50" font-size="12" fill="#bfdbfe">复投率 70%</text>
-                    <path d="M270 100 L310 100" stroke="#3b82f6" stroke-width="4" stroke-linecap="round"/>
-                    <text x="330" y="105" font-size="12" fill="#bfdbfe">交易比率 5:1</text>
-                    <path d="M200 130 L200 170" stroke="#3b82f6" stroke-width="4" stroke-linecap="round"/>
-                    <text x="220" y="160" font-size="12" fill="#bfdbfe">系统价值 1.5x</text>
-                    <path d="M90 100 L130 100" stroke="#3b82f6" stroke-width="4" stroke-linecap="round"/>
-                    <text x="50" y="105" font-size="12" fill="#bfdbfe">ROI 示例</text>
-                </svg>
-                <div class="illustration-caption">图解14: 飞轮效应量化图</div>
-            </div>
-            <ul>
-                <li><i class="fas fa-recycle icon"></i> 复投率: 70%。</li>
-                <li><i class="fas fa-chart-bar icon"></i> 交易量/TVL 比率: 5:1 (每日)。</li>
-                <li><i class="fas fa-calculator icon"></i> ROI 示例: 1000 USDT 质押 90 天 ≈ 85 USDT 等值 H + Boost 50 USDT。</li>
-                <li><i class="fas fa-value icon"></i> 系统价值: TVL × 1.5x (乘数效应)。</li>
-            </ul>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 用户面板展开/收起功能
+            const userPanel = document.getElementById('userPanel');
+            const userPanelContent = document.getElementById('userPanelContent');
+            
+            userPanel.addEventListener('click', function() {
+                const isActive = this.classList.contains('active');
+                
+                if (!isActive) {
+                    this.classList.add('active');
+                    const height = userPanelContent.scrollHeight + 50;
+                    userPanelContent.style.maxHeight = height + 'px';
+                } else {
+                    this.classList.remove('active');
+                    userPanelContent.style.maxHeight = '0';
+                }
+            });
+            
+            // 导航按钮点击事件
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 移除所有按钮的active类
+                    navButtons.forEach(b => b.classList.remove('active'));
+                    
+                    // 为当前点击的按钮添加active类
+                    this.classList.add('active');
+                    
+                    // 根据点击的按钮筛选卡片（示例）
+                    const btnId = this.id;
+                    const allCards = document.querySelectorAll('.expandable-card');
+                    
+                    if (btnId === 'navActivity') {
+                        // 显示所有卡片
+                        allCards.forEach(card => card.style.display = 'flex');
+                    } else if (btnId === 'navModel') {
+                        // 只显示模型相关卡片
+                        allCards.forEach(card => {
+                            if (card.id === 'card-model') {
+                                card.style.display = 'flex';
+                            } else {
+                                card.style.display = 'none';
+                            }
+                        });
+                    } else if (btnId === 'navWallet') {
+                        // 只显示钱包相关卡片
+                        allCards.forEach(card => {
+                            if (card.id === 'card-wallet') {
+                                card.style.display = 'flex';
+                            } else {
+                                card.style.display = 'none';
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // 卡片展开/收起功能
+            const cards = document.querySelectorAll('.expandable-card');
+            
+            // 初始化：第一个卡片展开，其他收起
+            cards.forEach((card, index) => {
+                if (index !== 0) {
+                    const content = card.querySelector('.card-content');
+                    content.style.maxHeight = '0';
+                    card.classList.remove('active');
+                } else {
+                    // 第一个卡片展开
+                    card.classList.add('active');
+                    const content = card.querySelector('.card-content');
+                    const innerContent = card.querySelector('.card-content-inner');
+                    const height = innerContent.scrollHeight + 50;
+                    content.style.maxHeight = height + 'px';
+                }
+                
+                // 点击卡片切换状态
+                card.addEventListener('click', function(e) {
+                    // 如果点击的是按钮，不触发卡片收起
+                    if (e.target.closest('button')) {
+                        return;
+                    }
+                    
+                    // 切换当前卡片的激活状态
+                    const isActive = this.classList.contains('active');
+                    
+                    // 先收起所有卡片
+                    cards.forEach(c => {
+                        c.classList.remove('active');
+                        const content = c.querySelector('.card-content');
+                        content.style.maxHeight = '0';
+                    });
+                    
+                    // 如果点击的卡片原本不是激活状态，则展开它
+                    if (!isActive) {
+                        this.classList.add('active');
+                        const content = this.querySelector('.card-content');
+                        // 获取内容实际高度
+                        const innerContent = this.querySelector('.card-content-inner');
+                        const height = innerContent.scrollHeight + 50; // 添加一些边距
+                        content.style.maxHeight = height + 'px';
+                    }
+                });
+            });
+            
+            // 倒计时功能
+            function updateCountdown() {
+                const countdownElement = document.getElementById('countdown-okx');
+                if (!countdownElement) return;
+                
+                // 设置活动结束时间（示例：3天后）
+                const now = new Date();
+                const endTime = new Date(now);
+                endTime.setDate(endTime.getDate() + 3); // 3天后结束
+                endTime.setHours(23, 59, 59);
+                
+                const diff = endTime - now;
+                
+                // 如果活动已结束
+                if (diff <= 0) {
+                    countdownElement.textContent = "活动已结束";
+                    document.querySelector('.status-badge').textContent = "⏰ 已结束";
+                    document.querySelector('.status-badge').style.background = "#f3f4f6";
+                    document.querySelector('.status-badge').style.color = "#6b7280";
+                    return;
+                }
+                
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                countdownElement.textContent = 
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            // 初始更新并设置定时器
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+            
+            // 资源中心更新时间
+            function updateResourceTime() {
+                const resourceTimeElement = document.getElementById('countdown-resource');
+                if (!resourceTimeElement) return;
+                
+                const now = new Date();
+                const updateTime = new Date(now);
+                updateTime.setHours(updateTime.getHours() - 24); // 24小时前更新
+                
+                const diff = now - updateTime;
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                
+                if (hours < 1) {
+                    resourceTimeElement.textContent = "刚刚更新";
+                } else if (hours < 24) {
+                    resourceTimeElement.textContent = `${hours}小时前`;
+                } else {
+                    const days = Math.floor(hours / 24);
+                    resourceTimeElement.textContent = `${days}天前`;
+                }
+            }
+            
+            updateResourceTime();
+            
+            // 按钮点击事件
+            document.querySelectorAll('.btn-primary').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation(); // 防止触发卡片点击事件
+                    const cardTitle = this.closest('.expandable-card').querySelector('h3').textContent;
+                    alert(`即将跳转到：${cardTitle} 的参与页面`);
+                });
+            });
+            
+            document.querySelectorAll('.btn-secondary').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation(); // 防止触发卡片点击事件
+                    const cardTitle = this.closest('.expandable-card').querySelector('h3').textContent;
+                    
+                    // 模拟分享功能
+                    if (navigator.share) {
+                        navigator.share({
+                            title: cardTitle,
+                            text: '看看这个来自海豚社区的有趣活动！',
+                            url: window.location.href,
+                        });
+                    } else {
+                        alert(`已复制 ${cardTitle} 的分享链接到剪贴板`);
+                    }
+                });
+            });
+            
+            // 模拟DPH余额变化（每30秒增加1 DPH）
+            setInterval(() => {
+                const dphElement = document.querySelector('.user-detail:nth-child(2) span');
+                if (dphElement) {
+                    const currentDPH = parseInt(dphElement.textContent.split(': ')[1]);
+                    dphElement.textContent = `DPH: ${currentDPH + 1}`;
+                    
+                    // 更新钱包卡片中的DPH余额
+                    const walletDPH = document.querySelector('.reward-item:nth-child(2) .reward-value');
+                    if (walletDPH) {
+                        walletDPH.textContent = `${currentDPH + 1} DPH`;
+                    }
+                    
+                    // 更新今日收益
+                    const todayEarn = document.querySelector('#card-wallet .countdown-timer');
+                    if (todayEarn) {
+                        const currentEarn = parseFloat(todayEarn.textContent.split('+')[1]);
+                        todayEarn.textContent = `+${(currentEarn + 0.1).toFixed(1)} DPH`;
+                    }
+                }
+            }, 30000);
+        });
+    </script>
 </body>
 </html>
