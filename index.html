@@ -23,6 +23,7 @@
             --card-bg: rgba(255, 255, 255, 0.92);
             --card-shadow: 0 5px 20px rgba(0, 102, 255, 0.08);
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --active-index: 0; /* 添加CSS变量用于活动按钮位置 */
         }
 
         * {
@@ -44,7 +45,45 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* 改进的海豚动画 */
+        /* 货币下落背景动画 */
+        .coin-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .coin {
+            position: absolute;
+            font-size: 20px;
+            color: rgba(255, 204, 0, 0.5);
+            animation: coinFall linear infinite;
+            text-shadow: 0 2px 5px rgba(255, 204, 0, 0.3);
+            opacity: 0.3;
+        }
+
+        @keyframes coinFall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.5;
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* 改进的海豚动画 - 透明背景 */
         .floating-dolphin {
             width: 100px;
             height: 100px;
@@ -72,16 +111,17 @@
         .dolphin-icon {
             width: 100px;
             height: 100px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
+            background: transparent;
             border-radius: 50% 50% 45% 55% / 60% 60% 40% 40%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: var(--primary);
             font-size: 46px;
             position: relative;
             overflow: hidden;
             transition: var(--transition);
+            border: 2px solid rgba(0, 102, 255, 0.1);
         }
 
         .dolphin-icon::before {
@@ -89,7 +129,7 @@
             position: absolute;
             width: 150%;
             height: 150%;
-            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.6) 0%, transparent 50%);
+            background: radial-gradient(circle at 30% 30%, rgba(0, 102, 255, 0.1) 0%, transparent 50%);
             top: -25%;
             left: -25%;
             animation: lightMove 6s linear infinite;
@@ -105,7 +145,7 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.3) 50%, transparent 60%);
+            background: linear-gradient(45deg, transparent 40%, rgba(0, 102, 255, 0.1) 50%, transparent 60%);
             animation: shine 3s ease-in-out infinite;
         }
 
@@ -350,7 +390,7 @@
             position: absolute;
             top: 4px;
             bottom: 4px;
-            left: 33.33%;
+            left: calc(var(--active-index, 0) * 33.33%);
             width: 33.33%;
             background: linear-gradient(135deg, var(--primary-light), rgba(0, 102, 255, 0.05));
             border-radius: 14px;
@@ -375,8 +415,8 @@
             z-index: 1;
         }
 
-        /* 水波纹效果 */
-        .action-btn::after {
+        /* 简化水波纹效果 */
+        .action-btn:active::after {
             content: '';
             position: absolute;
             top: 50%;
@@ -386,21 +426,17 @@
             background: rgba(0, 102, 255, 0.2);
             opacity: 0;
             border-radius: 100%;
-            transform: scale(1, 1) translate(-50%, -50%);
-            transform-origin: 50% 50%;
-        }
-
-        .action-btn:active::after {
+            transform: translate(-50%, -50%);
             animation: ripple 0.6s ease-out;
         }
 
         @keyframes ripple {
             0% {
-                transform: scale(0, 0);
+                transform: scale(0, 0) translate(-50%, -50%);
                 opacity: 0.5;
             }
             100% {
-                transform: scale(40, 40);
+                transform: scale(40, 40) translate(-50%, -50%);
                 opacity: 0;
             }
         }
@@ -951,7 +987,10 @@
     </style>
 </head>
 <body>
-    <!-- 改进的浮动海豚 -->
+    <!-- 货币下落背景动画 -->
+    <div class="coin-background" id="coinBackground"></div>
+    
+    <!-- 改进的浮动海豚 - 透明背景 -->
     <div class="floating-dolphin">
         <div class="dolphin-icon">
             <i class="fas fa-dolphin"></i>
@@ -1023,7 +1062,7 @@
     <!-- 卡片区域 -->
     <div class="cards-container">
         <!-- 卡片1：OKX Boost活动 -->
-        <div class="activity-card active" id="cardOkx">
+        <div class="activity-card" id="cardOkx">
             <div class="card-header">
                 <div class="card-main">
                     <div class="card-icon">
@@ -1042,7 +1081,7 @@
                 </div>
             </div>
             
-            <div class="card-content" style="max-height: 550px;">
+            <div class="card-content">
                 <div class="content-inner">
                     <div class="content-section">
                         <div class="section-title">
@@ -1256,6 +1295,48 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // 创建货币下落效果
+            function createCoinBackground() {
+                const coinBackground = document.getElementById('coinBackground');
+                const coinSymbols = [
+                    'fas fa-coins', // 普通硬币
+                    'fab fa-bitcoin', // 比特币
+                    'fab fa-ethereum', // 以太坊
+                    'fas fa-dollar-sign', // 美元
+                    'fas fa-euro-sign', // 欧元
+                    'fas fa-pound-sign', // 英镑
+                    'fas fa-yen-sign', // 日元
+                    'fas fa-won-sign' // 韩元
+                ];
+                
+                // 创建50个货币图标
+                for (let i = 0; i < 50; i++) {
+                    const coin = document.createElement('i');
+                    const randomSymbol = coinSymbols[Math.floor(Math.random() * coinSymbols.length)];
+                    
+                    coin.className = `coin ${randomSymbol}`;
+                    coin.style.left = `${Math.random() * 100}%`;
+                    coin.style.fontSize = `${Math.random() * 15 + 10}px`; // 10-25px
+                    coin.style.animationDelay = `${Math.random() * 5}s`;
+                    coin.style.animationDuration = `${Math.random() * 10 + 10}s`; // 10-20s
+                    
+                    // 随机颜色
+                    const colors = [
+                        'rgba(255, 204, 0, 0.5)', // 金色
+                        'rgba(255, 193, 7, 0.5)', // 黄色
+                        'rgba(0, 102, 255, 0.3)', // 蓝色
+                        'rgba(16, 185, 129, 0.3)', // 绿色
+                        'rgba(139, 92, 246, 0.3)' // 紫色
+                    ];
+                    coin.style.color = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    coinBackground.appendChild(coin);
+                }
+            }
+            
+            // 初始化货币背景
+            createCoinBackground();
+            
             // 用户面板展开/收起
             const userPanel = document.getElementById('userPanel');
             const userDetails = document.getElementById('userDetails');
@@ -1273,47 +1354,32 @@
                 }
             });
             
-            // 水波纹效果
-            function createRipple(event) {
-                const btn = event.currentTarget;
-                const circle = document.createElement("span");
-                const diameter = Math.max(btn.clientWidth, btn.clientHeight);
-                const radius = diameter / 2;
-
-                circle.style.width = circle.style.height = `${diameter}px`;
-                circle.style.left = `${event.clientX - btn.getBoundingClientRect().left - radius}px`;
-                circle.style.top = `${event.clientY - btn.getBoundingClientRect().top - radius}px`;
-                circle.classList.add("ripple");
-
-                const ripple = btn.getElementsByClassName("ripple")[0];
-                if (ripple) {
-                    ripple.remove();
-                }
-
-                btn.appendChild(circle);
-            }
-
-            // 三个核心按钮点击事件
+            // 三个核心按钮点击事件 - 修复版本
             const actionButtons = document.querySelectorAll('.action-btn');
-            actionButtons.forEach(btn => {
+            const buttonGroup = document.querySelector('.action-buttons');
+            
+            actionButtons.forEach((btn, index) => {
                 btn.addEventListener('click', function(e) {
-                    createRipple(e);
-                    
                     // 移除所有按钮的active类
                     actionButtons.forEach(b => b.classList.remove('active'));
                     
                     // 为当前点击的按钮添加active类
                     this.classList.add('active');
                     
-                    // 移动背景指示器
-                    const buttonGroup = document.querySelector('.action-buttons');
-                    const index = Array.from(actionButtons).indexOf(this);
-                    buttonGroup.style.setProperty('--active-index', index);
+                    // 移动背景指示器 - 使用CSS变量
+                    document.documentElement.style.setProperty('--active-index', index);
                     
                     // 根据按钮筛选卡片
                     const btnId = this.id;
                     const allCards = document.querySelectorAll('.activity-card');
                     
+                    // 首先收起所有卡片
+                    allCards.forEach(card => {
+                        card.classList.remove('active');
+                        card.querySelector('.card-content').style.maxHeight = '0';
+                    });
+                    
+                    // 然后根据按钮显示相应的卡片
                     if (btnId === 'btnActivity') {
                         allCards.forEach(card => card.style.display = 'block');
                     } else if (btnId === 'btnModel') {
@@ -1327,6 +1393,7 @@
                     } else if (btnId === 'btnWallet') {
                         allCards.forEach(card => card.style.display = 'none');
                         // 这里可以添加钱包相关卡片的显示逻辑
+                        alert('钱包功能开发中...');
                     }
                 });
             });
@@ -1334,39 +1401,38 @@
             // 卡片展开/收起功能
             const cards = document.querySelectorAll('.activity-card');
             
-            // 初始化：第一个卡片展开，其他收起
-            cards.forEach((card, index) => {
-                if (index !== 0) {
-                    const content = card.querySelector('.card-content');
-                    content.style.maxHeight = '0';
-                    card.classList.remove('active');
-                } else {
-                    // 第一个卡片展开
-                    card.classList.add('active');
-                    const content = card.querySelector('.card-content');
-                    const innerContent = card.querySelector('.content-inner');
-                    const height = innerContent.scrollHeight;
-                    content.style.maxHeight = height + 'px';
-                }
+            // 初始化：所有卡片都闭合
+            cards.forEach(card => {
+                const content = card.querySelector('.card-content');
+                content.style.maxHeight = '0';
+                card.classList.remove('active');
                 
                 // 点击卡片头部切换状态
                 const header = card.querySelector('.card-header');
                 header.addEventListener('click', function(e) {
+                    // 阻止事件冒泡，避免与按钮事件冲突
+                    e.stopPropagation();
+                    
+                    // 如果点击的是按钮，不触发卡片展开
                     if (e.target.closest('button')) return;
                     
                     const isActive = card.classList.contains('active');
                     
-                    // 先收起所有卡片
-                    cards.forEach(c => {
-                        c.classList.remove('active');
-                        const content = c.querySelector('.card-content');
+                    // 如果点击的卡片已经是激活状态，则收起它
+                    if (isActive) {
+                        card.classList.remove('active');
                         content.style.maxHeight = '0';
-                    });
-                    
-                    // 如果点击的卡片原本不是激活状态，则展开它
-                    if (!isActive) {
+                    } else {
+                        // 收起所有其他卡片
+                        cards.forEach(c => {
+                            if (c !== card) {
+                                c.classList.remove('active');
+                                c.querySelector('.card-content').style.maxHeight = '0';
+                            }
+                        });
+                        
+                        // 展开当前卡片
                         card.classList.add('active');
-                        const content = card.querySelector('.card-content');
                         const innerContent = card.querySelector('.content-inner');
                         const height = innerContent.scrollHeight;
                         content.style.maxHeight = height + 'px';
@@ -1374,7 +1440,7 @@
                 });
             });
             
-            // 按钮点击事件
+            // 卡片内按钮点击事件
             document.querySelectorAll('.action-primary').forEach(btn => {
                 btn.addEventListener('click', function(e) {
                     e.stopPropagation();
@@ -1396,7 +1462,7 @@
             document.querySelectorAll('.action-secondary').forEach(btn => {
                 btn.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    alert('分享链接已复制！');
+                    alert('分享链接已复制到剪贴板！');
                 });
             });
             
@@ -1448,7 +1514,7 @@
                 
             }, 30000); // 每30秒更新一次
             
-            // 添加CSS变量控制
+            // 初始化CSS变量
             document.documentElement.style.setProperty('--active-index', '0');
         });
     </script>
