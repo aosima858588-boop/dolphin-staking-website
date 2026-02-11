@@ -7,17 +7,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-light: rgba(37, 99, 235, 0.1);
-            --secondary: #7c3aed;
-            --accent: #0ea5e9;
-            --gold: #fbbf24;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-            --glass-bg: rgba(255, 255, 255, 0.9);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --primary: #0066ff;
+            --primary-light: rgba(0, 102, 255, 0.1);
+            --primary-dark: #0052cc;
+            --secondary: #8b5cf6;
+            --accent: #00c6ff;
+            --gold: #ffcc00;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(0, 102, 255, 0.15);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
         }
 
         * {
@@ -27,55 +28,70 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #e6f0ff 0%, #f0f7ff 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #f5f9ff 0%, #e8f2ff 100%);
             color: var(--text-primary);
             min-height: 100vh;
-            padding: 20px 16px;
+            padding: 16px;
             position: relative;
             overflow-x: hidden;
         }
 
-        /* 背景装饰元素 */
-        .bg-dots {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: radial-gradient(var(--primary-light) 1px, transparent 1px);
-            background-size: 30px 30px;
-            opacity: 0.3;
-            z-index: -1;
+        /* 独立浮动海豚 */
+        .floating-dolphin-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
         }
 
-        /* 海豚装饰 */
-        .dolphin-decoration {
-            position: fixed;
-            top: 10%;
-            right: 5%;
-            width: 100px;
-            height: 100px;
-            opacity: 0.1;
-            z-index: -1;
+        .floating-dolphin {
+            width: 80px;
+            height: 80px;
+            animation: float 3s ease-in-out infinite;
+            position: relative;
         }
 
-        .dolphin-decoration i {
-            font-size: 100px;
-            color: var(--primary);
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            33% { transform: translateY(-10px) rotate(2deg); }
+            66% { transform: translateY(5px) rotate(-1deg); }
         }
 
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
+        .dolphin-circle {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0, 102, 255, 0.2);
+            overflow: hidden;
         }
 
-        /* 用户信息面板 - 透明设计 */
-        .user-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
+        .dolphin-circle::before {
+            content: '';
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            top: -30px;
+            left: -30px;
+        }
+
+        .dolphin-circle i {
+            font-size: 40px;
+            color: white;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 用户信息区域 */
+        .user-info-section {
+            background: var(--card-bg);
             border-radius: 20px;
-            border: 1px solid var(--glass-border);
+            border: 1px solid var(--card-border);
             padding: 20px;
             margin-bottom: 24px;
             box-shadow: var(--shadow);
@@ -85,102 +101,115 @@
             overflow: hidden;
         }
 
-        .user-panel::before {
+        .user-info-section::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent), var(--primary));
             transform: scaleX(0);
-            transition: transform 0.3s ease;
+            transition: transform 0.4s ease;
+            transform-origin: left;
         }
 
-        .user-panel:hover::before,
-        .user-panel.expanded::before {
+        .user-info-section:hover::before,
+        .user-info-section.expanded::before {
             transform: scaleX(1);
         }
 
-        .user-panel:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        .user-info-section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
         }
 
-        .user-basic-info {
+        .user-basic {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 16px;
+            text-align: center;
+            position: relative;
         }
 
-        .user-avatar {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 50%;
+        .user-nickname-row {
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-            flex-shrink: 0;
+            gap: 12px;
+            margin-bottom: 12px;
+            width: 100%;
         }
 
-        .user-avatar::after {
-            content: '';
-            position: absolute;
-            top: -3px;
-            left: -3px;
-            right: -3px;
-            bottom: -3px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            z-index: -1;
-            opacity: 0.2;
-        }
-
-        .user-avatar i {
-            font-size: 28px;
-            color: white;
-        }
-
-        .user-text-info {
-            flex: 1;
-        }
-
-        .user-name {
+        .user-nickname {
             font-size: 1.5rem;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 4px;
+            color: var(--text-primary);
+            position: relative;
+        }
+
+        .user-nickname::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), transparent);
+            border-radius: 2px;
         }
 
         .user-id {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
         }
 
         .user-rank {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.1));
-            color: #92400e;
-            padding: 6px 12px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 0.85rem;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(255, 204, 0, 0.15), rgba(255, 204, 0, 0.05));
+            color: #b38f00;
+            padding: 10px 20px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-top: 8px;
+            border: 1px solid rgba(255, 204, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-rank::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
         }
 
         .user-rank i {
             color: var(--gold);
         }
 
-        .expand-icon {
-            width: 36px;
-            height: 36px;
+        .expand-indicator {
+            position: absolute;
+            bottom: 10px;
+            right: 20px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background: var(--primary-light);
             display: flex;
@@ -188,16 +217,15 @@
             justify-content: center;
             color: var(--primary);
             transition: var(--transition);
-            flex-shrink: 0;
         }
 
-        .user-panel.expanded .expand-icon {
+        .user-info-section.expanded .expand-indicator {
             transform: rotate(180deg);
             background: var(--primary);
             color: white;
         }
 
-        /* 用户详细信息面板 */
+        /* 用户详细数据面板 */
         .user-details-panel {
             max-height: 0;
             overflow: hidden;
@@ -205,88 +233,99 @@
         }
 
         .user-details-inner {
-            padding-top: 20px;
+            padding-top: 24px;
             opacity: 0;
             transform: translateY(-10px);
             transition: opacity 0.3s ease, transform 0.3s ease;
-            border-top: 1px solid rgba(37, 99, 235, 0.1);
+            border-top: 1px solid rgba(0, 102, 255, 0.1);
             margin-top: 16px;
         }
 
-        .user-panel.expanded .user-details-inner {
+        .user-info-section.expanded .user-details-inner {
             opacity: 1;
             transform: translateY(0);
             transition-delay: 0.1s;
         }
 
-        .stats-grid {
+        .stats-grid-2x2 {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 1fr 1fr;
             gap: 16px;
         }
 
-        .stat-item {
-            background: rgba(255, 255, 255, 0.6);
+        .stat-card {
+            background: white;
             border-radius: 16px;
-            padding: 18px;
+            padding: 20px 16px;
             text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             transition: var(--transition);
             position: relative;
             overflow: hidden;
+            border: 1px solid rgba(0, 102, 255, 0.1);
         }
 
-        .stat-item::before {
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 102, 255, 0.15);
+        }
+
+        .stat-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .stat-item:hover::before {
-            opacity: 1;
-        }
-
-        .stat-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.1);
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            opacity: 0.8;
         }
 
         .stat-value {
             font-size: 1.8rem;
             font-weight: 800;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 4px;
+            color: var(--primary);
+            margin-bottom: 6px;
             line-height: 1;
+            font-family: 'Courier New', monospace;
         }
 
         .stat-label {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: var(--text-secondary);
-            font-weight: 500;
+            font-weight: 600;
         }
 
-        /* 三个核心按钮 - 优化设计 */
-        .action-buttons {
+        .stat-card:nth-child(1) .stat-value {
+            color: var(--primary);
+        }
+
+        .stat-card:nth-child(2) .stat-value {
+            color: #10b981;
+        }
+
+        .stat-card:nth-child(3) .stat-value {
+            color: #f59e0b;
+        }
+
+        .stat-card:nth-child(4) .stat-value {
+            color: #8b5cf6;
+        }
+
+        /* 三个核心按钮 */
+        .core-nav-buttons {
             display: flex;
             justify-content: center;
-            gap: 16px;
+            gap: 12px;
             margin-bottom: 32px;
             position: relative;
         }
 
-        .action-btn {
+        .nav-button {
             flex: 1;
             max-width: 120px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
             border-radius: 16px;
             padding: 20px 12px;
             display: flex;
@@ -300,7 +339,7 @@
             overflow: hidden;
         }
 
-        .action-btn::before {
+        .nav-button::before {
             content: '';
             position: absolute;
             top: 0;
@@ -310,125 +349,105 @@
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             opacity: 0;
             transition: opacity 0.3s ease;
-            z-index: -1;
+            z-index: 0;
         }
 
-        .action-btn:hover::before,
-        .action-btn.active::before {
+        .nav-button:hover::before,
+        .nav-button.active::before {
             opacity: 0.1;
         }
 
-        .action-btn::after {
+        .nav-button::after {
             content: '';
             position: absolute;
             bottom: 0;
             left: 50%;
             transform: translateX(-50%);
             width: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 2px 2px 0 0;
             transition: width 0.3s ease;
         }
 
-        .action-btn.active::after {
+        .nav-button.active::after {
             width: 80%;
         }
 
-        .action-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        .nav-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 102, 255, 0.15);
         }
 
-        .action-btn.active {
-            border-color: rgba(37, 99, 235, 0.3);
+        .nav-button.active {
+            border-color: rgba(0, 102, 255, 0.3);
         }
 
-        .btn-icon {
-            width: 50px;
-            height: 50px;
+        .nav-icon {
+            width: 48px;
+            height: 48px;
             border-radius: 12px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, var(--primary), var(--accent));
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-size: 1.5rem;
             transition: var(--transition);
+            position: relative;
+            z-index: 1;
         }
 
-        .action-btn:hover .btn-icon {
-            transform: scale(1.1);
+        .nav-button:hover .nav-icon {
+            transform: scale(1.1) rotate(5deg);
         }
 
-        .action-btn:nth-child(2) .btn-icon {
-            background: linear-gradient(135deg, #10b981, #0ea5e9);
+        .nav-button:nth-child(2) .nav-icon {
+            background: linear-gradient(135deg, #8b5cf6, #c084fc);
         }
 
-        .action-btn:nth-child(3) .btn-icon {
-            background: linear-gradient(135deg, #f59e0b, #ef4444);
+        .nav-button:nth-child(3) .nav-icon {
+            background: linear-gradient(135deg, #f59e0b, #f97316);
         }
 
-        .btn-label {
-            font-weight: 600;
+        .nav-label {
+            font-weight: 700;
             color: var(--text-primary);
             font-size: 1rem;
             transition: var(--transition);
+            position: relative;
+            z-index: 1;
         }
 
-        .action-btn.active .btn-label {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        .nav-button.active .nav-label {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         /* 卡片区域 */
-        .cards-section {
-            margin-top: 20px;
-        }
-
-        .section-title {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-
-        .section-title h2 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
-        }
-
-        .section-subtitle {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-        }
-
-        /* 卡片设计 */
         .cards-container {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 20px;
         }
 
-        .card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
+        .activity-card {
+            background: var(--card-bg);
             border-radius: 20px;
-            border: 1px solid var(--glass-border);
+            border: 1px solid var(--card-border);
             overflow: hidden;
             box-shadow: var(--shadow);
             transition: var(--transition);
         }
 
-        .card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+        .activity-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
 
         .card-header {
-            padding: 20px;
+            padding: 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -440,8 +459,8 @@
             content: '';
             position: absolute;
             bottom: 0;
-            left: 20px;
-            right: 20px;
+            left: 24px;
+            right: 24px;
             height: 1px;
             background: linear-gradient(90deg, var(--primary-light), transparent);
         }
@@ -450,42 +469,43 @@
             display: flex;
             align-items: center;
             gap: 16px;
+            flex: 1;
         }
 
         .card-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             flex-shrink: 0;
         }
 
         .card-icon.green {
-            background: linear-gradient(135deg, #10b981, #0ea5e9);
+            background: linear-gradient(135deg, #10b981, #34d399);
         }
 
         .card-icon.purple {
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            background: linear-gradient(135deg, #8b5cf6, #c084fc);
         }
 
         .card-icon.orange {
-            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            background: linear-gradient(135deg, #f59e0b, #f97316);
         }
 
         .card-text h3 {
-            font-size: 1.2rem;
-            font-weight: 600;
+            font-size: 1.3rem;
+            font-weight: 700;
             color: var(--text-primary);
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
 
         .card-text p {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             color: var(--text-secondary);
             line-height: 1.4;
         }
@@ -499,31 +519,26 @@
         .status-badge {
             background: var(--primary-light);
             color: var(--primary);
-            padding: 6px 14px;
+            padding: 8px 16px;
             border-radius: 16px;
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-size: 0.9rem;
+            font-weight: 700;
             white-space: nowrap;
         }
 
         .status-badge.green {
-            background: rgba(16, 185, 129, 0.1);
+            background: rgba(16, 185, 129, 0.15);
             color: #10b981;
         }
 
         .status-badge.purple {
-            background: rgba(139, 92, 246, 0.1);
-            color: #7c3aed;
-        }
-
-        .status-badge.orange {
-            background: rgba(245, 158, 11, 0.1);
-            color: #f59e0b;
+            background: rgba(139, 92, 246, 0.15);
+            color: #8b5cf6;
         }
 
         .card-expand-icon {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background: var(--primary-light);
             display: flex;
@@ -535,7 +550,7 @@
             flex-shrink: 0;
         }
 
-        .card.active .card-expand-icon {
+        .activity-card.active .card-expand-icon {
             background: var(--primary);
             color: white;
             transform: rotate(180deg);
@@ -549,32 +564,32 @@
         }
 
         .card-content-inner {
-            padding: 0 20px;
+            padding: 0 24px;
             opacity: 0;
             transform: translateY(-10px);
             transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
-        .card.active .card-content-inner {
+        .activity-card.active .card-content-inner {
             opacity: 1;
             transform: translateY(0);
             transition-delay: 0.1s;
-            padding-bottom: 20px;
+            padding-bottom: 24px;
         }
 
-        /* 内容样式 */
+        /* 卡片内容样式 */
         .content-section {
-            margin-top: 20px;
+            margin-top: 24px;
         }
 
         .content-section h4 {
-            font-size: 1rem;
-            font-weight: 600;
+            font-size: 1.1rem;
+            font-weight: 700;
             color: var(--primary);
-            margin-bottom: 12px;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .content-section h4 i {
@@ -583,23 +598,23 @@
 
         .description {
             color: var(--text-secondary);
-            font-size: 0.9rem;
-            line-height: 1.5;
-            margin-bottom: 16px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
         }
 
         .rules-list {
             list-style: none;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .rules-list li {
-            padding: 10px 0;
-            border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
+            padding: 12px 0;
+            border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 0.9rem;
+            gap: 12px;
+            font-size: 0.95rem;
         }
 
         .rules-list li:last-child {
@@ -608,22 +623,23 @@
 
         .rules-list li i {
             color: var(--primary);
-            font-size: 0.8rem;
+            font-size: 0.9rem;
         }
 
         .rewards {
-            background: rgba(255, 255, 255, 0.6);
+            background: white;
             border-radius: 16px;
-            padding: 16px;
-            margin-top: 16px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         .reward-item {
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-            font-size: 0.9rem;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-size: 0.95rem;
         }
 
         .reward-item:last-child {
@@ -631,22 +647,22 @@
         }
 
         .reward-value {
-            font-weight: 700;
+            font-weight: 800;
             color: var(--primary);
         }
 
-        .action-buttons-compact {
+        .card-actions {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-top: 20px;
+            gap: 16px;
+            margin-top: 24px;
         }
 
-        .card-btn {
-            padding: 16px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 0.95rem;
+        .action-btn {
+            padding: 18px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 1rem;
             cursor: pointer;
             transition: var(--transition);
             border: none;
@@ -654,68 +670,67 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
         }
 
-        .card-btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        .action-btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
             color: white;
         }
 
-        .card-btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        .action-btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 102, 255, 0.3);
         }
 
-        .card-btn-secondary {
-            background: rgba(255, 255, 255, 0.6);
+        .action-btn-secondary {
+            background: white;
             color: var(--primary);
-            border: 1px solid var(--glass-border);
+            border: 1px solid var(--card-border);
         }
 
-        .card-btn-secondary:hover {
+        .action-btn-secondary:hover {
             background: var(--primary-light);
             border-color: var(--primary);
         }
 
         /* 响应式设计 */
         @media (max-width: 480px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
+            .stats-grid-2x2 {
                 gap: 12px;
             }
             
-            .action-buttons {
+            .stat-card {
+                padding: 16px 12px;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            
+            .core-nav-buttons {
                 flex-direction: column;
                 align-items: center;
-                gap: 12px;
+                gap: 16px;
             }
             
-            .action-btn {
+            .nav-button {
                 max-width: 100%;
                 width: 100%;
                 flex-direction: row;
                 justify-content: flex-start;
-                padding: 16px 20px;
+                padding: 20px;
             }
             
-            .btn-icon {
+            .nav-icon {
                 width: 44px;
                 height: 44px;
                 font-size: 1.3rem;
             }
             
-            .user-basic-info {
+            .user-nickname-row {
                 flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-            }
-            
-            .expand-icon {
-                align-self: flex-end;
-                position: absolute;
-                right: 20px;
-                top: 20px;
+                gap: 8px;
             }
         }
 
@@ -731,310 +746,297 @@
             }
         }
 
-        .card {
+        .activity-card {
             animation: fadeInUp 0.5s ease forwards;
         }
 
-        .card:nth-child(2) {
+        .activity-card:nth-child(2) {
             animation-delay: 0.1s;
         }
 
-        .card:nth-child(3) {
+        .activity-card:nth-child(3) {
             animation-delay: 0.2s;
         }
 
-        .card:nth-child(4) {
+        .activity-card:nth-child(4) {
             animation-delay: 0.3s;
         }
     </style>
 </head>
 <body>
-    <!-- 背景装饰 -->
-    <div class="bg-dots"></div>
-    <div class="dolphin-decoration">
-        <i class="fas fa-dolphin"></i>
+    <!-- 独立浮动海豚 -->
+    <div class="floating-dolphin-container">
+        <div class="floating-dolphin">
+            <div class="dolphin-circle">
+                <i class="fas fa-dolphin"></i>
+            </div>
+        </div>
     </div>
     
-    <div class="container">
-        <!-- 用户信息面板 -->
-        <div class="user-panel" id="userPanel">
-            <div class="user-basic-info">
-                <div class="user-avatar">
-                    <i class="fas fa-dolphin"></i>
-                </div>
-                <div class="user-text-info">
-                    <div class="user-name">海豚用户3333</div>
-                    <div class="user-id">ID: #827128</div>
-                    <div class="user-rank">
-                        <i class="fas fa-crown"></i>
-                        <span>当前等级：金牌会员</span>
+    <!-- 用户信息区域 -->
+    <div class="user-info-section" id="userInfoSection">
+        <div class="user-basic">
+            <div class="user-nickname-row">
+                <div class="user-nickname">海豚用户3333</div>
+                <div class="user-id">ID：8000</div>
+            </div>
+            <div class="user-rank">
+                <i class="fas fa-crown"></i>
+                <span>当前等级：金牌会员</span>
+            </div>
+            <div class="expand-indicator">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+        
+        <div class="user-details-panel" id="userDetailsPanel">
+            <div class="user-details-inner">
+                <div class="stats-grid-2x2">
+                    <div class="stat-card">
+                        <div class="stat-value" id="networthValue">1992 DPH</div>
+                        <div class="stat-label">身价</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="balanceValue">1092 U</div>
+                        <div class="stat-label">余额</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="volumeValue">$10299</div>
+                        <div class="stat-label">交易量</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="rankValue">9</div>
+                        <div class="stat-label">周排名</div>
                     </div>
                 </div>
-                <div class="expand-icon">
-                    <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 三个核心按钮 -->
+    <div class="core-nav-buttons">
+        <div class="nav-button active" id="navActivity">
+            <div class="nav-icon">
+                <i class="fas fa-rocket"></i>
+            </div>
+            <div class="nav-label">活动</div>
+        </div>
+        <div class="nav-button" id="navModel">
+            <div class="nav-icon">
+                <i class="fas fa-cube"></i>
+            </div>
+            <div class="nav-label">模型</div>
+        </div>
+        <div class="nav-button" id="navWallet">
+            <div class="nav-icon">
+                <i class="fas fa-wallet"></i>
+            </div>
+            <div class="nav-label">钱包</div>
+        </div>
+    </div>
+    
+    <!-- 卡片区域 -->
+    <div class="cards-container">
+        <!-- 卡片1：OKX Boost活动 -->
+        <div class="activity-card active" id="cardOkx">
+            <div class="card-header">
+                <div class="card-title-area">
+                    <div class="card-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="card-text">
+                        <h3>OKX Boost加速计划</h3>
+                        <p>社区专属交易加速活动，参与即享多重奖励，最高可获得500USDT等值赠金。</p>
+                    </div>
+                </div>
+                <div class="card-status">
+                    <span class="status-badge">🔥 火热进行中</span>
+                    <div class="card-expand-icon">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
                 </div>
             </div>
             
-            <div class="user-details-panel" id="userDetailsPanel">
-                <div class="user-details-inner">
-                    <div class="stats-grid">
-                        <div class="stat-item">
-                            <div class="stat-value">120 DPH</div>
-                            <div class="stat-label">身价</div>
+            <div class="card-content" style="max-height: 600px;">
+                <div class="card-content-inner">
+                    <div class="content-section">
+                        <h4><i class="fas fa-info-circle"></i> 活动介绍</h4>
+                        <p class="description">
+                            这是海豚社区与OKX交易所合作的专属加速计划。活动期间，社区成员通过专属链接参与交易，即可获得额外加速奖励。活动旨在为社区成员提供更多交易优势和学习机会。
+                        </p>
+                        
+                        <h4><i class="fas fa-list-check"></i> 参与规则</h4>
+                        <ul class="rules-list">
+                            <li><i class="fas fa-check-circle"></i> 需通过社区专属链接注册OKX账户</li>
+                            <li><i class="fas fa-check-circle"></i> 活动期间累计交易额需达到 1,000 USDT</li>
+                            <li><i class="fas fa-check-circle"></i> 至少完成 10 笔有效交易</li>
+                            <li><i class="fas fa-check-circle"></i> 需加入OKX官方海豚社区群组</li>
+                            <li><i class="fas fa-check-circle"></i> 奖励将在活动结束后7个工作日内发放</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="content-section">
+                        <h4><i class="fas fa-gift"></i> 奖励详情</h4>
+                        <div class="rewards">
+                            <div class="reward-item">
+                                <span>基础奖励</span>
+                                <span class="reward-value">50 USDT</span>
+                            </div>
+                            <div class="reward-item">
+                                <span>交易额达标奖</span>
+                                <span class="reward-value">100-500 USDT</span>
+                            </div>
+                            <div class="reward-item">
+                                <span>邀请好友奖励</span>
+                                <span class="reward-value">20 USDT/人</span>
+                            </div>
+                            <div class="reward-item">
+                                <span>社区贡献奖</span>
+                                <span class="reward-value">特殊NFT勋章</span>
+                            </div>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-value">$1948</div>
-                            <div class="stat-label">资产</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value">$1929</div>
-                            <div class="stat-label">交易量</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value">23位</div>
-                            <div class="stat-label">本期排名</div>
+                        
+                        <div class="card-actions">
+                            <button class="action-btn action-btn-primary">
+                                <i class="fas fa-play-circle"></i>
+                                立即参加活动
+                            </button>
+                            <button class="action-btn action-btn-secondary">
+                                <i class="fas fa-share-alt"></i>
+                                分享给好友
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <!-- 三个核心按钮 -->
-        <div class="action-buttons">
-            <div class="action-btn active" id="btn-activity">
-                <div class="btn-icon">
-                    <i class="fas fa-rocket"></i>
+
+        <!-- 卡片2：Web3资源宝库 -->
+        <div class="activity-card" id="cardResource">
+            <div class="card-header">
+                <div class="card-title-area">
+                    <div class="card-icon green">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="card-text">
+                        <h3>Web3资源宝库</h3>
+                        <p>汇集全网优质区块链学习资源、开发工具和实战案例，从入门到精通一站式解决方案。</p>
+                    </div>
                 </div>
-                <div class="btn-label">活动</div>
-            </div>
-            <div class="action-btn" id="btn-model">
-                <div class="btn-icon">
-                    <i class="fas fa-cube"></i>
+                <div class="card-status">
+                    <span class="status-badge green">📚 持续更新</span>
+                    <div class="card-expand-icon">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
                 </div>
-                <div class="btn-label">模型</div>
-            </div>
-            <div class="action-btn" id="btn-wallet">
-                <div class="btn-icon">
-                    <i class="fas fa-wallet"></i>
-                </div>
-                <div class="btn-label">钱包</div>
-            </div>
-        </div>
-        
-        <!-- 卡片区域 -->
-        <div class="cards-section">
-            <div class="section-title">
-                <h2>社区专属活动</h2>
-                <p class="section-subtitle">点击卡片查看详情并参与活动</p>
             </div>
             
-            <div class="cards-container">
-                <!-- 卡片1：OKX Boost活动 -->
-                <div class="card active" id="card-okx">
-                    <div class="card-header">
-                        <div class="card-title-area">
-                            <div class="card-icon">
-                                <i class="fas fa-bolt"></i>
-                            </div>
-                            <div class="card-text">
-                                <h3>OKX Boost加速计划</h3>
-                                <p>社区专属交易加速活动，参与即享多重奖励，最高可获得500USDT等值赠金。</p>
-                            </div>
-                        </div>
-                        <div class="card-status">
-                            <span class="status-badge">🔥 进行中</span>
-                            <div class="card-expand-icon">
-                                <i class="fas fa-chevron-down"></i>
-                            </div>
-                        </div>
+            <div class="card-content">
+                <div class="card-content-inner">
+                    <div class="content-section">
+                        <h4><i class="fas fa-info-circle"></i> 资源介绍</h4>
+                        <p class="description">
+                            海豚社区资源中心收录了经过筛选的优质Web3学习材料，涵盖区块链基础、智能合约开发、DeFi、NFT等多个领域。所有资源均由社区专家审核推荐，定期更新最新内容。
+                        </p>
+                        
+                        <h4><i class="fas fa-list-check"></i> 热门资源</h4>
+                        <ul class="rules-list">
+                            <li><i class="fas fa-book"></i> Solidity智能合约开发指南</li>
+                            <li><i class="fas fa-video"></i> DeFi原理与实践视频课程</li>
+                            <li><i class="fas fa-file-code"></i> Web3.js/Ethers.js开发手册</li>
+                            <li><i class="fas fa-chart-line"></i> 2023年NFT市场趋势分析报告</li>
+                            <li><i class="fas fa-tools"></i> 区块链开发工具包合集</li>
+                        </ul>
                     </div>
                     
-                    <div class="card-content" style="max-height: 500px;">
-                        <div class="card-content-inner">
-                            <div class="content-section">
-                                <h4><i class="fas fa-info-circle"></i> 活动介绍</h4>
-                                <p class="description">
-                                    这是海豚社区与OKX交易所合作的专属加速计划。活动期间，社区成员通过专属链接参与交易，即可获得额外加速奖励。活动旨在为社区成员提供更多交易优势和学习机会。
-                                </p>
-                                
-                                <h4><i class="fas fa-list-check"></i> 参与规则</h4>
-                                <ul class="rules-list">
-                                    <li><i class="fas fa-check-circle"></i> 需通过社区专属链接注册OKX账户</li>
-                                    <li><i class="fas fa-check-circle"></i> 活动期间累计交易额需达到 1,000 USDT</li>
-                                    <li><i class="fas fa-check-circle"></i> 至少完成 10 笔有效交易</li>
-                                    <li><i class="fas fa-check-circle"></i> 需加入OKX官方海豚社区群组</li>
-                                    <li><i class="fas fa-check-circle"></i> 奖励将在活动结束后7个工作日内发放</li>
-                                </ul>
+                    <div class="content-section">
+                        <h4><i class="fas fa-gift"></i> 会员特权</h4>
+                        <div class="rewards">
+                            <div class="reward-item">
+                                <span>免费会员</span>
+                                <span class="reward-value">基础资源</span>
                             </div>
-                            
-                            <div class="content-section">
-                                <h4><i class="fas fa-gift"></i> 奖励详情</h4>
-                                <div class="rewards">
-                                    <div class="reward-item">
-                                        <span>基础奖励</span>
-                                        <span class="reward-value">50 USDT</span>
-                                    </div>
-                                    <div class="reward-item">
-                                        <span>交易额达标奖</span>
-                                        <span class="reward-value">100-500 USDT</span>
-                                    </div>
-                                    <div class="reward-item">
-                                        <span>邀请好友奖励</span>
-                                        <span class="reward-value">20 USDT/人</span>
-                                    </div>
-                                    <div class="reward-item">
-                                        <span>社区贡献奖</span>
-                                        <span class="reward-value">特殊NFT勋章</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="action-buttons-compact">
-                                    <button class="card-btn card-btn-primary">
-                                        <i class="fas fa-play-circle"></i>
-                                        立即参加活动
-                                    </button>
-                                    <button class="card-btn card-btn-secondary">
-                                        <i class="fas fa-share-alt"></i>
-                                        分享给好友
-                                    </button>
-                                </div>
+                            <div class="reward-item">
+                                <span>高级会员</span>
+                                <span class="reward-value">全部资源+更新</span>
                             </div>
+                            <div class="reward-item">
+                                <span>专家会员</span>
+                                <span class="reward-value">专属资料+1对1指导</span>
+                            </div>
+                        </div>
+                        
+                        <div class="card-actions">
+                            <button class="action-btn action-btn-primary" style="background: linear-gradient(135deg, #10b981, #34d399);">
+                                <i class="fas fa-unlock"></i>
+                                解锁全部资源
+                            </button>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <!-- 卡片2：Web3学习资源 -->
-                <div class="card" id="card-resource">
-                    <div class="card-header">
-                        <div class="card-title-area">
-                            <div class="card-icon green">
-                                <i class="fas fa-graduation-cap"></i>
-                            </div>
-                            <div class="card-text">
-                                <h3>Web3学习资源</h3>
-                                <p>汇集全网优质区块链学习资源、开发工具和实战案例，从入门到精通一站式解决方案。</p>
-                            </div>
-                        </div>
-                        <div class="card-status">
-                            <span class="status-badge green">📚 持续更新</span>
-                            <div class="card-expand-icon">
-                                <i class="fas fa-chevron-down"></i>
-                            </div>
-                        </div>
+        <!-- 卡片3：AI模型市场 -->
+        <div class="activity-card" id="cardModel">
+            <div class="card-header">
+                <div class="card-title-area">
+                    <div class="card-icon purple">
+                        <i class="fas fa-robot"></i>
                     </div>
-                    
-                    <div class="card-content">
-                        <div class="card-content-inner">
-                            <div class="content-section">
-                                <h4><i class="fas fa-info-circle"></i> 资源介绍</h4>
-                                <p class="description">
-                                    海豚社区资源中心收录了经过筛选的优质Web3学习材料，涵盖区块链基础、智能合约开发、DeFi、NFT等多个领域。所有资源均由社区专家审核推荐，定期更新最新内容。
-                                </p>
-                                
-                                <h4><i class="fas fa-list-check"></i> 热门资源</h4>
-                                <ul class="rules-list">
-                                    <li><i class="fas fa-book"></i> Solidity智能合约开发指南</li>
-                                    <li><i class="fas fa-video"></i> DeFi原理与实践视频课程</li>
-                                    <li><i class="fas fa-file-code"></i> Web3.js/Ethers.js开发手册</li>
-                                    <li><i class="fas fa-chart-line"></i> 2023年NFT市场趋势分析报告</li>
-                                    <li><i class="fas fa-tools"></i> 区块链开发工具包合集</li>
-                                </ul>
-                            </div>
-                            
-                            <div class="content-section">
-                                <h4><i class="fas fa-gift"></i> 会员特权</h4>
-                                <div class="rewards">
-                                    <div class="reward-item">
-                                        <span>免费会员</span>
-                                        <span class="reward-value">基础资源</span>
-                                    </div>
-                                    <div class="reward-item">
-                                        <span>高级会员</span>
-                                        <span class="reward-value">全部资源+更新</span>
-                                    </div>
-                                    <div class="reward-item">
-                                        <span>专家会员</span>
-                                        <span class="reward-value">专属资料+1对1指导</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="action-buttons-compact">
-                                    <button class="card-btn card-btn-primary" style="background: linear-gradient(135deg, #10b981, #0ea5e9);">
-                                        <i class="fas fa-unlock"></i>
-                                        解锁全部资源
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="card-text">
+                        <h3>AI模型市场</h3>
+                        <p>探索、交易和使用海豚社区精选的AI模型，涵盖图像生成、文本分析、预测模型等。</p>
                     </div>
                 </div>
-
-                <!-- 卡片3：AI模型市场 -->
-                <div class="card" id="card-model">
-                    <div class="card-header">
-                        <div class="card-title-area">
-                            <div class="card-icon purple">
-                                <i class="fas fa-robot"></i>
-                            </div>
-                            <div class="card-text">
-                                <h3>AI模型市场</h3>
-                                <p>探索、交易和使用海豚社区精选的AI模型，涵盖图像生成、文本分析、预测模型等。</p>
-                            </div>
-                        </div>
-                        <div class="card-status">
-                            <span class="status-badge purple">🤖 12个模型</span>
-                            <div class="card-expand-icon">
-                                <i class="fas fa-chevron-down"></i>
-                            </div>
-                        </div>
+                <div class="card-status">
+                    <span class="status-badge purple">🤖 12个模型</span>
+                    <div class="card-expand-icon">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-content">
+                <div class="card-content-inner">
+                    <div class="content-section">
+                        <h4><i class="fas fa-info-circle"></i> 市场介绍</h4>
+                        <p class="description">
+                            海豚社区AI模型市场汇集了各类优质AI模型，支持模型交易、租赁和使用。所有模型都经过严格测试，确保性能稳定，为开发者和企业提供一站式AI解决方案。
+                        </p>
+                        
+                        <h4><i class="fas fa-list-check"></i> 热门模型</h4>
+                        <ul class="rules-list">
+                            <li><i class="fas fa-palette"></i> 图像生成模型 - DALL-E 3优化版</li>
+                            <li><i class="fas fa-language"></i> 多语言翻译模型 - 支持58种语言</li>
+                            <li><i class="fas fa-chart-bar"></i> 市场预测模型 - 加密货币趋势分析</li>
+                            <li><i class="fas fa-comments"></i> 智能客服模型 - 24小时自动回复</li>
+                            <li><i class="fas fa-code"></i> 代码生成模型 - 支持15种编程语言</li>
+                        </ul>
                     </div>
                     
-                    <div class="card-content">
-                        <div class="card-content-inner">
-                            <div class="content-section">
-                                <h4><i class="fas fa-info-circle"></i> 市场介绍</h4>
-                                <p class="description">
-                                    海豚社区AI模型市场汇集了各类优质AI模型，支持模型交易、租赁和使用。所有模型都经过严格测试，确保性能稳定，为开发者和企业提供一站式AI解决方案。
-                                </p>
-                                
-                                <h4><i class="fas fa-list-check"></i> 热门模型</h4>
-                                <ul class="rules-list">
-                                    <li><i class="fas fa-palette"></i> 图像生成模型 - DALL-E 3优化版</li>
-                                    <li><i class="fas fa-language"></i> 多语言翻译模型 - 支持58种语言</li>
-                                    <li><i class="fas fa-chart-bar"></i> 市场预测模型 - 加密货币趋势分析</li>
-                                    <li><i class="fas fa-comments"></i> 智能客服模型 - 24小时自动回复</li>
-                                    <li><i class="fas fa-code"></i> 代码生成模型 - 支持15种编程语言</li>
-                                </ul>
+                    <div class="content-section">
+                        <h4><i class="fas fa-gift"></i> 模型定价</h4>
+                        <div class="rewards">
+                            <div class="reward-item">
+                                <span>基础模型</span>
+                                <span class="reward-value">免费试用</span>
                             </div>
-                            
-                            <div class="content-section">
-                                <h4><i class="fas fa-gift"></i> 模型定价</h4>
-                                <div class="rewards">
-                                    <div class="reward-item">
-                                        <span>基础模型</span>
-                                        <span class="reward-value">免费试用</span>
-                                    </div>
-                                    <div class="reward-item">
-                                        <span>专业模型</span>
-                                        <span class="reward-value">10-50 DPH/次</span>
-                                    </div>
-                                    <div class="reward-item">
-                                        <span>企业模型</span>
-                                        <span class="reward-value">定制价格</span>
-                                    </div>
-                                    <div class="reward-item">
-                                        <span>模型交易</span>
-                                        <span class="reward-value">DPH/USDT支付</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="action-buttons-compact">
-                                    <button class="card-btn card-btn-primary" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
-                                        <i class="fas fa-shopping-cart"></i>
-                                        浏览模型市场
-                                    </button>
-                                </div>
+                            <div class="reward-item">
+                                <span>专业模型</span>
+                                <span class="reward-value">10-50 DPH/次</span>
                             </div>
+                            <div class="reward-item">
+                                <span>企业模型</span>
+                                <span class="reward-value">定制价格</span>
+                            </div>
+                        </div>
+                        
+                        <div class="card-actions">
+                            <button class="action-btn action-btn-primary" style="background: linear-gradient(135deg, #8b5cf6, #c084fc);">
+                                <i class="fas fa-shopping-cart"></i>
+                                浏览模型市场
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -1044,11 +1046,11 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 用户面板展开/收起
-            const userPanel = document.getElementById('userPanel');
+            // 用户信息面板展开/收起
+            const userInfoSection = document.getElementById('userInfoSection');
             const userDetailsPanel = document.getElementById('userDetailsPanel');
             
-            userPanel.addEventListener('click', function() {
+            userInfoSection.addEventListener('click', function() {
                 const isExpanded = this.classList.contains('expanded');
                 
                 if (!isExpanded) {
@@ -1061,39 +1063,43 @@
                 }
             });
             
-            // 核心按钮点击事件
-            const actionButtons = document.querySelectorAll('.action-btn');
-            actionButtons.forEach(btn => {
+            // 三个核心按钮点击事件
+            const navButtons = document.querySelectorAll('.nav-button');
+            navButtons.forEach(btn => {
                 btn.addEventListener('click', function() {
                     // 移除所有按钮的active类
-                    actionButtons.forEach(b => b.classList.remove('active'));
+                    navButtons.forEach(b => b.classList.remove('active'));
                     
                     // 为当前点击的按钮添加active类
                     this.classList.add('active');
                     
                     // 根据按钮筛选卡片
                     const btnId = this.id;
-                    const allCards = document.querySelectorAll('.card');
+                    const allCards = document.querySelectorAll('.activity-card');
                     
-                    if (btnId === 'btn-activity') {
+                    if (btnId === 'navActivity') {
+                        // 显示所有卡片
                         allCards.forEach(card => card.style.display = 'block');
-                    } else if (btnId === 'btn-model') {
+                    } else if (btnId === 'navModel') {
+                        // 只显示模型相关卡片
                         allCards.forEach(card => {
-                            if (card.id === 'card-model' || card.id === 'card-resource') {
+                            if (card.id === 'cardModel' || card.id === 'cardResource') {
                                 card.style.display = 'block';
                             } else {
                                 card.style.display = 'none';
                             }
                         });
-                    } else if (btnId === 'btn-wallet') {
-                        // 这里可以显示钱包相关卡片，目前只有活动卡片，所以隐藏所有
-                        allCards.forEach(card => card.style.display = 'none');
+                    } else if (btnId === 'navWallet') {
+                        // 只显示钱包相关卡片（这里可以添加钱包卡片）
+                        allCards.forEach(card => {
+                            card.style.display = 'none';
+                        });
                     }
                 });
             });
             
             // 卡片展开/收起功能
-            const cards = document.querySelectorAll('.card');
+            const cards = document.querySelectorAll('.activity-card');
             
             // 初始化：第一个卡片展开，其他收起
             cards.forEach((card, index) => {
@@ -1140,52 +1146,77 @@
             });
             
             // 按钮点击事件
-            document.querySelectorAll('.card-btn-primary').forEach(btn => {
+            document.querySelectorAll('.action-btn-primary').forEach(btn => {
                 btn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     
-                    const card = this.closest('.card');
+                    const card = this.closest('.activity-card');
                     const cardTitle = card.querySelector('h3').textContent;
                     
                     const btnText = this.textContent.trim();
                     
                     if (btnText.includes('参加')) {
-                        alert(`参与活动: ${cardTitle}`);
+                        alert(`即将参与活动: ${cardTitle}`);
                     } else if (btnText.includes('解锁')) {
-                        alert(`解锁资源: ${cardTitle}`);
+                        alert(`即将解锁资源: ${cardTitle}`);
                     } else if (btnText.includes('浏览')) {
-                        alert(`浏览模型: ${cardTitle}`);
+                        alert(`即将浏览模型: ${cardTitle}`);
                     }
                 });
             });
             
-            document.querySelectorAll('.card-btn-secondary').forEach(btn => {
+            document.querySelectorAll('.action-btn-secondary').forEach(btn => {
                 btn.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    alert('分享功能已激活！');
+                    alert('分享链接已复制到剪贴板！');
                 });
             });
             
-            // 模拟DPH增长
-            const statValueElements = document.querySelectorAll('.stat-value');
-            let dphValue = 120;
+            // 模拟数据动态变化
+            const networthValue = document.getElementById('networthValue');
+            const balanceValue = document.getElementById('balanceValue');
+            const volumeValue = document.getElementById('volumeValue');
+            const rankValue = document.getElementById('rankValue');
             
+            let networth = 1992;
+            let balance = 1092;
+            let volume = 10299;
+            let rank = 9;
+            
+            // 每30秒数据微调
             setInterval(() => {
-                dphValue += 1;
-                statValueElements[0].textContent = `${dphValue} DPH`;
+                // 身价随机增加1-3 DPH
+                const networthChange = Math.floor(Math.random() * 3) + 1;
+                networth += networthChange;
+                networthValue.textContent = `${networth} DPH`;
                 
-                // 同时更新资产值（随机增长）
-                const assetValueElement = statValueElements[1];
-                let assetValue = parseInt(assetValueElement.textContent.replace('$', ''));
-                assetValue += Math.floor(Math.random() * 5);
-                assetValueElement.textContent = `$${assetValue}`;
+                // 余额随机变化
+                const balanceChange = Math.floor(Math.random() * 5) - 2; // -2到+2
+                balance += balanceChange;
+                if (balance < 0) balance = 0;
+                balanceValue.textContent = `${balance} U`;
                 
-                // 更新交易量（随机增长）
-                const tradeValueElement = statValueElements[2];
-                let tradeValue = parseInt(tradeValueElement.textContent.replace('$', ''));
-                tradeValue += Math.floor(Math.random() * 3);
-                tradeValueElement.textContent = `$${tradeValue}`;
-            }, 10000); // 每10秒更新一次
+                // 交易量随机增加
+                const volumeChange = Math.floor(Math.random() * 10);
+                volume += volumeChange;
+                volumeValue.textContent = `$${volume}`;
+                
+                // 排名随机变化（偶尔上升或下降）
+                if (Math.random() > 0.7) {
+                    rankChange = Math.random() > 0.5 ? -1 : 1;
+                    rank += rankChange;
+                    if (rank < 1) rank = 1;
+                    if (rank > 100) rank = 100;
+                    rankValue.textContent = `${rank}`;
+                }
+                
+                // 添加动画效果
+                networthValue.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    networthValue.style.transform = 'scale(1)';
+                }, 300);
+                
+            }, 30000); // 每30秒更新一次
         });
     </script>
 </body>
