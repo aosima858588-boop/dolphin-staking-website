@@ -8,16 +8,18 @@
     <style>
         :root {
             --primary: #0066ff;
-            --primary-light: rgba(0, 102, 255, 0.1);
+            --primary-light: rgba(0, 102, 255, 0.15);
             --primary-dark: #0052cc;
             --secondary: #8b5cf6;
             --accent: #00c6ff;
             --gold: #ffcc00;
+            --success: #10b981;
+            --warning: #f59e0b;
             --text-primary: #1a1a1a;
             --text-secondary: #666666;
+            --bg-gradient: linear-gradient(135deg, #f5f9ff 0%, #e8f2ff 100%);
             --card-bg: rgba(255, 255, 255, 0.95);
-            --card-border: rgba(0, 102, 255, 0.15);
-            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
             --transition: all 0.3s ease;
         }
 
@@ -25,11 +27,12 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(135deg, #f5f9ff 0%, #e8f2ff 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background: var(--bg-gradient);
             color: var(--text-primary);
             min-height: 100vh;
             padding: 16px;
@@ -37,27 +40,22 @@
             overflow-x: hidden;
         }
 
-        /* 独立浮动海豚 */
-        .floating-dolphin-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
+        /* 浮动海豚 */
         .floating-dolphin {
             width: 80px;
             height: 80px;
-            animation: float 3s ease-in-out infinite;
+            margin: 0 auto 16px;
             position: relative;
+            animation: dolphinFloat 3s ease-in-out infinite;
         }
 
-        @keyframes float {
+        @keyframes dolphinFloat {
             0%, 100% { transform: translateY(0) rotate(0deg); }
-            33% { transform: translateY(-10px) rotate(2deg); }
-            66% { transform: translateY(5px) rotate(-1deg); }
+            33% { transform: translateY(-8px) rotate(2deg); }
+            66% { transform: translateY(4px) rotate(-1deg); }
         }
 
-        .dolphin-circle {
+        .dolphin-icon {
             width: 80px;
             height: 80px;
             background: linear-gradient(135deg, var(--primary), var(--accent));
@@ -65,151 +63,102 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            color: white;
+            font-size: 38px;
+            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.25);
             position: relative;
-            box-shadow: 0 10px 25px rgba(0, 102, 255, 0.2);
             overflow: hidden;
         }
 
-        .dolphin-circle::before {
+        .dolphin-icon::before {
             content: '';
             position: absolute;
             width: 120px;
             height: 120px;
-            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
             top: -30px;
             left: -30px;
         }
 
-        .dolphin-circle i {
-            font-size: 40px;
-            color: white;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* 用户信息区域 */
-        .user-info-section {
+        /* 用户信息面板 */
+        .user-panel {
             background: var(--card-bg);
             border-radius: 20px;
-            border: 1px solid var(--card-border);
+            border: 1px solid rgba(0, 102, 255, 0.1);
             padding: 20px;
-            margin-bottom: 24px;
-            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            box-shadow: var(--card-shadow);
             cursor: pointer;
             transition: var(--transition);
             position: relative;
             overflow: hidden;
         }
 
-        .user-info-section::before {
+        .user-panel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .user-panel::after {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--accent), var(--primary));
-            transform: scaleX(0);
-            transition: transform 0.4s ease;
-            transform-origin: left;
+            bottom: 0;
+            left: 20px;
+            right: 20px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 102, 255, 0.2), transparent);
         }
 
-        .user-info-section:hover::before,
-        .user-info-section.expanded::before {
-            transform: scaleX(1);
-        }
-
-        .user-info-section:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-        }
-
-        .user-basic {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            position: relative;
-        }
-
-        .user-nickname-row {
+        .user-info-header {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 12px;
+            justify-content: space-between;
             margin-bottom: 12px;
-            width: 100%;
+        }
+
+        .user-identity {
+            flex: 1;
         }
 
         .user-nickname {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: 700;
             color: var(--text-primary);
-            position: relative;
-        }
-
-        .user-nickname::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--primary), transparent);
-            border-radius: 2px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .user-id {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
             background: var(--primary-light);
-            color: var(--primary);
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 10px;
+            display: inline-block;
         }
 
         .user-rank {
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, rgba(255, 204, 0, 0.15), rgba(255, 204, 0, 0.05));
+            gap: 6px;
             color: #b38f00;
-            padding: 10px 20px;
-            border-radius: 16px;
-            font-weight: 700;
-            font-size: 1rem;
-            margin-top: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 6px 12px;
+            background: linear-gradient(135deg, rgba(255, 204, 0, 0.1), rgba(255, 204, 0, 0.05));
+            border-radius: 12px;
             border: 1px solid rgba(255, 204, 0, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .user-rank::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-            animation: shine 3s infinite;
-        }
-
-        @keyframes shine {
-            0% { left: -100%; }
-            100% { left: 100%; }
         }
 
         .user-rank i {
             color: var(--gold);
         }
 
-        .expand-indicator {
-            position: absolute;
-            bottom: 10px;
-            right: 20px;
-            width: 32px;
-            height: 32px;
+        .expand-btn {
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background: var(--primary-light);
             display: flex;
@@ -217,115 +166,93 @@
             justify-content: center;
             color: var(--primary);
             transition: var(--transition);
+            flex-shrink: 0;
         }
 
-        .user-info-section.expanded .expand-indicator {
+        .user-panel.expanded .expand-btn {
             transform: rotate(180deg);
             background: var(--primary);
             color: white;
         }
 
-        /* 用户详细数据面板 */
-        .user-details-panel {
+        /* 2×2数据网格 */
+        .user-details {
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .user-details-inner {
-            padding-top: 24px;
+        .details-grid {
+            padding-top: 20px;
             opacity: 0;
             transform: translateY(-10px);
             transition: opacity 0.3s ease, transform 0.3s ease;
-            border-top: 1px solid rgba(0, 102, 255, 0.1);
-            margin-top: 16px;
-        }
-
-        .user-info-section.expanded .user-details-inner {
-            opacity: 1;
-            transform: translateY(0);
-            transition-delay: 0.1s;
-        }
-
-        .stats-grid-2x2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 16px;
         }
 
-        .stat-card {
+        .user-panel.expanded .details-grid {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.1s;
+        }
+
+        .data-card {
             background: white;
             border-radius: 16px;
-            padding: 20px 16px;
+            padding: 18px 12px;
             text-align: center;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             transition: var(--transition);
-            position: relative;
-            overflow: hidden;
             border: 1px solid rgba(0, 102, 255, 0.1);
         }
 
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 102, 255, 0.15);
+        .data-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.15);
         }
 
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            opacity: 0.8;
-        }
-
-        .stat-value {
-            font-size: 1.8rem;
+        .data-value {
+            font-size: 1.7rem;
             font-weight: 800;
             color: var(--primary);
-            margin-bottom: 6px;
-            line-height: 1;
+            margin-bottom: 4px;
             font-family: 'Courier New', monospace;
+            line-height: 1;
         }
 
-        .stat-label {
-            font-size: 0.9rem;
+        .data-label {
+            font-size: 0.85rem;
             color: var(--text-secondary);
             font-weight: 600;
         }
 
-        .stat-card:nth-child(1) .stat-value {
-            color: var(--primary);
+        .data-card:nth-child(2) .data-value {
+            color: var(--success);
         }
 
-        .stat-card:nth-child(2) .stat-value {
-            color: #10b981;
+        .data-card:nth-child(3) .data-value {
+            color: var(--warning);
         }
 
-        .stat-card:nth-child(3) .stat-value {
-            color: #f59e0b;
-        }
-
-        .stat-card:nth-child(4) .stat-value {
-            color: #8b5cf6;
+        .data-card:nth-child(4) .data-value {
+            color: var(--secondary);
         }
 
         /* 三个核心按钮 */
-        .core-nav-buttons {
+        .action-buttons {
             display: flex;
             justify-content: center;
             gap: 12px;
-            margin-bottom: 32px;
-            position: relative;
+            margin-bottom: 28px;
         }
 
-        .nav-button {
+        .action-btn {
             flex: 1;
             max-width: 120px;
             background: var(--card-bg);
-            border: 1px solid var(--card-border);
+            border: 1px solid rgba(0, 102, 255, 0.1);
             border-radius: 16px;
             padding: 20px 12px;
             display: flex;
@@ -339,51 +266,51 @@
             overflow: hidden;
         }
 
-        .nav-button::before {
+        .action-btn::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, var(--primary), var(--accent));
             opacity: 0;
             transition: opacity 0.3s ease;
             z-index: 0;
         }
 
-        .nav-button:hover::before,
-        .nav-button.active::before {
-            opacity: 0.1;
+        .action-btn:hover::before,
+        .action-btn.active::before {
+            opacity: 0.08;
         }
 
-        .nav-button::after {
+        .action-btn::after {
             content: '';
             position: absolute;
             bottom: 0;
             left: 50%;
             transform: translateX(-50%);
             width: 0;
-            height: 4px;
+            height: 3px;
             background: linear-gradient(90deg, var(--primary), var(--accent));
             border-radius: 2px 2px 0 0;
             transition: width 0.3s ease;
         }
 
-        .nav-button.active::after {
+        .action-btn.active::after {
             width: 80%;
         }
 
-        .nav-button:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0, 102, 255, 0.15);
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(0, 102, 255, 0.15);
         }
 
-        .nav-button.active {
+        .action-btn.active {
             border-color: rgba(0, 102, 255, 0.3);
         }
 
-        .nav-icon {
+        .btn-icon {
             width: 48px;
             height: 48px;
             border-radius: 12px;
@@ -392,25 +319,25 @@
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             transition: var(--transition);
             position: relative;
             z-index: 1;
         }
 
-        .nav-button:hover .nav-icon {
-            transform: scale(1.1) rotate(5deg);
+        .action-btn:hover .btn-icon {
+            transform: scale(1.1);
         }
 
-        .nav-button:nth-child(2) .nav-icon {
-            background: linear-gradient(135deg, #8b5cf6, #c084fc);
+        .action-btn:nth-child(2) .btn-icon {
+            background: linear-gradient(135deg, var(--secondary), #c084fc);
         }
 
-        .nav-button:nth-child(3) .nav-icon {
-            background: linear-gradient(135deg, #f59e0b, #f97316);
+        .action-btn:nth-child(3) .btn-icon {
+            background: linear-gradient(135deg, var(--warning), #f97316);
         }
 
-        .nav-label {
+        .btn-label {
             font-weight: 700;
             color: var(--text-primary);
             font-size: 1rem;
@@ -419,35 +346,35 @@
             z-index: 1;
         }
 
-        .nav-button.active .nav-label {
+        .action-btn.active .btn-label {
             background: linear-gradient(135deg, var(--primary), var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        /* 卡片区域 */
+        /* 卡片容器 */
         .cards-container {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 16px;
         }
 
         .activity-card {
             background: var(--card-bg);
             border-radius: 20px;
-            border: 1px solid var(--card-border);
+            border: 1px solid rgba(0, 102, 255, 0.1);
             overflow: hidden;
-            box-shadow: var(--shadow);
+            box-shadow: var(--card-shadow);
             transition: var(--transition);
         }
 
         .activity-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
         }
 
         .card-header {
-            padding: 24px;
+            padding: 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -459,13 +386,13 @@
             content: '';
             position: absolute;
             bottom: 0;
-            left: 24px;
-            right: 24px;
+            left: 20px;
+            right: 20px;
             height: 1px;
-            background: linear-gradient(90deg, var(--primary-light), transparent);
+            background: linear-gradient(90deg, transparent, rgba(0, 102, 255, 0.2), transparent);
         }
 
-        .card-title-area {
+        .card-main {
             display: flex;
             align-items: center;
             gap: 16px;
@@ -473,39 +400,35 @@
         }
 
         .card-icon {
-            width: 56px;
-            height: 56px;
+            width: 52px;
+            height: 52px;
             border-radius: 14px;
             background: linear-gradient(135deg, var(--primary), var(--accent));
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             flex-shrink: 0;
         }
 
         .card-icon.green {
-            background: linear-gradient(135deg, #10b981, #34d399);
+            background: linear-gradient(135deg, var(--success), #34d399);
         }
 
         .card-icon.purple {
-            background: linear-gradient(135deg, #8b5cf6, #c084fc);
-        }
-
-        .card-icon.orange {
-            background: linear-gradient(135deg, #f59e0b, #f97316);
+            background: linear-gradient(135deg, var(--secondary), #c084fc);
         }
 
         .card-text h3 {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: var(--text-primary);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .card-text p {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: var(--text-secondary);
             line-height: 1.4;
         }
@@ -513,32 +436,32 @@
         .card-status {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .status-badge {
             background: var(--primary-light);
             color: var(--primary);
-            padding: 8px 16px;
-            border-radius: 16px;
-            font-size: 0.9rem;
+            padding: 6px 14px;
+            border-radius: 14px;
+            font-size: 0.85rem;
             font-weight: 700;
             white-space: nowrap;
         }
 
         .status-badge.green {
             background: rgba(16, 185, 129, 0.15);
-            color: #10b981;
+            color: var(--success);
         }
 
         .status-badge.purple {
             background: rgba(139, 92, 246, 0.15);
-            color: #8b5cf6;
+            color: var(--secondary);
         }
 
-        .card-expand-icon {
-            width: 36px;
-            height: 36px;
+        .card-expand {
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             background: var(--primary-light);
             display: flex;
@@ -546,11 +469,11 @@
             justify-content: center;
             color: var(--primary);
             transition: var(--transition);
-            margin-left: 12px;
+            margin-left: 10px;
             flex-shrink: 0;
         }
 
-        .activity-card.active .card-expand-icon {
+        .activity-card.active .card-expand {
             background: var(--primary);
             color: white;
             transform: rotate(180deg);
@@ -563,58 +486,58 @@
             transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .card-content-inner {
-            padding: 0 24px;
+        .content-inner {
+            padding: 0 20px;
             opacity: 0;
             transform: translateY(-10px);
             transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
-        .activity-card.active .card-content-inner {
+        .activity-card.active .content-inner {
             opacity: 1;
             transform: translateY(0);
             transition-delay: 0.1s;
-            padding-bottom: 24px;
+            padding-bottom: 20px;
         }
 
-        /* 卡片内容样式 */
+        /* 内容样式 */
         .content-section {
-            margin-top: 24px;
+            margin-top: 20px;
         }
 
-        .content-section h4 {
-            font-size: 1.1rem;
+        .section-title {
+            font-size: 1rem;
             font-weight: 700;
             color: var(--primary);
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
-        .content-section h4 i {
+        .section-title i {
             font-size: 0.9rem;
         }
 
         .description {
             color: var(--text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin-bottom: 20px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 16px;
         }
 
         .rules-list {
             list-style: none;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .rules-list li {
-            padding: 12px 0;
-            border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+            padding: 10px 0;
+            border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 0.95rem;
+            gap: 10px;
+            font-size: 0.9rem;
         }
 
         .rules-list li:last-child {
@@ -623,23 +546,23 @@
 
         .rules-list li i {
             color: var(--primary);
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
 
         .rewards {
             background: white;
-            border-radius: 16px;
-            padding: 20px;
-            margin-top: 20px;
+            border-radius: 14px;
+            padding: 16px;
+            margin-top: 16px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         .reward-item {
             display: flex;
             justify-content: space-between;
-            padding: 12px 0;
+            padding: 10px 0;
             border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
 
         .reward-item:last-child {
@@ -654,15 +577,15 @@
         .card-actions {
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            margin-top: 24px;
+            gap: 12px;
+            margin-top: 20px;
         }
 
-        .action-btn {
-            padding: 18px;
-            border-radius: 14px;
+        .action-button {
+            padding: 16px;
+            border-radius: 12px;
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 0.95rem;
             cursor: pointer;
             transition: var(--transition);
             border: none;
@@ -670,67 +593,74 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 10px;
         }
 
-        .action-btn-primary {
+        .action-primary {
             background: linear-gradient(135deg, var(--primary), var(--accent));
             color: white;
         }
 
-        .action-btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0, 102, 255, 0.3);
+        .action-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.3);
         }
 
-        .action-btn-secondary {
+        .action-secondary {
             background: white;
             color: var(--primary);
-            border: 1px solid var(--card-border);
+            border: 1px solid rgba(0, 102, 255, 0.15);
         }
 
-        .action-btn-secondary:hover {
+        .action-secondary:hover {
             background: var(--primary-light);
             border-color: var(--primary);
         }
 
         /* 响应式设计 */
         @media (max-width: 480px) {
-            .stats-grid-2x2 {
+            .details-grid {
                 gap: 12px;
             }
             
-            .stat-card {
-                padding: 16px 12px;
+            .data-card {
+                padding: 16px 10px;
             }
             
-            .stat-value {
+            .data-value {
                 font-size: 1.5rem;
             }
             
-            .core-nav-buttons {
+            .action-buttons {
                 flex-direction: column;
                 align-items: center;
-                gap: 16px;
+                gap: 12px;
             }
             
-            .nav-button {
+            .action-btn {
                 max-width: 100%;
                 width: 100%;
                 flex-direction: row;
                 justify-content: flex-start;
-                padding: 20px;
+                padding: 18px 20px;
             }
             
-            .nav-icon {
+            .btn-icon {
                 width: 44px;
                 height: 44px;
                 font-size: 1.3rem;
             }
             
-            .user-nickname-row {
+            .user-info-header {
                 flex-direction: column;
-                gap: 8px;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .expand-btn {
+                position: absolute;
+                right: 20px;
+                top: 20px;
             }
         }
 
@@ -738,7 +668,7 @@
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(15px);
             }
             to {
                 opacity: 1;
@@ -764,74 +694,72 @@
     </style>
 </head>
 <body>
-    <!-- 独立浮动海豚 -->
-    <div class="floating-dolphin-container">
-        <div class="floating-dolphin">
-            <div class="dolphin-circle">
-                <i class="fas fa-dolphin"></i>
-            </div>
+    <!-- 浮动海豚 -->
+    <div class="floating-dolphin">
+        <div class="dolphin-icon">
+            <i class="fas fa-dolphin"></i>
         </div>
     </div>
     
-    <!-- 用户信息区域 -->
-    <div class="user-info-section" id="userInfoSection">
-        <div class="user-basic">
-            <div class="user-nickname-row">
-                <div class="user-nickname">海豚用户3333</div>
-                <div class="user-id">ID：8000</div>
+    <!-- 用户信息面板 -->
+    <div class="user-panel" id="userPanel">
+        <div class="user-info-header">
+            <div class="user-identity">
+                <div class="user-nickname">
+                    海豚用户3333
+                    <span class="user-id">ID：8000</span>
+                </div>
+                <div class="user-rank">
+                    <i class="fas fa-crown"></i>
+                    当前等级：金牌会员
+                </div>
             </div>
-            <div class="user-rank">
-                <i class="fas fa-crown"></i>
-                <span>当前等级：金牌会员</span>
-            </div>
-            <div class="expand-indicator">
+            <div class="expand-btn">
                 <i class="fas fa-chevron-down"></i>
             </div>
         </div>
         
-        <div class="user-details-panel" id="userDetailsPanel">
-            <div class="user-details-inner">
-                <div class="stats-grid-2x2">
-                    <div class="stat-card">
-                        <div class="stat-value" id="networthValue">1992 DPH</div>
-                        <div class="stat-label">身价</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="balanceValue">1092 U</div>
-                        <div class="stat-label">余额</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="volumeValue">$10299</div>
-                        <div class="stat-label">交易量</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="rankValue">9</div>
-                        <div class="stat-label">周排名</div>
-                    </div>
+        <div class="user-details" id="userDetails">
+            <div class="details-grid">
+                <div class="data-card">
+                    <div class="data-value" id="networthValue">1992 DPH</div>
+                    <div class="data-label">身价</div>
+                </div>
+                <div class="data-card">
+                    <div class="data-value" id="balanceValue">1092 U</div>
+                    <div class="data-label">余额</div>
+                </div>
+                <div class="data-card">
+                    <div class="data-value" id="volumeValue">$10299</div>
+                    <div class="data-label">交易量</div>
+                </div>
+                <div class="data-card">
+                    <div class="data-value" id="rankValue">9</div>
+                    <div class="data-label">周排名</div>
                 </div>
             </div>
         </div>
     </div>
     
     <!-- 三个核心按钮 -->
-    <div class="core-nav-buttons">
-        <div class="nav-button active" id="navActivity">
-            <div class="nav-icon">
+    <div class="action-buttons">
+        <div class="action-btn active" id="btnActivity">
+            <div class="btn-icon">
                 <i class="fas fa-rocket"></i>
             </div>
-            <div class="nav-label">活动</div>
+            <div class="btn-label">活动</div>
         </div>
-        <div class="nav-button" id="navModel">
-            <div class="nav-icon">
+        <div class="action-btn" id="btnModel">
+            <div class="btn-icon">
                 <i class="fas fa-cube"></i>
             </div>
-            <div class="nav-label">模型</div>
+            <div class="btn-label">模型</div>
         </div>
-        <div class="nav-button" id="navWallet">
-            <div class="nav-icon">
+        <div class="action-btn" id="btnWallet">
+            <div class="btn-icon">
                 <i class="fas fa-wallet"></i>
             </div>
-            <div class="nav-label">钱包</div>
+            <div class="btn-label">钱包</div>
         </div>
     </div>
     
@@ -840,7 +768,7 @@
         <!-- 卡片1：OKX Boost活动 -->
         <div class="activity-card active" id="cardOkx">
             <div class="card-header">
-                <div class="card-title-area">
+                <div class="card-main">
                     <div class="card-icon">
                         <i class="fas fa-bolt"></i>
                     </div>
@@ -850,33 +778,42 @@
                     </div>
                 </div>
                 <div class="card-status">
-                    <span class="status-badge">🔥 火热进行中</span>
-                    <div class="card-expand-icon">
+                    <span class="status-badge">🔥 进行中</span>
+                    <div class="card-expand">
                         <i class="fas fa-chevron-down"></i>
                     </div>
                 </div>
             </div>
             
-            <div class="card-content" style="max-height: 600px;">
-                <div class="card-content-inner">
+            <div class="card-content" style="max-height: 550px;">
+                <div class="content-inner">
                     <div class="content-section">
-                        <h4><i class="fas fa-info-circle"></i> 活动介绍</h4>
+                        <div class="section-title">
+                            <i class="fas fa-info-circle"></i>
+                            活动介绍
+                        </div>
                         <p class="description">
-                            这是海豚社区与OKX交易所合作的专属加速计划。活动期间，社区成员通过专属链接参与交易，即可获得额外加速奖励。活动旨在为社区成员提供更多交易优势和学习机会。
+                            这是海豚社区与OKX交易所合作的专属加速计划。活动期间，社区成员通过专属链接参与交易，即可获得额外加速奖励。
                         </p>
                         
-                        <h4><i class="fas fa-list-check"></i> 参与规则</h4>
+                        <div class="section-title">
+                            <i class="fas fa-list-check"></i>
+                            参与规则
+                        </div>
                         <ul class="rules-list">
-                            <li><i class="fas fa-check-circle"></i> 需通过社区专属链接注册OKX账户</li>
-                            <li><i class="fas fa-check-circle"></i> 活动期间累计交易额需达到 1,000 USDT</li>
-                            <li><i class="fas fa-check-circle"></i> 至少完成 10 笔有效交易</li>
-                            <li><i class="fas fa-check-circle"></i> 需加入OKX官方海豚社区群组</li>
-                            <li><i class="fas fa-check-circle"></i> 奖励将在活动结束后7个工作日内发放</li>
+                            <li><i class="fas fa-check"></i> 需通过社区专属链接注册OKX账户</li>
+                            <li><i class="fas fa-check"></i> 活动期间累计交易额需达到 1,000 USDT</li>
+                            <li><i class="fas fa-check"></i> 至少完成 10 笔有效交易</li>
+                            <li><i class="fas fa-check"></i> 需加入OKX官方海豚社区群组</li>
+                            <li><i class="fas fa-check"></i> 奖励将在活动结束后7个工作日内发放</li>
                         </ul>
                     </div>
                     
                     <div class="content-section">
-                        <h4><i class="fas fa-gift"></i> 奖励详情</h4>
+                        <div class="section-title">
+                            <i class="fas fa-gift"></i>
+                            奖励详情
+                        </div>
                         <div class="rewards">
                             <div class="reward-item">
                                 <span>基础奖励</span>
@@ -897,11 +834,11 @@
                         </div>
                         
                         <div class="card-actions">
-                            <button class="action-btn action-btn-primary">
+                            <button class="action-button action-primary">
                                 <i class="fas fa-play-circle"></i>
                                 立即参加活动
                             </button>
-                            <button class="action-btn action-btn-secondary">
+                            <button class="action-button action-secondary">
                                 <i class="fas fa-share-alt"></i>
                                 分享给好友
                             </button>
@@ -914,7 +851,7 @@
         <!-- 卡片2：Web3资源宝库 -->
         <div class="activity-card" id="cardResource">
             <div class="card-header">
-                <div class="card-title-area">
+                <div class="card-main">
                     <div class="card-icon green">
                         <i class="fas fa-graduation-cap"></i>
                     </div>
@@ -925,32 +862,40 @@
                 </div>
                 <div class="card-status">
                     <span class="status-badge green">📚 持续更新</span>
-                    <div class="card-expand-icon">
+                    <div class="card-expand">
                         <i class="fas fa-chevron-down"></i>
                     </div>
                 </div>
             </div>
             
             <div class="card-content">
-                <div class="card-content-inner">
+                <div class="content-inner">
                     <div class="content-section">
-                        <h4><i class="fas fa-info-circle"></i> 资源介绍</h4>
+                        <div class="section-title">
+                            <i class="fas fa-info-circle"></i>
+                            资源介绍
+                        </div>
                         <p class="description">
-                            海豚社区资源中心收录了经过筛选的优质Web3学习材料，涵盖区块链基础、智能合约开发、DeFi、NFT等多个领域。所有资源均由社区专家审核推荐，定期更新最新内容。
+                            海豚社区资源中心收录了经过筛选的优质Web3学习材料，涵盖区块链基础、智能合约开发、DeFi、NFT等多个领域。
                         </p>
                         
-                        <h4><i class="fas fa-list-check"></i> 热门资源</h4>
+                        <div class="section-title">
+                            <i class="fas fa-star"></i>
+                            热门资源
+                        </div>
                         <ul class="rules-list">
                             <li><i class="fas fa-book"></i> Solidity智能合约开发指南</li>
                             <li><i class="fas fa-video"></i> DeFi原理与实践视频课程</li>
                             <li><i class="fas fa-file-code"></i> Web3.js/Ethers.js开发手册</li>
                             <li><i class="fas fa-chart-line"></i> 2023年NFT市场趋势分析报告</li>
-                            <li><i class="fas fa-tools"></i> 区块链开发工具包合集</li>
                         </ul>
                     </div>
                     
                     <div class="content-section">
-                        <h4><i class="fas fa-gift"></i> 会员特权</h4>
+                        <div class="section-title">
+                            <i class="fas fa-gift"></i>
+                            会员特权
+                        </div>
                         <div class="rewards">
                             <div class="reward-item">
                                 <span>免费会员</span>
@@ -967,7 +912,7 @@
                         </div>
                         
                         <div class="card-actions">
-                            <button class="action-btn action-btn-primary" style="background: linear-gradient(135deg, #10b981, #34d399);">
+                            <button class="action-button action-primary" style="background: linear-gradient(135deg, var(--success), #34d399);">
                                 <i class="fas fa-unlock"></i>
                                 解锁全部资源
                             </button>
@@ -980,7 +925,7 @@
         <!-- 卡片3：AI模型市场 -->
         <div class="activity-card" id="cardModel">
             <div class="card-header">
-                <div class="card-title-area">
+                <div class="card-main">
                     <div class="card-icon purple">
                         <i class="fas fa-robot"></i>
                     </div>
@@ -991,32 +936,40 @@
                 </div>
                 <div class="card-status">
                     <span class="status-badge purple">🤖 12个模型</span>
-                    <div class="card-expand-icon">
+                    <div class="card-expand">
                         <i class="fas fa-chevron-down"></i>
                     </div>
                 </div>
             </div>
             
             <div class="card-content">
-                <div class="card-content-inner">
+                <div class="content-inner">
                     <div class="content-section">
-                        <h4><i class="fas fa-info-circle"></i> 市场介绍</h4>
+                        <div class="section-title">
+                            <i class="fas fa-info-circle"></i>
+                            市场介绍
+                        </div>
                         <p class="description">
-                            海豚社区AI模型市场汇集了各类优质AI模型，支持模型交易、租赁和使用。所有模型都经过严格测试，确保性能稳定，为开发者和企业提供一站式AI解决方案。
+                            海豚社区AI模型市场汇集了各类优质AI模型，支持模型交易、租赁和使用。所有模型都经过严格测试，确保性能稳定。
                         </p>
                         
-                        <h4><i class="fas fa-list-check"></i> 热门模型</h4>
+                        <div class="section-title">
+                            <i class="fas fa-star"></i>
+                            热门模型
+                        </div>
                         <ul class="rules-list">
-                            <li><i class="fas fa-palette"></i> 图像生成模型 - DALL-E 3优化版</li>
+                            <li><i class="fas fa-palette"></i> 图像生成模型 - DALL-E优化版</li>
                             <li><i class="fas fa-language"></i> 多语言翻译模型 - 支持58种语言</li>
                             <li><i class="fas fa-chart-bar"></i> 市场预测模型 - 加密货币趋势分析</li>
-                            <li><i class="fas fa-comments"></i> 智能客服模型 - 24小时自动回复</li>
                             <li><i class="fas fa-code"></i> 代码生成模型 - 支持15种编程语言</li>
                         </ul>
                     </div>
                     
                     <div class="content-section">
-                        <h4><i class="fas fa-gift"></i> 模型定价</h4>
+                        <div class="section-title">
+                            <i class="fas fa-tags"></i>
+                            模型定价
+                        </div>
                         <div class="rewards">
                             <div class="reward-item">
                                 <span>基础模型</span>
@@ -1033,7 +986,7 @@
                         </div>
                         
                         <div class="card-actions">
-                            <button class="action-btn action-btn-primary" style="background: linear-gradient(135deg, #8b5cf6, #c084fc);">
+                            <button class="action-button action-primary" style="background: linear-gradient(135deg, var(--secondary), #c084fc);">
                                 <i class="fas fa-shopping-cart"></i>
                                 浏览模型市场
                             </button>
@@ -1046,29 +999,29 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 用户信息面板展开/收起
-            const userInfoSection = document.getElementById('userInfoSection');
-            const userDetailsPanel = document.getElementById('userDetailsPanel');
+            // 用户面板展开/收起
+            const userPanel = document.getElementById('userPanel');
+            const userDetails = document.getElementById('userDetails');
             
-            userInfoSection.addEventListener('click', function() {
+            userPanel.addEventListener('click', function() {
                 const isExpanded = this.classList.contains('expanded');
                 
                 if (!isExpanded) {
                     this.classList.add('expanded');
-                    const height = userDetailsPanel.scrollHeight;
-                    userDetailsPanel.style.maxHeight = height + 'px';
+                    const height = userDetails.scrollHeight;
+                    userDetails.style.maxHeight = height + 'px';
                 } else {
                     this.classList.remove('expanded');
-                    userDetailsPanel.style.maxHeight = '0';
+                    userDetails.style.maxHeight = '0';
                 }
             });
             
             // 三个核心按钮点击事件
-            const navButtons = document.querySelectorAll('.nav-button');
-            navButtons.forEach(btn => {
+            const actionButtons = document.querySelectorAll('.action-btn');
+            actionButtons.forEach(btn => {
                 btn.addEventListener('click', function() {
                     // 移除所有按钮的active类
-                    navButtons.forEach(b => b.classList.remove('active'));
+                    actionButtons.forEach(b => b.classList.remove('active'));
                     
                     // 为当前点击的按钮添加active类
                     this.classList.add('active');
@@ -1077,11 +1030,9 @@
                     const btnId = this.id;
                     const allCards = document.querySelectorAll('.activity-card');
                     
-                    if (btnId === 'navActivity') {
-                        // 显示所有卡片
+                    if (btnId === 'btnActivity') {
                         allCards.forEach(card => card.style.display = 'block');
-                    } else if (btnId === 'navModel') {
-                        // 只显示模型相关卡片
+                    } else if (btnId === 'btnModel') {
                         allCards.forEach(card => {
                             if (card.id === 'cardModel' || card.id === 'cardResource') {
                                 card.style.display = 'block';
@@ -1089,11 +1040,9 @@
                                 card.style.display = 'none';
                             }
                         });
-                    } else if (btnId === 'navWallet') {
-                        // 只显示钱包相关卡片（这里可以添加钱包卡片）
-                        allCards.forEach(card => {
-                            card.style.display = 'none';
-                        });
+                    } else if (btnId === 'btnWallet') {
+                        allCards.forEach(card => card.style.display = 'none');
+                        // 这里可以添加钱包相关卡片的显示逻辑
                     }
                 });
             });
@@ -1111,7 +1060,7 @@
                     // 第一个卡片展开
                     card.classList.add('active');
                     const content = card.querySelector('.card-content');
-                    const innerContent = card.querySelector('.card-content-inner');
+                    const innerContent = card.querySelector('.content-inner');
                     const height = innerContent.scrollHeight;
                     content.style.maxHeight = height + 'px';
                 }
@@ -1119,12 +1068,8 @@
                 // 点击卡片头部切换状态
                 const header = card.querySelector('.card-header');
                 header.addEventListener('click', function(e) {
-                    // 如果点击的是按钮，不触发卡片收起
-                    if (e.target.closest('button')) {
-                        return;
-                    }
+                    if (e.target.closest('button')) return;
                     
-                    // 切换当前卡片的激活状态
                     const isActive = card.classList.contains('active');
                     
                     // 先收起所有卡片
@@ -1138,7 +1083,7 @@
                     if (!isActive) {
                         card.classList.add('active');
                         const content = card.querySelector('.card-content');
-                        const innerContent = card.querySelector('.card-content-inner');
+                        const innerContent = card.querySelector('.content-inner');
                         const height = innerContent.scrollHeight;
                         content.style.maxHeight = height + 'px';
                     }
@@ -1146,10 +1091,9 @@
             });
             
             // 按钮点击事件
-            document.querySelectorAll('.action-btn-primary').forEach(btn => {
+            document.querySelectorAll('.action-primary').forEach(btn => {
                 btn.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    
                     const card = this.closest('.activity-card');
                     const cardTitle = card.querySelector('h3').textContent;
                     
@@ -1165,10 +1109,10 @@
                 });
             });
             
-            document.querySelectorAll('.action-btn-secondary').forEach(btn => {
+            document.querySelectorAll('.action-secondary').forEach(btn => {
                 btn.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    alert('分享链接已复制到剪贴板！');
+                    alert('分享链接已复制！');
                 });
             });
             
@@ -1185,35 +1129,37 @@
             
             // 每30秒数据微调
             setInterval(() => {
-                // 身价随机增加1-3 DPH
+                // 身价增加1-3 DPH
                 const networthChange = Math.floor(Math.random() * 3) + 1;
                 networth += networthChange;
                 networthValue.textContent = `${networth} DPH`;
                 
                 // 余额随机变化
-                const balanceChange = Math.floor(Math.random() * 5) - 2; // -2到+2
+                const balanceChange = Math.floor(Math.random() * 5) - 2;
                 balance += balanceChange;
                 if (balance < 0) balance = 0;
                 balanceValue.textContent = `${balance} U`;
                 
-                // 交易量随机增加
+                // 交易量增加
                 const volumeChange = Math.floor(Math.random() * 10);
                 volume += volumeChange;
                 volumeValue.textContent = `$${volume}`;
                 
-                // 排名随机变化（偶尔上升或下降）
+                // 排名偶尔变化
                 if (Math.random() > 0.7) {
-                    rankChange = Math.random() > 0.5 ? -1 : 1;
+                    const rankChange = Math.random() > 0.5 ? -1 : 1;
                     rank += rankChange;
                     if (rank < 1) rank = 1;
                     if (rank > 100) rank = 100;
                     rankValue.textContent = `${rank}`;
                 }
                 
-                // 添加动画效果
+                // 添加微动画
                 networthValue.style.transform = 'scale(1.1)';
+                networthValue.style.color = '#00c6ff';
                 setTimeout(() => {
                     networthValue.style.transform = 'scale(1)';
+                    networthValue.style.color = '';
                 }, 300);
                 
             }, 30000); // 每30秒更新一次
