@@ -44,6 +44,89 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
+        /* 顶部流动H字母 */
+        .h-letter-container {
+            position: relative;
+            width: 100%;
+            height: 120px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .flowing-h {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 0;
+            opacity: 0.1;
+        }
+
+        .h-svg {
+            width: 200px;
+            height: 200px;
+            filter: drop-shadow(0 5px 15px rgba(0, 102, 255, 0.1));
+        }
+
+        .h-path {
+            fill: none;
+            stroke: var(--primary);
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 300;
+            stroke-dashoffset: 300;
+            animation: drawH 8s ease-in-out infinite;
+        }
+
+        @keyframes drawH {
+            0%, 100% {
+                stroke-dashoffset: 300;
+                opacity: 0.3;
+            }
+            20%, 80% {
+                stroke-dashoffset: 0;
+                opacity: 0.6;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        /* H字母交互效果 */
+        .h-interactive {
+            position: absolute;
+            font-size: 100px;
+            font-weight: 900;
+            color: transparent;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            z-index: 2;
+            letter-spacing: 5px;
+            transition: var(--transition);
+            animation: hGlow 3s ease-in-out infinite;
+            text-shadow: 0 0 20px rgba(0, 102, 255, 0.3);
+        }
+
+        @keyframes hGlow {
+            0%, 100% {
+                filter: drop-shadow(0 0 10px rgba(0, 102, 255, 0.3));
+                transform: scale(1) rotate(0deg);
+            }
+            50% {
+                filter: drop-shadow(0 0 25px rgba(0, 102, 255, 0.6));
+                transform: scale(1.05) rotate(1deg);
+            }
+        }
+
         /* 线条连接动画背景 */
         .line-background {
             position: fixed;
@@ -76,91 +159,6 @@
                 stroke-dashoffset: 0;
                 opacity: 0.1;
             }
-        }
-
-        /* 海豚LOGO容器 - 透明背景 */
-        .dolphin-logo-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 32px;
-            position: relative;
-        }
-
-        /* 海豚动画 - 透明背景 */
-        .floating-dolphin {
-            width: 120px;
-            height: 120px;
-            position: relative;
-            filter: drop-shadow(0 5px 15px rgba(0, 102, 255, 0.1));
-            animation: dolphinFloat 4s ease-in-out infinite;
-            margin-bottom: 12px;
-        }
-
-        @keyframes dolphinFloat {
-            0%, 100% { 
-                transform: translateY(0) rotate(0deg) scale(1);
-            }
-            25% { 
-                transform: translateY(-15px) rotate(5deg) scale(1.05);
-            }
-            50% { 
-                transform: translateY(5px) rotate(-3deg) scale(1);
-            }
-            75% { 
-                transform: translateY(-8px) rotate(2deg) scale(1.03);
-            }
-        }
-
-        /* 海豚图标 - 透明背景，线条边框 */
-        .dolphin-icon {
-            width: 120px;
-            height: 120px;
-            background: transparent;
-            border-radius: 50% 50% 45% 55% / 60% 60% 40% 40%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary);
-            font-size: 60px;
-            position: relative;
-            overflow: hidden;
-            transition: var(--transition);
-            border: 2px solid transparent;
-        }
-
-        /* 线条边框动画 */
-        .dolphin-icon::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            border-radius: inherit;
-            border: 2px solid transparent;
-            background: linear-gradient(45deg, var(--primary), var(--accent), transparent) border-box;
-            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-            mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            animation: borderRotate 3s linear infinite;
-        }
-
-        @keyframes borderRotate {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        .dolphin-icon i {
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            font-style: normal;
-            text-shadow: 0 2px 5px rgba(0, 102, 255, 0.2);
         }
 
         /* 用户信息面板 - 完全透明，线条交互 */
@@ -431,10 +429,10 @@
             color: var(--secondary);
         }
 
-        /* 三个核心按钮 - 线条交互设计 */
+        /* 三个核心按钮 - 从左到右均匀排列 */
         .action-buttons {
             display: flex;
-            justify-content: flex-start;
+            justify-content: space-between; /* 从左到右均匀分布 */
             gap: 12px;
             margin-bottom: 24px;
             overflow-x: auto;
@@ -446,7 +444,7 @@
         }
 
         .action-btn {
-            min-width: 100px;
+            flex: 1; /* 让按钮平均分配宽度 */
             background: transparent;
             border: 1px solid rgba(0, 102, 255, 0.05);
             border-radius: 16px;
@@ -460,7 +458,7 @@
             transition: var(--transition);
             position: relative;
             overflow: hidden;
-            flex-shrink: 0;
+            min-width: 0; /* 防止flex item溢出 */
         }
 
         /* 按钮线条动画 */
@@ -617,6 +615,7 @@
             position: relative;
             z-index: 1;
             letter-spacing: -0.01em;
+            text-align: center;
         }
 
         .btn-label::after {
@@ -1185,15 +1184,83 @@
             border-color: var(--primary);
         }
 
+        /* 优化后的卡片内按钮样式 */
+        .card-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .card-action-button {
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: -0.01em;
+            min-width: 200px;
+            margin: 0 auto;
+        }
+
+        .card-action-primary {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border: 2px solid transparent;
+        }
+
+        .card-action-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 102, 255, 0.4);
+        }
+
+        .card-action-secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid rgba(0, 102, 255, 0.3);
+        }
+
+        .card-action-secondary:hover {
+            background: rgba(0, 102, 255, 0.05);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .action-button-icon {
+            font-size: 1.1rem;
+        }
+
         /* 响应式设计 */
         @media (max-width: 768px) {
+            .h-letter-container {
+                height: 100px;
+                margin-bottom: 10px;
+            }
+            
+            .h-svg {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .h-interactive {
+                font-size: 80px;
+            }
+            
             .action-buttons {
-                justify-content: flex-start;
+                justify-content: space-between;
             }
             
             .action-btn {
-                padding: 16px 12px;
-                min-width: 90px;
+                padding: 16px 8px;
             }
             
             .user-nickname {
@@ -1211,9 +1278,27 @@
             .card-status {
                 align-self: flex-end;
             }
+            
+            .card-action-button {
+                min-width: 180px;
+                padding: 12px 16px;
+            }
         }
 
         @media (max-width: 480px) {
+            .h-letter-container {
+                height: 80px;
+            }
+            
+            .h-svg {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .h-interactive {
+                font-size: 60px;
+            }
+            
             .details-grid {
                 gap: 10px;
             }
@@ -1230,6 +1315,21 @@
                 width: 40px;
                 height: 40px;
                 font-size: 1.1rem;
+            }
+            
+            .action-btn {
+                padding: 12px 6px;
+                gap: 8px;
+            }
+            
+            .btn-label {
+                font-size: 0.85rem;
+            }
+            
+            .card-action-button {
+                min-width: 160px;
+                padding: 10px 14px;
+                font-size: 0.85rem;
             }
         }
 
@@ -1252,13 +1352,16 @@
     <!-- 线条连接动画背景 -->
     <div class="line-background" id="lineBackground"></div>
     
-    <!-- 海豚LOGO -->
-    <div class="dolphin-logo-container">
-        <div class="floating-dolphin">
-            <div class="dolphin-icon">
-                <i class="fas fa-dolphin"></i>
-            </div>
+    <!-- 顶部流动H字母 -->
+    <div class="h-letter-container">
+        <div class="flowing-h">
+            <svg class="h-svg" viewBox="0 0 100 100">
+                <!-- H字母路径 - 线条绘制 -->
+                <path class="h-path" d="M 20,20 L 20,80 M 20,50 L 80,50 M 80,20 L 80,80"/>
+            </svg>
         </div>
+        <!-- 动态H字母 -->
+        <div class="h-interactive">H</div>
     </div>
     
     <!-- 用户信息面板 -->
@@ -1301,25 +1404,25 @@
         </div>
     </div>
     
-    <!-- 三个核心按钮 -->
+    <!-- 三个核心按钮 - 从左到右均匀排列 -->
     <div class="action-buttons">
-        <div class="action-btn active" id="btnActivity">
+        <div class="action-btn active" id="btnOkx">
             <div class="btn-icon">
                 <i class="fas fa-rocket"></i>
             </div>
-            <div class="btn-label">活动中心</div>
+            <div class="btn-label">OKX Boost</div>
         </div>
         <div class="action-btn" id="btnModel">
             <div class="btn-icon">
-                <i class="fas fa-cube"></i>
+                <i class="fas fa-chart-line"></i>
             </div>
-            <div class="btn-label">AI模型</div>
+            <div class="btn-label">经济模型</div>
         </div>
-        <div class="action-btn" id="btnWallet">
+        <div class="action-btn" id="btnData">
             <div class="btn-icon">
-                <i class="fas fa-wallet"></i>
+                <i class="fas fa-database"></i>
             </div>
-            <div class="btn-label">我的钱包</div>
+            <div class="btn-label">数据中心</div>
         </div>
     </div>
     
@@ -1394,12 +1497,12 @@
                         </div>
                         
                         <div class="card-actions">
-                            <button class="action-button action-primary">
-                                <i class="fas fa-play-circle"></i>
+                            <button class="card-action-button card-action-primary">
+                                <i class="action-button-icon fas fa-play-circle"></i>
                                 立即参加活动
                             </button>
-                            <button class="action-button action-secondary">
-                                <i class="fas fa-share-alt"></i>
+                            <button class="card-action-button card-action-secondary">
+                                <i class="action-button-icon fas fa-share-alt"></i>
                                 分享给好友
                             </button>
                         </div>
@@ -1472,8 +1575,8 @@
                         </div>
                         
                         <div class="card-actions">
-                            <button class="action-button action-primary" style="background: linear-gradient(135deg, var(--success), #34d399);">
-                                <i class="fas fa-unlock"></i>
+                            <button class="card-action-button card-action-primary" style="background: linear-gradient(135deg, var(--success), #34d399);">
+                                <i class="action-button-icon fas fa-unlock"></i>
                                 解锁全部资源
                             </button>
                         </div>
@@ -1482,20 +1585,20 @@
             </div>
         </div>
 
-        <!-- 卡片3：AI模型市场 -->
+        <!-- 卡片3：经济模型市场 -->
         <div class="activity-card" id="cardModel">
             <div class="card-header">
                 <div class="card-main">
                     <div class="card-icon purple">
-                        <i class="fas fa-robot"></i>
+                        <i class="fas fa-chart-pie"></i>
                     </div>
                     <div class="card-text">
-                        <h3>AI模型市场</h3>
-                        <p>探索、交易和使用海豚社区精选的AI模型，涵盖图像生成、文本分析、预测模型等。</p>
+                        <h3>经济模型市场</h3>
+                        <p>探索、交易和使用海豚社区精选的经济模型，涵盖代币经济学、激励模型、价值分配等。</p>
                     </div>
                 </div>
                 <div class="card-status">
-                    <span class="status-badge purple">🤖 12个模型</span>
+                    <span class="status-badge purple">📈 8个模型</span>
                     <div class="card-expand">
                         <i class="fas fa-chevron-down"></i>
                     </div>
@@ -1510,7 +1613,7 @@
                             市场介绍
                         </div>
                         <p class="description">
-                            海豚社区AI模型市场汇集了各类优质AI模型，支持模型交易、租赁和使用。所有模型都经过严格测试，确保性能稳定。
+                            海豚社区经济模型市场汇集了各类优质经济模型，支持模型交易、租赁和使用。所有模型都经过严格测试，确保性能稳定。
                         </p>
                         
                         <div class="section-title">
@@ -1518,10 +1621,10 @@
                             热门模型
                         </div>
                         <ul class="rules-list">
-                            <li><i class="fas fa-palette"></i> 图像生成模型 - DALL-E优化版</li>
-                            <li><i class="fas fa-language"></i> 多语言翻译模型 - 支持58种语言</li>
-                            <li><i class="fas fa-chart-bar"></i> 市场预测模型 - 加密货币趋势分析</li>
-                            <li><i class="fas fa-code"></i> 代码生成模型 - 支持15种编程语言</li>
+                            <li><i class="fas fa-coins"></i> 代币经济学模型 - 通缩机制设计</li>
+                            <li><i class="fas fa-hand-holding-usd"></i> 激励模型 - 社区贡献奖励</li>
+                            <li><i class="fas fa-chart-bar"></i> 价值分配模型 - 收益共享机制</li>
+                            <li><i class="fas fa-code"></i> 流动性模型 - 自动做市商优化</li>
                         </ul>
                     </div>
                     
@@ -1546,8 +1649,8 @@
                         </div>
                         
                         <div class="card-actions">
-                            <button class="action-button action-primary" style="background: linear-gradient(135deg, var(--secondary), #c084fc);">
-                                <i class="fas fa-shopping-cart"></i>
+                            <button class="card-action-button card-action-primary" style="background: linear-gradient(135deg, var(--secondary), #c084fc);">
+                                <i class="action-button-icon fas fa-shopping-cart"></i>
                                 浏览模型市场
                             </button>
                         </div>
@@ -1595,6 +1698,38 @@
                 lineBackground.appendChild(svg);
             }
             
+            // H字母交互效果
+            const hInteractive = document.querySelector('.h-interactive');
+            
+            // H字母鼠标交互效果
+            hInteractive.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.2) rotate(5deg)';
+                this.style.filter = 'drop-shadow(0 0 30px rgba(0, 102, 255, 0.8))';
+                this.style.animation = 'none';
+            });
+            
+            hInteractive.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1) rotate(0deg)';
+                this.style.filter = 'drop-shadow(0 0 20px rgba(0, 102, 255, 0.3))';
+                this.style.animation = 'hGlow 3s ease-in-out infinite';
+            });
+            
+            // H字母点击效果
+            hInteractive.addEventListener('click', function() {
+                this.style.transform = 'scale(1.3) rotate(-5deg)';
+                this.style.filter = 'drop-shadow(0 0 40px rgba(0, 102, 255, 1))';
+                this.style.color = 'transparent';
+                this.style.background = 'linear-gradient(45deg, #00c6ff, #0066ff)';
+                this.style.webkitBackgroundClip = 'text';
+                this.style.backgroundClip = 'text';
+                
+                setTimeout(() => {
+                    this.style.transform = 'scale(1) rotate(0deg)';
+                    this.style.filter = 'drop-shadow(0 0 20px rgba(0, 102, 255, 0.3))';
+                    this.style.animation = 'hGlow 3s ease-in-out infinite';
+                }, 300);
+            });
+            
             // 初始化线条背景
             createLineBackground();
             
@@ -1637,20 +1772,25 @@
                     });
                     
                     // 然后根据按钮显示相应的卡片
-                    if (btnId === 'btnActivity') {
-                        allCards.forEach(card => card.style.display = 'block');
-                    } else if (btnId === 'btnModel') {
+                    if (btnId === 'btnOkx') {
                         allCards.forEach(card => {
-                            if (card.id === 'cardModel' || card.id === 'cardResource') {
+                            if (card.id === 'cardOkx') {
                                 card.style.display = 'block';
                             } else {
                                 card.style.display = 'none';
                             }
                         });
-                    } else if (btnId === 'btnWallet') {
+                    } else if (btnId === 'btnModel') {
+                        allCards.forEach(card => {
+                            if (card.id === 'cardModel') {
+                                card.style.display = 'block';
+                            } else {
+                                card.style.display = 'none';
+                            }
+                        });
+                    } else if (btnId === 'btnData') {
                         allCards.forEach(card => card.style.display = 'none');
-                        // 这里可以添加钱包相关卡片的显示逻辑
-                        alert('钱包功能即将上线，敬请期待！');
+                        alert('数据中心功能即将上线，敬请期待！');
                     }
                 });
             });
@@ -1697,7 +1837,7 @@
             });
             
             // 卡片内按钮点击事件
-            document.querySelectorAll('.action-primary').forEach(btn => {
+            document.querySelectorAll('.card-action-button').forEach(btn => {
                 btn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     const card = this.closest('.activity-card');
@@ -1711,14 +1851,9 @@
                         alert(`即将解锁资源: ${cardTitle}\n\n页面跳转中...`);
                     } else if (btnText.includes('浏览')) {
                         alert(`即将浏览模型: ${cardTitle}\n\n页面跳转中...`);
+                    } else if (btnText.includes('分享')) {
+                        alert('分享链接已复制到剪贴板！');
                     }
-                });
-            });
-            
-            document.querySelectorAll('.action-secondary').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    alert('分享链接已复制到剪贴板！');
                 });
             });
             
