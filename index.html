@@ -82,7 +82,7 @@
             }
         }
 
-        /* 海豚LOGO容器 - 确保显示 */
+        /* 海豚LOGO容器 */
         .dolphin-logo-container {
             display: flex;
             flex-direction: column;
@@ -91,7 +91,7 @@
             position: relative;
         }
 
-        /* 海豚动画 - 确保显示 */
+        /* 海豚动画 */
         .floating-dolphin {
             width: 120px;
             height: 120px;
@@ -116,37 +116,29 @@
             }
         }
 
-        /* 海豚图标 - 使用直接字体图标 */
+        /* 海豚图标 - 添加浅蓝色背景 */
         .dolphin-icon {
             width: 120px;
             height: 120px;
-            background: radial-gradient(circle at 30% 30%, rgba(0, 102, 255, 0.15), transparent 70%);
+            background: linear-gradient(135deg, rgba(173, 216, 230, 0.8), rgba(135, 206, 250, 0.9));
             border-radius: 50% 50% 45% 55% / 60% 60% 40% 40%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--primary);
+            color: #0066ff;
             font-size: 60px;
             position: relative;
             overflow: hidden;
             transition: var(--transition);
-            border: 2px solid rgba(0, 102, 255, 0.15);
-            box-shadow: 0 10px 30px rgba(0, 102, 255, 0.15);
-        }
-
-        /* 确保字体图标正确加载 */
-        @font-face {
-            font-family: 'Font Awesome 6 Free';
-            font-style: normal;
-            font-weight: 900;
-            font-display: block;
-            src: url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-solid-900.woff2") format("woff2");
+            border: 2px solid rgba(173, 216, 230, 0.5);
+            box-shadow: 0 10px 30px rgba(135, 206, 250, 0.3);
         }
 
         .dolphin-icon i {
             font-family: 'Font Awesome 6 Free';
             font-weight: 900;
             font-style: normal;
+            text-shadow: 0 2px 5px rgba(0, 102, 255, 0.2);
         }
 
         .dolphin-icon::before {
@@ -154,7 +146,7 @@
             position: absolute;
             width: 150%;
             height: 150%;
-            background: radial-gradient(circle at 30% 30%, rgba(0, 102, 255, 0.2) 0%, transparent 50%);
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3) 0%, transparent 50%);
             top: -25%;
             left: -25%;
             animation: lightMove 6s linear infinite;
@@ -170,7 +162,7 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            background: linear-gradient(45deg, transparent 40%, rgba(0, 102, 255, 0.2) 50%, transparent 60%);
+            background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.4) 50%, transparent 60%);
             animation: shine 3s ease-in-out infinite;
         }
 
@@ -401,16 +393,22 @@
             color: var(--secondary);
         }
 
-        /* 三个核心按钮 - 从左往右排列，优化字体效果 */
+        /* 三个核心按钮 - 从左往右排列 */
         .action-buttons {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             gap: 12px;
             margin-bottom: 24px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .action-buttons::-webkit-scrollbar {
+            display: none;
         }
 
         .action-btn {
-            flex: 1;
+            min-width: 100px;
             background: var(--card-bg);
             border: 1px solid rgba(0, 102, 255, 0.1);
             border-radius: 16px;
@@ -425,6 +423,7 @@
             position: relative;
             overflow: hidden;
             box-shadow: var(--card-shadow);
+            flex-shrink: 0;
         }
 
         .action-btn::before {
@@ -582,7 +581,7 @@
         /* 宣传语背景 - 在最底层，会被卡片遮住 */
         .promo-background {
             position: absolute;
-            top: 250px;
+            top: 320px; /* 下降6公分（约60px） */
             left: 0;
             right: 0;
             z-index: 1;
@@ -983,12 +982,12 @@
         /* 响应式设计 */
         @media (max-width: 768px) {
             .action-buttons {
-                flex-direction: column;
-                gap: 12px;
+                justify-content: flex-start;
             }
             
             .action-btn {
                 padding: 16px 12px;
+                min-width: 90px;
             }
             
             .user-nickname {
@@ -1013,7 +1012,7 @@
             }
             
             .promo-background {
-                top: 280px;
+                top: 350px;
                 height: 150px;
             }
         }
@@ -1043,7 +1042,7 @@
             }
             
             .promo-background {
-                top: 300px;
+                top: 370px;
                 height: 120px;
             }
         }
