@@ -1,83 +1,102 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
-    <title>H-Boost 损益计算器 · 经济模型验证</title>
+    <title>H-Boost 损益模拟器 · 阶梯积分版</title>
     <style>
         * {
             box-sizing: border-box;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
         body {
-            background: #f5f9fc;
+            background: #f0f6fc;
             margin: 0;
-            min-height: 100vh;
             padding: 2rem 1rem;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
         .container {
-            max-width: 1300px;
+            max-width: 1400px;
             width: 100%;
             background: white;
             border-radius: 36px;
-            box-shadow: 0 25px 40px -15px rgba(0,20,50,0.1);
+            box-shadow: 0 30px 45px -15px rgba(18,52,77,0.15);
             padding: 2rem 2rem 2.5rem;
         }
         h1 {
-            font-size: 2.2rem;
-            font-weight: 650;
-            margin: 0 0 0.25rem;
+            font-size: 2.1rem;
+            font-weight: 700;
+            margin: 0 0 0.2rem;
             letter-spacing: -0.01em;
-            background: linear-gradient(145deg, #0c2b44, #1d4e6e);
+            background: linear-gradient(145deg, #0a384b, #1d5770);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         .sub {
-            color: #3a6279;
-            font-size: 1rem;
+            color: #3a6075;
+            font-size: 0.95rem;
             margin-bottom: 2rem;
-            border-bottom: 1px solid #dbe7f0;
+            border-bottom: 1px solid #d2e3ed;
             padding-bottom: 1.2rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
         }
         .badge {
-            background: #1c4e6c;
+            background: #1f5770;
             color: white;
-            padding: 0.25rem 0.8rem;
-            border-radius: 50px;
-            font-size: 0.75rem;
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
             display: inline-block;
             margin-right: 0.5rem;
+        }
+        .mode-selector {
+            display: flex;
+            gap: 1.2rem;
+            background: #edf5fa;
+            padding: 0.4rem;
+            border-radius: 60px;
+        }
+        .mode-btn {
+            padding: 0.5rem 1.6rem;
+            border-radius: 40px;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            color: #1a4b5e;
+            cursor: pointer;
+            transition: 0.1s;
+            font-size: 0.9rem;
+        }
+        .mode-btn.active {
+            background: white;
+            box-shadow: 0 4px 10px rgba(0,60,100,0.08);
+            color: #0a3140;
         }
         .calculator-panel {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 2rem;
-            margin-top: 1.2rem;
+            margin-top: 1.8rem;
         }
-        @media (max-width: 900px) {
+        @media (max-width: 1000px) {
             .calculator-panel {
                 grid-template-columns: 1fr;
-                gap: 1.8rem;
             }
         }
-        .input-section {
-            background: #f6fbfe;
+        .input-section, .output-section {
+            background: #f7fcff;
             border-radius: 28px;
             padding: 1.8rem;
-            border: 1px solid #d1e2ee;
+            border: 1px solid #cbe0ec;
         }
         .output-section {
-            background: linear-gradient(145deg, #f1f8ff, #ffffff);
-            border-radius: 28px;
-            padding: 1.8rem;
-            border: 1px solid #cde0ed;
-            box-shadow: 0 8px 20px rgba(0,60,100,0.04);
+            background: linear-gradient(145deg, #f2faff, #ffffff);
         }
         .param-row {
             display: flex;
@@ -86,9 +105,9 @@
             margin-bottom: 1.2rem;
         }
         .param-label {
-            flex: 0 0 160px;
-            font-weight: 550;
-            color: #0e3a51;
+            flex: 0 0 150px;
+            font-weight: 600;
+            color: #13506b;
             font-size: 0.95rem;
         }
         .param-input {
@@ -98,22 +117,21 @@
             gap: 0.5rem;
         }
         input[type=number] {
-            width: 140px;
-            padding: 0.7rem 1rem;
-            border: 1px solid #b6d0e2;
-            border-radius: 18px;
+            width: 150px;
+            padding: 0.65rem 1rem;
+            border: 1px solid #b4cfdf;
+            border-radius: 20px;
             font-size: 1rem;
-            font-weight: 500;
             background: white;
             transition: 0.15s;
         }
         input[type=number]:focus {
-            border-color: #2a7faa;
+            border-color: #1f7f9c;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(42,127,170,0.1);
+            box-shadow: 0 0 0 3px rgba(31,127,156,0.1);
         }
         .unit {
-            color: #3e6c8a;
+            color: #3e6b80;
             font-size: 0.9rem;
         }
         .slider-container {
@@ -123,9 +141,9 @@
             flex-wrap: wrap;
         }
         input[type=range] {
-            width: 180px;
+            width: 170px;
             height: 6px;
-            background: #d0e0ec;
+            background: #c8ddec;
             border-radius: 10px;
             -webkit-appearance: none;
         }
@@ -133,9 +151,9 @@
             -webkit-appearance: none;
             width: 20px;
             height: 20px;
-            background: #1c6c9c;
+            background: #1b7a99;
             border-radius: 20px;
-            box-shadow: 0 4px 8px rgba(0,60,120,0.2);
+            box-shadow: 0 4px 8px rgba(0,60,100,0.2);
             cursor: pointer;
             border: 2px solid white;
         }
@@ -143,355 +161,493 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1.2rem;
-            margin: 1.5rem 0 0.8rem;
+            margin: 1.2rem 0;
         }
         .stat-card {
             background: white;
             border-radius: 18px;
             padding: 1rem 1.2rem;
-            border: 1px solid #e2edf5;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.01);
+            border: 1px solid #e1eef7;
         }
         .stat-label {
             font-size: 0.7rem;
             text-transform: uppercase;
-            color: #5b7f93;
+            color: #4f7589;
             letter-spacing: 0.5px;
             font-weight: 600;
         }
         .stat-number {
             font-size: 1.9rem;
             font-weight: 700;
-            color: #0a3142;
+            color: #0b3b4c;
             line-height: 1.1;
         }
         .stat-unit {
             font-size: 0.9rem;
-            color: #4f778b;
+            color: #3f738a;
             margin-left: 0.2rem;
         }
-        .stat-desc {
-            font-size: 0.8rem;
-            color: #416f82;
-            margin-top: 0.2rem;
-        }
         .highlight-green {
-            background: #dcf5e0;
-            color: #0e5832;
-            padding: 0.1rem 0.6rem;
+            background: #daf1e4;
+            color: #0a5e44;
+            padding: 0.2rem 0.8rem;
             border-radius: 30px;
             font-weight: 600;
         }
         .highlight-red {
-            background: #ffe0d9;
-            color: #a12b1d;
-            padding: 0.1rem 0.6rem;
+            background: #ffe1d6;
+            color: #aa3025;
+            padding: 0.2rem 0.8rem;
             border-radius: 30px;
             font-weight: 600;
         }
         .divider {
             height: 1px;
-            background: linear-gradient(90deg, transparent, #aac7db, transparent);
+            background: linear-gradient(90deg, transparent, #b0d0df, transparent);
             margin: 1.8rem 0 1.2rem;
         }
         .footnote {
             font-size: 0.8rem;
             color: #4e7085;
             margin-top: 1.2rem;
-            border-top: 1px solid #cde0eb;
             padding-top: 1.2rem;
+            border-top: 1px solid #cde0eb;
         }
         .protocol-check {
-            background: #e7f0fa;
+            background: #e3f0f5;
             padding: 1.2rem 1.5rem;
             border-radius: 20px;
             margin-top: 1.2rem;
         }
+        .ladder-table {
+            background: #f3f9fd;
+            border-radius: 18px;
+            padding: 1.2rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        .ladder-table table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+        }
+        .ladder-table th {
+            text-align: left;
+            color: #1a5a6e;
+            font-weight: 600;
+            font-size: 0.75rem;
+            padding: 0.4rem 0.2rem;
+        }
+        .ladder-table td {
+            padding: 0.3rem 0.2rem;
+            border-bottom: 1px solid #cde0eb;
+        }
+        .opt-tag {
+            background: #ffd966;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #3a3a00;
+        }
         button {
-            background: #19647e;
+            background: #1d6f8b;
             border: none;
             color: white;
             padding: 0.7rem 1.6rem;
             border-radius: 40px;
             font-weight: 600;
             font-size: 0.9rem;
-            border: 1px solid rgba(255,255,255,0.2);
             cursor: pointer;
             transition: 0.1s;
         }
         button:hover {
-            background: #0e4e66;
-        }
-        .veh-tag {
-            background: #ffe8c7;
-            color: #794f0a;
-            padding: 0.3rem 0.8rem;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            font-weight: 600;
+            background: #0e556d;
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>⚡ H-Boost 损益模拟器</h1>
+    <h1>⚡ H-Boost 阶梯积分模拟器</h1>
     <div class="sub">
-        <span class="badge">U本位0.5%/日</span>
+        <span class="badge">U质押0.5%/日</span>
         <span class="badge">5%交易税</span>
         <span class="badge">返佣0.34%</span>
-        <span class="badge">空投加成</span>
-        <span style="margin-left: 0.5rem;">实时计算 · 协议平衡线 · 薄底池杠杆验证</span>
+        <span class="badge">内置Rainbow阶梯</span>
+        <div class="mode-selector" id="modeSelector">
+            <button id="modeLinear" class="mode-btn active">📈 线性空投</button>
+            <button id="modeLadder" class="mode-btn">🎯 阶梯积分</button>
+        </div>
     </div>
 
     <div class="calculator-panel">
-        <!-- 左侧输入区 -->
+        <!-- ========= 左侧输入区 ========= -->
         <div class="input-section">
-            <h3 style="margin-top: 0; margin-bottom: 1.8rem; font-weight: 600; color: #104a66;">🔧 你的策略参数</h3>
-            
+            <h3 style="margin-top:0; margin-bottom:1.8rem; font-weight:600; color: #135664;">🔧 你的策略参数</h3>
+            <!-- 通用参数 -->
             <div class="param-row">
                 <span class="param-label">🔵 质押U金额</span>
                 <div class="param-input">
-                    <input type="number" id="stakeU" value="10000" step="1000" min="100" style="width: 160px;">
+                    <input type="number" id="stakeU" value="10000" step="1000" min="100">
                     <span class="unit">U</span>
                 </div>
             </div>
-
             <div class="param-row">
                 <span class="param-label">💎 H市场价</span>
                 <div class="param-input">
-                    <input type="number" id="hPrice" value="0.001" step="0.0001" min="0.0001" max="0.01" style="width: 160px;">
+                    <input type="number" id="hPrice" value="0.001" step="0.0001" min="0.0001" max="0.01">
                     <span class="unit">U</span>
                 </div>
             </div>
-
             <div class="param-row">
                 <span class="param-label">🧾 veH锁仓加成</span>
                 <div class="param-input slider-container">
                     <input type="range" id="boostMulti" min="1" max="3" step="0.1" value="1">
-                    <span id="boostValue" style="min-width: 60px; background: #e2eef7; padding: 0.3rem 0.9rem; border-radius: 40px; font-weight: 600;">1.0x</span>
+                    <span id="boostValue" style="min-width:60px; background:#e2eef7; padding:0.3rem 0.9rem; border-radius:40px; font-weight:600;">1.0x</span>
                 </div>
             </div>
 
-            <div class="param-row">
-                <span class="param-label">🎁 空投价值 (交易额%)</span>
-                <div class="param-input slider-container">
-                    <input type="range" id="airdropRate" min="0" max="5" step="0.1" value="1.5">
-                    <span id="airdropValue" style="min-width: 60px; background: #e2eef7; padding: 0.3rem 0.9rem; border-radius: 40px; font-weight: 600;">1.50%</span>
+            <!-- 线性模式参数 (默认显示) -->
+            <div id="linearParams">
+                <div class="param-row">
+                    <span class="param-label">🎁 空投价值 (交易额%)</span>
+                    <div class="param-input slider-container">
+                        <input type="range" id="airdropRate" min="0" max="5" step="0.1" value="1.5">
+                        <span id="airdropValue" style="min-width:60px; background:#e2eef7; padding:0.3rem 0.9rem; border-radius:40px; font-weight:600;">1.50%</span>
+                    </div>
                 </div>
             </div>
 
-            <div style="background: #d9eaf3; border-radius: 18px; padding: 1.2rem; margin-top: 1.8rem;">
-                <p style="margin: 0 0 0.5rem; font-weight: 600; color: #05435e;">📌 固定参数 (模型约束)</p>
-                <div style="display: flex; flex-wrap: wrap; gap: 0.8rem; font-size: 0.9rem;">
+            <!-- 阶梯模式参数 (默认隐藏) -->
+            <div id="ladderParams" style="display: none;">
+                <div style="background:#e4f2f5; border-radius:16px; padding:1.2rem; margin-bottom:1rem;">
+                    <span style="font-weight:700; color:#0a5468;">🏆 Rainbow 阶梯积分 (已预载)</span>
+                    <div class="ladder-table">
+                        <table>
+                            <thead><tr><th>交易量 (U)</th><th>积分</th><th>等效空投率*</th></tr></thead>
+                            <tbody id="ladderTbody">
+                                <!-- JS动态填充 -->
+                            </tbody>
+                        </table>
+                        <p style="font-size:0.7rem; margin-top:0.5rem;">*基于奖池350万RNBW、总积分38,000、RNBW=$0.1估算，实际可调</p>
+                    </div>
+                </div>
+                <div class="param-row">
+                    <span class="param-label">🎫 奖池总额 (RNBW)</span>
+                    <div class="param-input">
+                        <input type="number" id="prizePool" value="3500000" step="100000" min="0">
+                    </div>
+                </div>
+                <div class="param-row">
+                    <span class="param-label">📊 总交易积分</span>
+                    <div class="param-input">
+                        <input type="number" id="totalPoints" value="37996.64" step="100" min="1">
+                    </div>
+                </div>
+                <div class="param-row">
+                    <span class="param-label">💰 RNBW 估价 (U)</span>
+                    <div class="param-input">
+                        <input type="number" id="rnbwPrice" value="0.1" step="0.01" min="0.01">
+                        <span class="unit">U</span>
+                    </div>
+                </div>
+                <p style="font-size:0.8rem; color:#1f677d;">* 你的交易额将按达到的最高档位获得固定积分，非累加。</p>
+            </div>
+
+            <!-- 固定参数提示 -->
+            <div style="background:#d9eaf3; border-radius:18px; padding:1.2rem; margin-top:1.8rem;">
+                <p style="margin:0 0 0.5rem; font-weight:600; color:#05435e;">📌 固定协议参数</p>
+                <div style="display:flex; flex-wrap:wrap; gap:0.8rem; font-size:0.9rem;">
                     <span>📅 U质押日奖励: <strong>0.5%</strong> (U本位)</span>
                     <span>💸 交易税: <strong>5%</strong> 双向</span>
                     <span>↩️ OKX返佣: <strong>0.34%</strong> 交易额</span>
                     <span>🔄 回购分配: 80%返池 / 20%销毁</span>
                 </div>
             </div>
-            <p style="font-size: 0.8rem; color: #3a6072; margin-top: 1rem;">* 空投价值指你每笔交易额对应的额外代币奖励折合U比例。OKX Boost历史多在1%~3%之间。</p>
         </div>
 
-        <!-- 右侧输出区 -->
+        <!-- ========= 右侧输出区 ========= -->
         <div class="output-section">
-            <h3 style="margin-top: 0; margin-bottom: 1.8rem; font-weight: 600; color: #104a66;">📊 你的每日损益</h3>
-            
-            <!-- 主要收益卡片 -->
-            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+            <h3 style="margin-top:0; margin-bottom:1.8rem; font-weight:600; color: #135664;">📊 你的每日损益</h3>
+            <!-- 每日H奖励 -->
+            <div style="display:flex; justify-content:space-between; align-items:baseline;">
                 <span class="stat-label">💰 每日H奖励 (U等值)</span>
-                <span style="font-size: 1.8rem; font-weight: 700; color: #0e5a4a;" id="dailyRewardU">50.00</span>
+                <span style="font-size:1.8rem; font-weight:700; color:#0e5a4a;" id="dailyRewardU">50.00</span>
                 <span class="unit">U</span>
             </div>
-            <div style="display: flex; justify-content: space-between; margin-top: 0.2rem;">
+            <div style="display:flex; justify-content:space-between; margin-top:0.2rem;">
                 <span class="stat-label">┕ 对应H数量</span>
-                <span style="font-weight: 600;" id="dailyHAmount">50,000</span>
+                <span style="font-weight:600;" id="dailyHAmount">50,000</span>
                 <span class="unit">H</span>
             </div>
-            
-            <div class="stat-grid">
-                <div class="stat-card">
-                    <div class="stat-label">📉 交易磨损 (5%税)</div>
-                    <div style="font-size: 1.6rem; font-weight: 700;" id="taxAmount">2.50</div>
-                    <span class="unit">U等值</span>
-                    <div class="stat-desc" id="taxH">-2,500 H</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">🎁 空投收益</div>
-                    <div style="font-size: 1.6rem; font-weight: 700;" id="airdropAmount">0.75</div>
-                    <span class="unit">U</span>
-                    <div class="stat-desc" id="airdropRateShow">1.50% 交易额</div>
-                </div>
+            <!-- 交易磨损 -->
+            <div style="display:flex; justify-content:space-between; margin-top:0.5rem;">
+                <span class="stat-label">📉 交易磨损 (5%税)</span>
+                <span style="font-weight:600;" id="taxAmount">2.50</span>
+                <span class="unit">U等值</span>
             </div>
-
-            <!-- 净收益 -->
-            <div style="background: #dff0f9; border-radius: 24px; padding: 1.2rem 1.5rem; margin: 0.8rem 0 1.2rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-weight: 600; font-size: 1.1rem;">✅ 净日收益 (U)</span>
-                    <span style="font-size: 2.2rem; font-weight: 800; color: #0b543a;" id="netProfitU">48.25</span>
+            <!-- 空投收益 (动态) -->
+            <div style="display:flex; justify-content:space-between; margin-top:0.2rem;">
+                <span class="stat-label" id="airdropLabel">🎁 空投收益 (线性)</span>
+                <span style="font-weight:600;" id="airdropAmount">0.75</span>
+                <span class="unit">U</span>
+            </div>
+            <!-- 净收益卡片 -->
+            <div style="background:#dff0f9; border-radius:24px; padding:1.2rem 1.5rem; margin:1.2rem 0;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:600; font-size:1.1rem;">✅ 净日收益 (U)</span>
+                    <span style="font-size:2.2rem; font-weight:800; color:#0b543a;" id="netProfitU">48.25</span>
                     <span class="unit">U</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; margin-top: 0.2rem;">
+                <div style="display:flex; justify-content:space-between; margin-top:0.2rem;">
                     <span>年化收益率 (基于质押U)</span>
-                    <span style="font-weight: 700; background: #c1e5d8; padding: 0.2rem 1rem; border-radius: 50px;" id="aprValue">176.1%</span>
+                    <span style="font-weight:700; background:#c1e5d8; padding:0.2rem 1rem; border-radius:50px;" id="aprValue">176.1%</span>
                 </div>
             </div>
 
-            <!-- 协议平衡监测 -->
+            <!-- 阶梯模式最优档位提示 (仅阶梯显示) -->
+            <div id="ladderOptDiv" style="display: none; background:#ffefc0; border-radius:16px; padding:0.8rem 1.2rem; margin-bottom:1rem;">
+                <span style="font-weight:700;">🎯 推荐刷量档位: </span><span id="optLadderTip">$8,000 (得5积分)</span>
+                <span style="margin-left:0.5rem; font-size:0.85rem;">边际空投率 <span id="optMarginRate">0.575%</span></span>
+            </div>
+
+            <!-- 协议红线监测 (全球参数) -->
             <div class="protocol-check">
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.8rem;">
-                    <span style="background: #2c8392; width: 10px; height: 10px; border-radius: 10px;"></span>
-                    <span style="font-weight: 600; color: #063b4a;">⚖️ 协议收支红线 (9.36%)</span>
+                <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.8rem;">
+                    <span style="background:#2c8392; width:10px; height:10px; border-radius:10px;"></span>
+                    <span style="font-weight:600; color:#063b4a;">⚖️ 协议收支红线 (9.36%)</span>
                 </div>
-                <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
-                    <span>当前全网TVL_U (假设)</span>
-                    <span style="font-weight: 700;"><span id="tvlDisplay">1,000,000</span> U</span>
+                <div style="display:flex; flex-wrap:wrap; justify-content:space-between;">
+                    <span>全网TVL_U</span>
+                    <span style="font-weight:700;"><span id="tvlDisplay">1,000,000</span> U</span>
                 </div>
-                <div style="display: flex; flex-wrap: wrap; justify-content: space-between; margin-top: 0.3rem;">
+                <div style="display:flex; flex-wrap:wrap; justify-content:space-between; margin-top:0.3rem;">
                     <span>所需最小日交易额</span>
-                    <span style="font-weight: 700;"><span id="requiredTxVolume">93,600</span> U</span>
+                    <span style="font-weight:700;"><span id="requiredTxVolume">93,600</span> U</span>
                 </div>
-                <div style="display: flex; flex-wrap: wrap; justify-content: space-between; margin-top: 0.3rem;">
-                    <span>你的个人交易额</span>
-                    <span style="font-weight: 700;" id="userTxVolume">50.00</span> <span class="unit">U</span>
+                <div style="display:flex; flex-wrap:wrap; justify-content:space-between; margin-top:0.3rem;">
+                    <span>你的个人日交易额</span>
+                    <span style="font-weight:700;" id="userTxVolume">50.00</span> <span class="unit">U</span>
                 </div>
-                <div style="margin-top: 0.8rem; padding: 0.6rem 1rem; background: rgba(255,255,255,0.5); border-radius: 20px;" id="protocolStatus">
+                <div style="margin-top:0.8rem; padding:0.6rem 1rem; background:rgba(255,255,255,0.7); border-radius:20px;" id="protocolStatus">
                     ⚠️ 个人交易额不影响红线，需全网合力
                 </div>
             </div>
-            <p style="font-size: 0.75rem; color: #4e6d7d; margin-top: 0.8rem;">* 协议红线指全网H日交易额 ≥ TVL_U × 9.36%。此处TVL_U默认100万U，可在下方调整。</p>
         </div>
     </div>
 
-    <!-- 全网参数快速调节（简易） -->
-    <div style="margin-top: 1.5rem; background: #ecf3fa; border-radius: 26px; padding: 1.2rem 1.8rem;">
-        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 2rem;">
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <span style="font-weight: 600; color: #0a4055;">🌍 全网TVL_U (U质押总量)</span>
-                <input type="number" id="globalTvl" value="1000000" step="100000" min="100000" style="width: 150px; padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid #acc3d6;">
-                <span class="unit">U</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <span style="font-weight: 600; color: #0a4055;">🌍 全网H日交易额</span>
-                <input type="number" id="globalTx" value="100000" step="10000" min="0" style="width: 150px; padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid #acc3d6;">
-                <span class="unit">U</span>
-            </div>
-            <button id="updateGlobalBtn">更新红线状态</button>
+    <!-- 全网参数调节栏 -->
+    <div style="margin-top:1.8rem; background:#ecf3fa; border-radius:26px; padding:1.2rem 1.8rem; display:flex; flex-wrap:wrap; align-items:center; gap:2rem;">
+        <div style="display:flex; align-items:center; gap:1rem;">
+            <span style="font-weight:600; color:#0a4055;">🌍 全网TVL_U (U质押总量)</span>
+            <input type="number" id="globalTvl" value="1000000" step="100000" min="100000" style="width:150px; padding:0.5rem 1rem; border-radius:20px; border:1px solid #acc3d6;">
+            <span class="unit">U</span>
         </div>
+        <div style="display:flex; align-items:center; gap:1rem;">
+            <span style="font-weight:600; color:#0a4055;">🌍 全网H日交易额</span>
+            <input type="number" id="globalTx" value="100000" step="10000" min="0" style="width:150px; padding:0.5rem 1rem; border-radius:20px; border:1px solid #acc3d6;">
+            <span class="unit">U</span>
+        </div>
+        <button id="updateGlobalBtn">更新红线状态</button>
     </div>
 
-    <!-- 详细解释与磨损结论 -->
     <div class="divider"></div>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.8rem;">
-        <div style="background: #f4fafd; padding: 1.5rem; border-radius: 24px;">
-            <span style="font-size: 1.4rem; margin-right: 0.3rem;">🧮</span>
-            <span style="font-weight: 700; font-size: 1.1rem;">用户损益公式</span>
-            <ul style="margin-top: 0.8rem; list-style: none; padding-left: 0;">
-                <li style="margin-bottom: 0.4rem;">• 每日H奖励(U) = 质押U × 0.5%</li>
-                <li style="margin-bottom: 0.4rem;">• 交易额(U) = 每日H奖励(U)（全部卖出）</li>
-                <li style="margin-bottom: 0.4rem;">• 交易税 = 交易额 × 5%</li>
-                <li style="margin-bottom: 0.4rem;">• 空投收益 = 交易额 × 空投率</li>
-                <li style="margin-bottom: 0.4rem;">• <strong>净收益 = H奖励 - 交易税 + 空投</strong></li>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.8rem;">
+        <div style="background:#f4fafd; padding:1.5rem; border-radius:24px;">
+            <span style="font-size:1.4rem; margin-right:0.3rem;">🧮</span>
+            <span style="font-weight:700; font-size:1.1rem;">用户损益核心公式</span>
+            <ul style="margin-top:0.8rem; list-style:none; padding-left:0;">
+                <li style="margin-bottom:0.4rem;">• 每日H奖励(U) = 质押U × 0.5% × veH加成</li>
+                <li style="margin-bottom:0.4rem;">• 交易额 = 每日H奖励(U)（全部卖出）</li>
+                <li style="margin-bottom:0.4rem;">• 交易税 = 交易额 × 5%</li>
+                <li style="margin-bottom:0.4rem;">• 空投收益 = 线性模式: 交易额×比例；阶梯模式: 积分价值</li>
+                <li style="margin-bottom:0.4rem;"><strong>净收益 = H奖励 - 交易税 + 空投</strong></li>
             </ul>
-            <p style="margin-top: 0.4rem; font-size: 0.9rem;">✅ <strong>只要空投率 > 0%，净收益即大于47.5U/万U（H价0.001）。磨损完全由白嫖的H覆盖。</strong></p>
         </div>
-        <div style="background: #e6f0f5; padding: 1.5rem; border-radius: 24px;">
-            <span style="font-size: 1.4rem; margin-right: 0.3rem;">🛡️</span>
-            <span style="font-weight: 700; font-size: 1.1rem;">协议健康指标</span>
-            <ul style="margin-top: 0.8rem; list-style: none; padding-left: 0;">
-                <li style="margin-bottom: 0.4rem;">• 协议日收入 = 全网H交易额 × 5.34%</li>
-                <li style="margin-bottom: 0.4rem;">• 日支出 = TVL_U × 0.5%</li>
-                <li style="margin-bottom: 0.4rem;">• <strong>平衡条件：交易额 ≥ TVL × 9.36%</strong></li>
-                <li style="margin-bottom: 0.4rem;">• 当前全网状态：<span id="globalStatusBadge">⚖️ 计算中</span></li>
-            </ul>
+        <div style="background:#e6f0f5; padding:1.5rem; border-radius:24px;" id="strategyTip">
+            <span style="font-size:1.4rem; margin-right:0.3rem;">💡</span>
+            <span style="font-weight:700; font-size:1.1rem;">当前策略建议</span>
+            <p style="margin-top:0.8rem;" id="strategyText">线性模式下，空投价值越高越赚；阶梯模式下请选择最优档位。</p>
         </div>
     </div>
     <div class="footnote">
-        ⚡ 本计算器基于经济模型白皮书v2.6。薄底池下H价格上涨会减少奖励枚数，但用户U本位收益不变，且协议平衡所需交易量(枚)下降。用户净收益始终为正（空投＞0）。所有数据实时更新。
+        ⚡ 阶梯积分基于 Rainbow 活动参数：奖池350万RNBW，总积分38,000，RNBW=$0.1。可手动调整。所有结果实时计算。
     </div>
 </div>
 
 <script>
     (function() {
-        // DOM 元素绑定
+        'use strict';
+
+        // ----- 元素绑定 -----
         const stakeU = document.getElementById('stakeU');
         const hPrice = document.getElementById('hPrice');
         const boostMulti = document.getElementById('boostMulti');
         const boostValue = document.getElementById('boostValue');
+        // 线性
         const airdropRate = document.getElementById('airdropRate');
         const airdropValue = document.getElementById('airdropValue');
+        // 阶梯
+        const prizePool = document.getElementById('prizePool');
+        const totalPoints = document.getElementById('totalPoints');
+        const rnbwPrice = document.getElementById('rnbwPrice');
+        // 全局
         const globalTvl = document.getElementById('globalTvl');
         const globalTx = document.getElementById('globalTx');
 
-        // 输出字段
+        // 输出
         const dailyRewardU = document.getElementById('dailyRewardU');
         const dailyHAmount = document.getElementById('dailyHAmount');
         const taxAmount = document.getElementById('taxAmount');
-        const taxH = document.getElementById('taxH');
         const airdropAmount = document.getElementById('airdropAmount');
-        const airdropRateShow = document.getElementById('airdropRateShow');
+        const airdropLabel = document.getElementById('airdropLabel');
         const netProfitU = document.getElementById('netProfitU');
         const aprValue = document.getElementById('aprValue');
-        const requiredTxVolume = document.getElementById('requiredTxVolume');
         const userTxVolume = document.getElementById('userTxVolume');
         const tvlDisplay = document.getElementById('tvlDisplay');
+        const requiredTxVolume = document.getElementById('requiredTxVolume');
         const protocolStatus = document.getElementById('protocolStatus');
-        const globalStatusBadge = document.getElementById('globalStatusBadge');
+        const ladderOptDiv = document.getElementById('ladderOptDiv');
+        const optLadderTip = document.getElementById('optLadderTip');
+        const optMarginRate = document.getElementById('optMarginRate');
+        const strategyText = document.getElementById('strategyText');
 
-        // 更新所有计算
+        // 模式切换
+        const modeLinearBtn = document.getElementById('modeLinear');
+        const modeLadderBtn = document.getElementById('modeLadder');
+        const linearParams = document.getElementById('linearParams');
+        const ladderParams = document.getElementById('ladderParams');
+
+        // 阶梯表格填充
+        const ladderTbody = document.getElementById('ladderTbody');
+
+        // ----- 阶梯数据 (Rainbow) -----
+        const ladderSteps = [
+            { volume: 500, points: 1 },
+            { volume: 1000, points: 2 },
+            { volume: 2000, points: 3 },
+            { volume: 4000, points: 4 },
+            { volume: 8000, points: 5 },
+            { volume: 16000, points: 6 },
+            { volume: 32000, points: 7 },
+            { volume: 64000, points: 8 }
+        ];
+
+        // 渲染阶梯表格
+        function renderLadderTable() {
+            let html = '';
+            const pool = parseFloat(prizePool.value) || 3500000;
+            const total = parseFloat(totalPoints.value) || 37996.64;
+            const price = parseFloat(rnbwPrice.value) || 0.1;
+            const pointValueU = (pool / total) * price; // 每积分价值 U
+
+            ladderSteps.forEach(step => {
+                const equivRate = (step.points * pointValueU / step.volume * 100).toFixed(3);
+                html += `<tr><td>$${step.volume.toLocaleString()}</td><td>${step.points}</td><td>${equivRate}%</td></tr>`;
+            });
+            ladderTbody.innerHTML = html;
+        }
+
+        // ----- 计算积分档位 (返回积分, 档位交易量) -----
+        function getLadderPoints(txVolumeU) {
+            let points = 0;
+            let achievedVolume = 0;
+            for (let i = ladderSteps.length - 1; i >= 0; i--) {
+                if (txVolumeU >= ladderSteps[i].volume) {
+                    points = ladderSteps[i].points;
+                    achievedVolume = ladderSteps[i].volume;
+                    break;
+                }
+            }
+            return { points, achievedVolume };
+        }
+
+        // ----- 计算最优档位 (边际收益最高) -----
+        function calcOptimalLadder() {
+            const pool = parseFloat(prizePool.value) || 3500000;
+            const total = parseFloat(totalPoints.value) || 37996.64;
+            const price = parseFloat(rnbwPrice.value) || 0.1;
+            const pointValueU = (pool / total) * price;
+
+            let bestMargin = 0;
+            let bestVolume = 0;
+            let bestPoints = 0;
+            for (let i = 0; i < ladderSteps.length; i++) {
+                const vol = ladderSteps[i].volume;
+                const pts = ladderSteps[i].points;
+                const airdropU = pts * pointValueU;
+                const marginRate = airdropU / vol; // 边际空投率
+                if (marginRate > bestMargin) {
+                    bestMargin = marginRate;
+                    bestVolume = vol;
+                    bestPoints = pts;
+                }
+            }
+            return { volume: bestVolume, points: bestPoints, marginRate: bestMargin * 100 }; // %
+        }
+
+        // ----- 核心更新函数 -----
         function updateAll() {
-            // 读取输入
+            // 读取公共参数
             let stake = parseFloat(stakeU.value) || 10000;
             let price = parseFloat(hPrice.value) || 0.001;
             let boost = parseFloat(boostMulti.value) || 1.0;
-            let airdrop = parseFloat(airdropRate.value) || 1.5;
             let tvlGlobal = parseFloat(globalTvl.value) || 1000000;
             let txGlobal = parseFloat(globalTx.value) || 100000;
 
-            // 限制最小值
             if (stake < 100) stake = 100;
             if (price < 0.0001) price = 0.0001;
-            if (airdrop < 0) airdrop = 0;
             if (tvlGlobal < 10000) tvlGlobal = 10000;
 
-            // 显示加成百分比
             boostValue.innerText = boost.toFixed(1) + 'x';
-            airdropValue.innerText = airdrop.toFixed(2) + '%';
 
-            // 1. 每日H奖励（U等值） = 质押U * 0.5% * 加成
+            // --- 1. 每日H奖励 (U等值) ---
             let rewardU = stake * 0.005 * boost;
-            // 2. 对应H数量
             let rewardH = rewardU / price;
-            // 3. 交易额（假设全部卖出/交易）= rewardU （因为卖出获得U等值，但交易额按U本位也是rewardU）
-            let txVolumeUser = rewardU;   // 你刷的交易额，U本位
-            // 4. 交易税 (5%)，U等值
+            let txVolumeUser = rewardU; // 用户刷的交易额（U）
+
+            // --- 2. 交易磨损 ---
             let taxU = txVolumeUser * 0.05;
-            let taxHAmount = taxU / price;
-            // 5. 空投收益 (交易额 * 空投率%)
-            let airdropU = txVolumeUser * (airdrop / 100);
-            // 6. 净收益U
+            let taxH = taxU / price;
+
+            // --- 3. 空投收益 (根据模式) ---
+            let airdropU = 0;
+            let isLadderMode = ladderParams.style.display !== 'none';
+            if (isLadderMode) {
+                // 阶梯模式
+                const pool = parseFloat(prizePool.value) || 3500000;
+                const total = parseFloat(totalPoints.value) || 37996.64;
+                const rnbwPriceU = parseFloat(rnbwPrice.value) || 0.1;
+                const pointValueU = (pool / total) * rnbwPriceU;
+                const { points } = getLadderPoints(txVolumeUser);
+                airdropU = points * pointValueU;
+                airdropLabel.innerText = '🎁 空投收益 (阶梯)';
+                // 显示最优档位提示
+                ladderOptDiv.style.display = 'block';
+                const opt = calcOptimalLadder();
+                optLadderTip.innerText = `$${opt.volume.toLocaleString()} (得${opt.points}积分)`;
+                optMarginRate.innerText = opt.marginRate.toFixed(3) + '%';
+                // 策略建议
+                if (txVolumeUser < opt.volume) {
+                    strategyText.innerText = `📉 当前交易额$${txVolumeUser.toFixed(2)}，未达到最优档位$${opt.volume}。考虑锁仓veH增加额度或累积多日H再刷。`;
+                } else {
+                    strategyText.innerText = `✅ 已达到最优档位$${opt.volume}，边际空投率${opt.marginRate.toFixed(3)}%。继续刷量边际收益降低，建议复投锁仓。`;
+                }
+            } else {
+                // 线性模式
+                let airdropPercent = parseFloat(airdropRate.value) || 1.5;
+                airdropU = txVolumeUser * (airdropPercent / 100);
+                airdropLabel.innerText = '🎁 空投收益 (线性)';
+                ladderOptDiv.style.display = 'none';
+                strategyText.innerText = `线性模式下，净收益与空投率正相关。当前空投率 ${airdropPercent}% 磨损后仍盈利。`;
+            }
+
+            // --- 4. 净收益 & 年化 ---
             let netU = rewardU - taxU + airdropU;
-            // 7. 年化 (基于质押U)
             let apr = (netU / stake) * 365 * 100;
 
-            // 更新UI
-            dailyRewardU.innerText = rewardU.toFixed(2);
-            dailyHAmount.innerText = Math.round(rewardH).toLocaleString();
-            taxAmount.innerText = taxU.toFixed(2);
-            taxH.innerText = '-' + Math.round(taxHAmount).toLocaleString() + ' H';
-            airdropAmount.innerText = airdropU.toFixed(2);
-            airdropRateShow.innerText = airdrop.toFixed(2) + '% 交易额';
-            netProfitU.innerText = netU.toFixed(2);
-            aprValue.innerText = apr.toFixed(1) + '%';
-            
-            // 用户交易额展示
-            userTxVolume.innerText = txVolumeUser.toFixed(2);
-
-            // 协议侧: 所需最小日交易额 = TVL * 9.36%
+            // --- 5. 协议红线 ---
             let requiredTx = tvlGlobal * 0.0936;
-            requiredTxVolume.innerText = Math.round(requiredTx).toLocaleString();
-            tvlDisplay.innerText = Math.round(tvlGlobal).toLocaleString();
-
-            // 全网状态判断
             let statusText = '';
             let statusClass = '';
             if (txGlobal >= requiredTx) {
@@ -502,26 +658,69 @@
                 statusText = `⚠️ 交易额不足 (当前 ${percent}%) 协议处于消耗奖励池状态`;
                 statusClass = 'highlight-red';
             }
-            protocolStatus.innerHTML = `<span class="${statusClass}">${statusText}</span>`;
-            globalStatusBadge.innerText = txGlobal >= requiredTx ? '✅ 达标' : '⚠️ 不足';
 
-            // 额外提示：个人交易额不影响红线，但展示个人贡献
+            // ----- 更新UI -----
+            dailyRewardU.innerText = rewardU.toFixed(2);
+            dailyHAmount.innerText = Math.round(rewardH).toLocaleString();
+            taxAmount.innerText = taxU.toFixed(2);
+            airdropAmount.innerText = airdropU.toFixed(2);
+            netProfitU.innerText = netU.toFixed(2);
+            aprValue.innerText = apr.toFixed(1) + '%';
+            userTxVolume.innerText = txVolumeUser.toFixed(2);
+            tvlDisplay.innerText = Math.round(tvlGlobal).toLocaleString();
+            requiredTxVolume.innerText = Math.round(requiredTx).toLocaleString();
+            protocolStatus.innerHTML = `<span class="${statusClass}">${statusText}</span>`;
+
+            // 线性模式下滑块百分比显示
+            if (!isLadderMode) {
+                let airdropPercent = parseFloat(airdropRate.value) || 1.5;
+                airdropValue.innerText = airdropPercent.toFixed(2) + '%';
+            }
+
+            // 更新阶梯表格 (保证积分价值实时)
+            renderLadderTable();
         }
 
-        // 监听所有输入事件
+        // ----- 模式切换逻辑 -----
+        function setMode(mode) {
+            if (mode === 'linear') {
+                linearParams.style.display = 'block';
+                ladderParams.style.display = 'none';
+                modeLinearBtn.classList.add('active');
+                modeLadderBtn.classList.remove('active');
+                ladderOptDiv.style.display = 'none';
+            } else {
+                linearParams.style.display = 'none';
+                ladderParams.style.display = 'block';
+                modeLadderBtn.classList.add('active');
+                modeLinearBtn.classList.remove('active');
+                // 阶梯opt显示由update控制
+                renderLadderTable();
+            }
+            updateAll();
+        }
+
+        // ----- 事件监听 -----
+        modeLinearBtn.addEventListener('click', () => setMode('linear'));
+        modeLadderBtn.addEventListener('click', () => setMode('ladder'));
+
+        // 输入事件
         stakeU.addEventListener('input', updateAll);
         hPrice.addEventListener('input', updateAll);
         boostMulti.addEventListener('input', updateAll);
         airdropRate.addEventListener('input', updateAll);
+        prizePool.addEventListener('input', updateAll);
+        totalPoints.addEventListener('input', updateAll);
+        rnbwPrice.addEventListener('input', updateAll);
         globalTvl.addEventListener('input', updateAll);
         globalTx.addEventListener('input', updateAll);
         document.getElementById('updateGlobalBtn').addEventListener('click', updateAll);
 
         // 初始化
+        setMode('linear'); // 默认线性
         updateAll();
     })();
 </script>
 
-<!-- 注：完全适配移动端，无需外部依赖 -->
 </body>
 </html>
