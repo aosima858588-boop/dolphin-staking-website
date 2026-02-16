@@ -57,6 +57,16 @@ function getStorageKey() {
     return userId ? `tasks_${userId}` : 'tasks';
 }
 
+// 安全的优先级颜色映射
+function getPriorityColor(priority) {
+    const colorMap = {
+        'high': 'red',
+        'medium': 'orange',
+        'low': 'green'
+    };
+    return colorMap[priority] || 'black';
+}
+
 function renderTasks() {
     const taskList = document.getElementById('taskList');
     taskList.innerHTML = '';
@@ -65,7 +75,7 @@ function renderTasks() {
         
         // 创建安全的元素避免XSS
         const prioritySpan = document.createElement('span');
-        prioritySpan.style.color = task.priority;
+        prioritySpan.style.color = getPriorityColor(task.priority);
         prioritySpan.textContent = `[${task.priority}]`;
         
         const titleText = document.createTextNode(` ${task.title} `);
