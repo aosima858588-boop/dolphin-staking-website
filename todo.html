@@ -1,1 +1,101 @@
-<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>To-Do List Application</title>\n    <link rel="stylesheet" href="styles.css">\n</head>\n<body>\n    <div class="container">\n        <h1>My To-Do List</h1>\n        <div class="form-group">\n            <input type="text" id="taskInput" placeholder="Add a new task...">\n            <button id="addTaskBtn">Add Task</button>\n        </div>\n        <div class="filters">\n            <select id="categoryFilter">\n                <option value="all">All</option>\n                <option value="work">Work</option>\n                <option value="personal">Personal</option>\n            </select>\n            <select id="priorityFilter">\n                <option value="all">All</option>\n                <option value="high">High</option>\n                <option value="medium">Medium</option>\n                <option value="low">Low</option>\n            </select>\n        </div>\n        <ul id="taskList"></ul>\n    </div>\n    <script src="app.js"></script>\n</body>\n</html>\n\n<script>\nconst tasks = JSON.parse(localStorage.getItem('tasks')) || [];\n\nfunction renderTasks() {\n    const taskList = document.getElementById('taskList');\n    taskList.innerHTML = '';\n    tasks.forEach((task, index) => {\n        const li = document.createElement('li');\n        li.innerHTML = `\n            <span style="color:${task.priority}">[${task.priority}]</span> ${task.title} \n            <button onclick="editTask(${index})">Edit</button> \n            <button onclick="deleteTask(${index})">Delete</button>\n        `;\n        taskList.appendChild(li);\n    });\n}\n\nfunction addTask() {\n    const taskInput = document.getElementById('taskInput');\n    const newTask = {\n        title: taskInput.value,\n        priority: document.querySelector('input[name="priority"]:checked').value || 'medium',\n    };\n    tasks.push(newTask);\n    localStorage.setItem('tasks', JSON.stringify(tasks));\n    taskInput.value = '';\n    renderTasks();\n}\n\ndocument.getElementById('addTaskBtn').addEventListener('click', addTask);\n\nfunction editTask(index) {\n    const title = prompt('Edit task title:', tasks[index].title);\n    if (title) {\n        tasks[index].title = title;\n        localStorage.setItem('tasks', JSON.stringify(tasks));\n        renderTasks();\n    }\n}\n\nfunction deleteTask(index) {\n    tasks.splice(index, 1);\n    localStorage.setItem('tasks', JSON.stringify(tasks));\n    renderTasks();\n}\n\nrenderTasks();\n</script>\n
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List Application</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>My To-Do List</h1>
+        <div id="user-info" style="margin-bottom: 20px; padding: 10px; background: #f0f0f0; border-radius: 5px;">
+            <p><strong>用户ID:</strong> <span id="user-id-display">未提供</span></p>
+        </div>
+        <div class="form-group">
+            <input type="text" id="taskInput" placeholder="Add a new task...">
+            <button id="addTaskBtn">Add Task</button>
+        </div>
+        <div class="filters">
+            <select id="categoryFilter">
+                <option value="all">All</option>
+                <option value="work">Work</option>
+                <option value="personal">Personal</option>
+            </select>
+            <select id="priorityFilter">
+                <option value="all">All</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+            </select>
+        </div>
+        <ul id="taskList"></ul>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
+
+<script>
+// 从URL参数中提取用户ID
+const urlParams = new URLSearchParams(window.location.search);
+const userId = urlParams.get('id');
+
+// 显示用户ID
+if (userId) {
+    document.getElementById('user-id-display').textContent = userId;
+    // 使用用户ID作为localStorage key的一部分，实现个性化数据存储
+    const storageKey = `tasks_${userId}`;
+    var tasks = JSON.parse(localStorage.getItem(storageKey)) || [];
+} else {
+    var tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+}
+
+function getStorageKey() {
+    return userId ? `tasks_${userId}` : 'tasks';
+}
+
+function renderTasks() {
+    const taskList = document.getElementById('taskList');
+    taskList.innerHTML = '';
+    tasks.forEach((task, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <span style="color:${task.priority}">[${task.priority}]</span> ${task.title} 
+            <button onclick="editTask(${index})">Edit</button> 
+            <button onclick="deleteTask(${index})">Delete</button>
+        `;
+        taskList.appendChild(li);
+    });
+}
+
+function addTask() {
+    const taskInput = document.getElementById('taskInput');
+    const newTask = {
+        title: taskInput.value,
+        priority: document.querySelector('input[name="priority"]:checked')?.value || 'medium',
+    };
+    tasks.push(newTask);
+    localStorage.setItem(getStorageKey(), JSON.stringify(tasks));
+    taskInput.value = '';
+    renderTasks();
+}
+
+document.getElementById('addTaskBtn').addEventListener('click', addTask);
+
+function editTask(index) {
+    const title = prompt('Edit task title:', tasks[index].title);
+    if (title) {
+        tasks[index].title = title;
+        localStorage.setItem(getStorageKey(), JSON.stringify(tasks));
+        renderTasks();
+    }
+}
+
+function deleteTask(index) {
+    tasks.splice(index, 1);
+    localStorage.setItem(getStorageKey(), JSON.stringify(tasks));
+    renderTasks();
+}
+
+renderTasks();
+</script>\n

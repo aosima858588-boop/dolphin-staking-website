@@ -197,6 +197,7 @@
             border-top-color: transparent;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
+            display: inline-block;
         }
 
         @keyframes spin {
@@ -289,7 +290,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>🐬 海豚链上赚币</h1>
+            <h1><span aria-hidden="true">🐬</span> 海豚链上赚币</h1>
             <p>用户查询系统 - 请输入您的号码查询相关信息</p>
         </header>
 
@@ -297,7 +298,7 @@
             <!-- 返款查询模块 -->
             <div class="module-card">
                 <div class="module-header">
-                    <div class="module-icon">💰</div>
+                    <div class="module-icon" aria-hidden="true">💰</div>
                     <h2 class="module-title">返款查询</h2>
                 </div>
                 <p class="module-description">
@@ -319,22 +320,24 @@
                             placeholder="例如: 12345678"
                             pattern="[0-9]{6,10}"
                             required
+                            aria-describedby="rebate-hint rebate-error"
+                            aria-invalid="false"
                         >
-                        <div class="input-hint">号码格式: 6-10位数字</div>
-                        <div class="error-message" id="rebate-error">请输入正确的号码格式（6-10位数字）</div>
+                        <div class="input-hint" id="rebate-hint">号码格式: 6-10位数字</div>
+                        <div class="error-message" id="rebate-error" role="alert" aria-live="polite">请输入正确的号码格式（6-10位数字）</div>
                     </div>
                     <button type="submit" class="submit-btn" id="rebate-btn">
                         <span class="btn-text">查询返款信息</span>
-                        <div class="loading"></div>
+                        <span class="loading"></span>
                     </button>
-                    <div class="success-message" id="rebate-success"></div>
+                    <div class="success-message" id="rebate-success" role="alert" aria-live="polite"></div>
                 </form>
             </div>
 
             <!-- VIP会员模块 -->
             <div class="module-card">
                 <div class="module-header">
-                    <div class="module-icon">👑</div>
+                    <div class="module-icon" aria-hidden="true">👑</div>
                     <h2 class="module-title">VIP会员</h2>
                 </div>
                 <p class="module-description">
@@ -356,22 +359,24 @@
                             placeholder="例如: VIP123456"
                             pattern="[A-Za-z0-9]{6,12}"
                             required
+                            aria-describedby="vip-hint vip-error"
+                            aria-invalid="false"
                         >
-                        <div class="input-hint">号码格式: 6-12位字母或数字</div>
-                        <div class="error-message" id="vip-error">请输入正确的号码格式（6-12位字母或数字）</div>
+                        <div class="input-hint" id="vip-hint">号码格式: 6-12位字母或数字</div>
+                        <div class="error-message" id="vip-error" role="alert" aria-live="polite">请输入正确的号码格式（6-12位字母或数字）</div>
                     </div>
                     <button type="submit" class="submit-btn" id="vip-btn">
                         <span class="btn-text">查询VIP信息</span>
-                        <div class="loading"></div>
+                        <span class="loading"></span>
                     </button>
-                    <div class="success-message" id="vip-success"></div>
+                    <div class="success-message" id="vip-success" role="alert" aria-live="polite"></div>
                 </form>
             </div>
 
             <!-- 待办事项模块 -->
             <div class="module-card">
                 <div class="module-header">
-                    <div class="module-icon">📋</div>
+                    <div class="module-icon" aria-hidden="true">📋</div>
                     <h2 class="module-title">待办事项</h2>
                 </div>
                 <p class="module-description">
@@ -393,15 +398,17 @@
                             placeholder="例如: USER123456"
                             pattern="[A-Za-z0-9]{6,12}"
                             required
+                            aria-describedby="todo-hint todo-error"
+                            aria-invalid="false"
                         >
-                        <div class="input-hint">号码格式: 6-12位字母或数字</div>
-                        <div class="error-message" id="todo-error">请输入正确的号码格式（6-12位字母或数字）</div>
+                        <div class="input-hint" id="todo-hint">号码格式: 6-12位字母或数字</div>
+                        <div class="error-message" id="todo-error" role="alert" aria-live="polite">请输入正确的号码格式（6-12位字母或数字）</div>
                     </div>
                     <button type="submit" class="submit-btn" id="todo-btn">
                         <span class="btn-text">查询待办事项</span>
-                        <div class="loading"></div>
+                        <span class="loading"></span>
                     </button>
-                    <div class="success-message" id="todo-success"></div>
+                    <div class="success-message" id="todo-success" role="alert" aria-live="polite"></div>
                 </form>
             </div>
         </div>
@@ -430,23 +437,24 @@
             errorMsg.classList.remove('show');
             successMsg.classList.remove('show');
             input.classList.remove('error');
+            input.setAttribute('aria-invalid', 'false');
             
             // 验证输入
             if (!input.validity.valid) {
                 input.classList.add('error');
+                input.setAttribute('aria-invalid', 'true');
                 errorMsg.classList.add('show');
                 return;
             }
             
-            // 显示加载状态
+            // 显示加载状态并保持禁用直到导航完成
             btn.disabled = true;
             btn.querySelector('.btn-text').classList.add('hide');
             btn.querySelector('.loading').classList.add('show');
             
             // 模拟异步查询
             setTimeout(() => {
-                // 隐藏加载状态
-                btn.disabled = false;
+                // 隐藏加载状态但保持按钮禁用
                 btn.querySelector('.btn-text').classList.remove('hide');
                 btn.querySelector('.loading').classList.remove('show');
                 
@@ -457,7 +465,7 @@
                 
                 // 跳转到对应页面
                 setTimeout(() => {
-                    navigateToModule(module, userId);
+                    navigateToModule(module, userId, btn);
                 }, REDIRECT_DELAY);
             }, LOADING_DELAY);
         }
@@ -478,7 +486,7 @@
         }
         
         // 跳转到对应模块页面
-        function navigateToModule(module, userId) {
+        function navigateToModule(module, userId, btn) {
             const routes = {
                 'rebate': `rebate.html?id=${encodeURIComponent(userId)}`,
                 'vip': `vip.html?id=${encodeURIComponent(userId)}`,
@@ -494,10 +502,14 @@
                             window.location.href = url;
                         } else {
                             showPageNotAvailableMessage(userId);
+                            // 重新启用按钮
+                            if (btn) btn.disabled = false;
                         }
                     })
                     .catch(() => {
                         showPageNotAvailableMessage(userId);
+                        // 重新启用按钮
+                        if (btn) btn.disabled = false;
                     });
             }
         }
@@ -508,12 +520,28 @@
                 const errorId = this.id.replace('-id', '-error');
                 const errorMsg = document.getElementById(errorId);
                 
+                // 如果输入为空，清除错误状态
+                if (this.value.length === 0) {
+                    this.classList.remove('error');
+                    this.setAttribute('aria-invalid', 'false');
+                    if (errorMsg) {
+                        errorMsg.classList.remove('show');
+                    }
+                    return;
+                }
+                
                 if (this.validity.valid) {
                     this.classList.remove('error');
-                    errorMsg.classList.remove('show');
-                } else if (this.value.length > 0) {
+                    this.setAttribute('aria-invalid', 'false');
+                    if (errorMsg) {
+                        errorMsg.classList.remove('show');
+                    }
+                } else {
                     this.classList.add('error');
-                    errorMsg.classList.add('show');
+                    this.setAttribute('aria-invalid', 'true');
+                    if (errorMsg) {
+                        errorMsg.classList.add('show');
+                    }
                 }
             });
         });
