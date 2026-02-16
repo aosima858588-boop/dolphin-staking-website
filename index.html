@@ -520,8 +520,8 @@
                 const errorId = this.id.replace('-id', '-error');
                 const errorMsg = document.getElementById(errorId);
                 
-                // 如果输入为空，清除错误状态
-                if (this.value.length === 0) {
+                // 如果输入为空或仅包含空格，清除错误状态
+                if (!this.value.trim()) {
                     this.classList.remove('error');
                     this.setAttribute('aria-invalid', 'false');
                     if (errorMsg) {
